@@ -1,0 +1,538 @@
+IP,Date,Time,Accepted-cookies,Device type,Browser anguage,Browser name,OS Name,Country,Region,RegionName,City,Zipcode,Lat,Lon
+49.36.83.154,2023-06-10,11:24:47 UTC,necessary,desktop,en,Chrome,Linux,India,GJ,Gujarat,Surat,395007,21.1888,72.8293
+152.59.163.38,2025-02-01,17:20:08 UTC,necessary,mobile,en,Chrome,iOS,India,WB,West Bengal,Kolkata,700032,22.5643,88.3693
+152.59.163.30,2025-02-01,17:26:25 UTC,necessary,mobile,en,Chrome,iOS,India,WB,West Bengal,Kolkata,700032,22.5643,88.3693
+152.59.163.139,2025-02-01,17:32:52 UTC,necessary,mobile,en,Chrome,iOS,India,WB,West Bengal,Kolkata,700032,22.5643,88.3693
+152.59.165.188,2025-02-01,17:44:38 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+223.185.30.241,2025-02-01,17:55:26 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+103.220.208.181,2025-02-01,19:39:03 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700060,22.5643,88.3693
+103.182.83.212,2025-02-05,15:21:00 UTC,necessary,desktop,en,Chrome,Windows,India,OD,Odisha,Jaleshwar,756032,21.8049,87.2167
+152.59.166.48,2025-02-05,15:34:11 UTC,necessary,mobile,en,Chrome,iOS,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+152.59.164.233,2025-02-05,15:50:54 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+152.59.164.10,2025-02-05,16:09:34 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+152.59.164.10,2025-02-05,16:14:34 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+152.59.165.188,2025-02-05,22:20:40 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+103.182.83.232,2025-02-06,12:55:21 UTC,necessary,desktop,en,Chrome,Windows,India,OD,Odisha,Jaleshwar,756032,21.8049,87.2167
+174.101.25.116,2025-02-06,18:00:00 UTC,necessary,desktop,en,Chrome,Windows,United States,OH,Ohio,Bellefontaine,43311,40.3626,-83.7565
+223.185.29.45,2025-02-06,18:38:11 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700027,22.5643,88.3693
+45.116.190.215,2025-02-08,22:54:01 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Durgapur,713212,23.5159,87.307
+223.185.61.205,2025-02-09,16:09:43 UTC,necessary,desktop,en,Chrome,OS X,India,JH,Jharkhand,Ranchi,834001,23.3426,85.3099
+103.189.103.131,2025-02-10,15:54:55 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Digha,721428,21.6248,87.5182
+103.189.103.131,2025-02-12,16:11:07 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Digha,721428,21.6248,87.5182
+103.144.193.244,2025-02-15,07:03:22 UTC,necessary,desktop,en,Chrome,Windows,India,OD,Odisha,Balāngīr,767001,20.7079,83.489
+84.46.154.170,2025-02-25,05:49:44 UTC,necessary,desktop,en,Chrome,Windows,United States,NY,New York,New York,10118,40.7126,-74.0066
+43.231.49.91,2025-02-26,03:17:30 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700061,22.5643,88.3693
+152.56.133.250,2025-02-26,03:23:18 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700006,22.5643,88.3693
+103.2.134.234,2025-02-26,03:37:38 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+36.50.197.204,2025-02-26,03:47:01 UTC,necessary,desktop,en,Chrome,Windows,India,HR,Haryana,Gurugram,122001,28.4597,77.0282
+223.29.193.213,2025-02-26,19:30:40 UTC,necessary,desktop,en,Chrome,OS X,India,WB,West Bengal,Kolkata,700002,22.5643,88.3693
+59.183.0.143,2025-02-26,20:42:13 UTC,necessary,desktop,en,Chrome,Windows,India,HR,Haryana,Gohāna,131301,29.1415,76.7045
+223.29.193.213,2025-02-26,21:03:55 UTC,necessary,mobile,en,Safari,iOS,India,WB,West Bengal,Kolkata,700002,22.5643,88.3693
+174.101.25.116,2025-02-26,21:04:16 UTC,necessary,mobile,en,Google Search,iOS,United States,OH,Ohio,Bellefontaine,43311,40.3626,-83.7565
+103.189.103.30,2025-02-26,21:06:03 UTC,necessary,mobile,en,Safari,iOS,India,WB,West Bengal,Digha,721428,21.6248,87.5182
+223.29.193.213,2025-02-26,21:08:38 UTC,necessary,mobile,en,Safari,iOS,India,WB,West Bengal,Kolkata,700002,22.5643,88.3693
+45.249.164.240,2025-02-27,03:14:33 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700032,22.5643,88.3693
+185.107.56.154,2025-02-27,03:18:29 UTC,necessary,desktop,en,Edge,Windows,The Netherlands,NB,North Brabant,Roosendaal,4701,51.5359,4.46532
+152.58.183.80,2025-02-27,03:32:46 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700002,22.5643,88.3693
+116.193.130.223,2025-02-27,03:42:36 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700006,22.5643,88.3693
+122.164.173.133,2025-02-27,03:54:18 UTC,necessary,desktop,en,Chrome,Windows,India,TS,Telangana,Hyderabad,500060,17.3843,78.4583
+223.223.131.158,2025-02-27,04:18:54 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+223.223.131.158,2025-02-27,04:19:37 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+103.220.208.181,2025-02-27,05:19:50 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700065,22.5643,88.3693
+45.249.164.240,2025-02-27,05:54:01 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700032,22.5643,88.3693
+49.37.9.64,2025-02-27,06:09:17 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700027,22.5643,88.3693
+223.226.45.112,2025-02-27,07:19:38 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Purnia,854301,25.7843,87.4752
+103.77.45.239,2025-02-27,08:56:07 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700071,22.5643,88.3693
+202.142.119.49,2025-02-27,10:06:28 UTC,necessary,desktop,en,Chrome,OS X,India,WB,West Bengal,Kolkata,700091,22.5643,88.3693
+202.142.119.49,2025-02-27,18:22:48 UTC,necessary,mobile,en,Chrome,iOS,India,WB,West Bengal,Kolkata,700091,22.5643,88.3693
+122.164.173.133,2025-02-27,19:35:34 UTC,necessary,desktop,en,Chrome,Windows,India,TS,Telangana,Hyderabad,500060,17.3843,78.4583
+223.185.29.38,2025-02-27,19:43:43 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700027,22.5643,88.3693
+27.122.61.98,2025-02-27,20:25:29 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Chandrakona,721201,22.7333,87.5167
+103.110.249.154,2025-02-27,20:36:36 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Amritsar,143002,31.6203,74.8765
+45.251.232.202,2025-02-27,21:21:27 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700078,22.5643,88.3693
+150.107.17.208,2025-02-27,21:39:12 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Virār,401303,19.46,72.8097
+45.249.164.191,2025-02-27,22:20:03 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700032,22.5643,88.3693
+157.40.162.111,2025-02-27,22:39:28 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700006,22.5643,88.3693
+113.21.71.18,2025-02-27,22:49:16 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+14.139.69.35,2025-02-27,22:55:28 UTC,necessary,desktop,en,Chrome,Windows,India,TS,Telangana,Hyderabad,500004,17.3843,78.4583
+43.231.240.224,2025-02-27,23:14:03 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700078,22.5643,88.3693
+49.37.65.237,2025-02-27,23:37:04 UTC,necessary,desktop,en,Chrome,Windows,India,JH,Jharkhand,Ranchi,834001,23.3426,85.3099
+103.110.249.154,2025-02-28,00:41:40 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Amritsar,143002,31.6203,74.8765
+103.97.104.199,2025-02-28,00:44:12 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Pune,411002,18.5211,73.8502
+223.177.94.54,2025-02-28,01:02:32 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800001,25.5943,85.1352
+45.112.68.170,2025-02-28,01:33:10 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700061,22.5643,88.3693
+49.37.47.0,2025-02-28,03:20:55 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700020,22.5643,88.3693
+106.222.226.51,2025-02-28,03:31:10 UTC,necessary,desktop,en,Edge,Windows,India,AS,Assam,Guwahati,781040,26.1885,91.7392
+45.250.247.85,2025-02-28,12:16:48 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700065,22.5643,88.3693
+42.108.27.163,2025-02-28,21:09:39 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110012,28.6327,77.2198
+86.48.11.117,2025-02-28,22:36:46 UTC,necessary,desktop,en,Chrome,Windows,Singapore,03,North West,Singapore,858877,1.35208,103.82
+117.96.147.27,2025-02-28,23:17:40 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800024,25.5943,85.1352
+152.58.21.74,2025-03-01,00:40:23 UTC,necessary,desktop,en,Edge,Windows,India,MH,Maharashtra,Nagpur,440024,21.1463,79.0849
+152.58.21.74,2025-03-01,00:58:05 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Nagpur,440024,21.1463,79.0849
+223.185.29.38,2025-03-01,02:03:24 UTC,necessary,mobile,en,Chrome,Android,India,WB,West Bengal,Kolkata,700027,22.5643,88.3693
+182.68.176.174,2025-03-01,22:05:18 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800001,25.5943,85.1352
+150.107.17.22,2025-03-01,22:10:41 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Virār,401303,19.46,72.8097
+152.58.182.26,2025-03-01,22:30:07 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700002,22.5643,88.3693
+103.189.103.30,2025-03-01,23:00:44 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Digha,721428,21.6248,87.5182
+152.58.72.245,2025-03-01,23:12:51 UTC,necessary,desktop,en,Chrome,Windows,India,HR,Haryana,Mahendragarh,123029,28.272,76.1555
+84.46.154.170,2025-03-01,23:49:15 UTC,necessary,desktop,en,Chrome,Windows,United States,NY,New York,New York,10118,40.7126,-74.0066
+103.189.103.30,2025-03-02,00:32:34 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Digha,721428,21.6248,87.5182
+152.58.72.245,2025-03-02,00:53:17 UTC,necessary,mobile,en,Chrome,Android,India,HR,Haryana,Mahendragarh,123029,28.272,76.1555
+122.177.67.110,2025-03-02,02:39:50 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Muzaffarpur,842002,26.1192,85.3963
+106.196.8.21,2025-03-02,03:55:00 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700003,22.5643,88.3693
+103.182.83.59,2025-03-02,11:52:27 UTC,necessary,desktop,en,Chrome,Windows,India,OD,Odisha,Jaleshwar,756032,21.8049,87.2167
+103.189.102.117,2025-03-02,18:56:53 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Digha,721428,21.6248,87.5182
+103.189.102.117,2025-03-03,09:18:48 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Digha,721428,21.6248,87.5182
+117.214.247.210,2025-03-03,19:00:23 UTC,necessary,mobile,en,Chrome,Android,India,WB,West Bengal,Kolkata,700071,22.5643,88.3693
+110.235.233.69,2025-03-04,01:36:00 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,Delhi,110001,28.6542,77.2373
+84.46.154.170,2025-03-04,16:08:22 UTC,necessary,desktop,en,Chrome,Windows,United States,NY,New York,New York,10118,40.7126,-74.0066
+106.195.78.139,2025-03-04,23:37:59 UTC,necessary,mobile,en,Chrome,Android,India,TS,Telangana,Hyderabad,500004,17.3843,78.4583
+45.50.34.145,2025-03-05,01:54:49 UTC,necessary,desktop,en,Chrome,Windows,United States,CA,California,Corona,92882,33.8419,-117.6043
+49.43.101.94,2025-03-05,03:00:06 UTC,necessary,desktop,en,Chrome,Windows,India,CH,Chandigarh,Chandigarh,140603,30.7339,76.7889
+152.59.147.43,2025-03-05,13:04:07 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800001,25.5943,85.1352
+103.101.213.148,2025-03-05,20:10:52 UTC,necessary,desktop,en,Firefox,Windows,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+59.95.133.202,2025-03-06,02:34:59 UTC,necessary,desktop,en,Chrome,Windows,India,MP,Madhya Pradesh,Bhopal,462030,23.2505,77.4065
+152.56.132.114,2025-03-06,23:09:17 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800001,25.5943,85.1352
+49.37.67.189,2025-03-08,01:07:03 UTC,necessary,desktop,en,Chrome,Windows,India,JH,Jharkhand,Ranchi,834001,23.3426,85.3099
+223.185.61.53,2025-03-09,09:53:00 UTC,necessary,desktop,en,Chrome,Windows,India,JH,Jharkhand,Ranchi,834002,23.3426,85.3099
+150.107.17.175,2025-03-10,19:12:58 UTC,necessary,desktop,en,Chrome,OS X,India,MH,Maharashtra,Virār,401303,19.46,72.8097
+152.58.100.214,2025-03-10,22:05:04 UTC,necessary,desktop,en,Chrome,Windows,India,HR,Haryana,Mahendragarh,123029,28.272,76.1555
+117.197.79.195,2025-03-10,23:18:16 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Chāpra,841301,25.7838,84.7468
+152.59.142.247,2025-03-11,17:54:52 UTC,necessary,mobile,en,Chrome,Android,India,BR,Bihar,Patna,800001,25.5943,85.1352
+49.37.47.0,2025-03-11,22:38:48 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700020,22.5643,88.3693
+162.253.133.59,2025-03-12,01:02:58 UTC,necessary,mobile,en,,iOS,United States,AZ,Arizona,Phoenix,85034,33.4413,-112.0421
+152.58.180.91,2025-03-13,00:14:01 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700025,22.5643,88.3693
+152.58.176.143,2025-03-13,00:14:40 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+122.162.146.90,2025-03-13,01:24:17 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110043,28.6327,77.2198
+45.123.216.238,2025-03-13,02:48:05 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700032,22.5643,88.3693
+103.67.97.235,2025-03-13,21:54:01 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Howrah,711102,22.574,88.3191
+152.58.177.84,2025-03-14,00:39:17 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+45.50.34.145,2025-03-15,00:28:57 UTC,necessary,desktop,en,Chrome,Windows,United States,CA,California,Corona,92879,33.8789,-117.5353
+103.101.213.242,2025-03-15,23:05:00 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+152.58.180.159,2025-03-17,12:18:37 UTC,necessary,mobile,en,Chrome,iOS,India,WB,West Bengal,Kolkata,700025,22.5643,88.3693
+152.58.183.185,2025-03-18,00:36:42 UTC,necessary,mobile,en,Chrome,Android,India,WB,West Bengal,Kolkata,700025,22.5643,88.3693
+45.50.34.145,2025-03-18,01:45:02 UTC,necessary,desktop,en,Chrome,Windows,United States,CA,California,Corona,92879,33.8789,-117.5353
+42.105.131.147,2025-03-18,01:55:42 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Prayagraj,211012,25.4425,81.8517
+182.64.143.25,2025-03-22,00:44:40 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800001,25.5943,85.1352
+115.96.196.16,2025-03-22,03:00:30 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700078,22.5643,88.3693
+103.144.193.172,2025-03-22,17:08:35 UTC,necessary,mobile,en,Chrome,Android,India,OD,Odisha,Balāngīr,767001,20.7079,83.489
+171.60.220.98,2025-03-25,01:15:08 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+171.60.220.98,2025-03-25,01:54:42 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+43.227.130.133,2025-03-25,02:57:29 UTC,necessary,desktop,en,Chrome,Windows,India,AP,Andhra Pradesh,Rajahmundry,533107,17.0129,81.7793
+103.199.200.229,2025-03-27,20:57:26 UTC,necessary,desktop,en,Chrome,Windows,India,JH,Jharkhand,Barkā Kānā,,23.6212,85.4675
+45.251.232.83,2025-03-28,22:41:36 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+223.229.208.36,2025-03-29,01:37:30 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800001,25.5943,85.1352
+223.178.209.240,2025-03-31,23:14:51 UTC,necessary,desktop,en,Chrome,Windows,India,CH,Chandigarh,Chandigarh,140603,30.7339,76.7889
+49.43.118.42,2025-03-31,23:48:47 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Kanpur,208019,26.4631,80.3479
+45.249.164.155,2025-04-04,03:09:20 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700026,22.5643,88.3693
+103.102.117.141,2025-04-04,23:13:06 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700006,22.5643,88.3693
+202.8.112.252,2025-04-05,20:51:57 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700006,22.5643,88.3693
+202.66.165.47,2025-04-05,23:31:22 UTC,necessary,desktop,en,Chrome,Linux,India,HR,Haryana,Gurugram,122001,28.4597,77.0282
+202.66.165.47,2025-04-05,23:36:27 UTC,necessary,desktop,en,Chrome,Linux,India,HR,Haryana,Gurugram,122001,28.4597,77.0282
+116.206.202.181,2025-04-07,23:48:00 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700078,22.5643,88.3693
+223.233.73.130,2025-04-08,00:41:25 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Ghaziabad,201014,28.6677,77.4337
+45.248.2.210,2025-04-08,00:42:18 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,Delhi,110008,28.6542,77.2373
+110.225.141.155,2025-04-10,02:42:22 UTC,necessary,desktop,en,Chrome,Windows,India,JH,Jharkhand,Jamshedpur,831001,22.8006,86.1871
+103.189.103.228,2025-04-10,20:05:31 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Digha,721428,21.6248,87.5182
+175.101.99.60,2025-04-11,21:06:05 UTC,necessary,desktop,en,Chrome,Windows,India,AP,Andhra Pradesh,Palakollu,534265,16.5152,81.7281
+152.59.162.24,2025-04-13,00:27:42 UTC,necessary,desktop,en,Firefox,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+103.220.208.210,2025-04-15,05:33:06 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700004,22.5643,88.3693
+103.220.208.210,2025-04-15,05:40:18 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700004,22.5643,88.3693
+103.187.159.65,2025-04-15,05:40:39 UTC,necessary,desktop,en,Edge,Windows,India,PB,Punjab,Amritsar,143002,31.6203,74.8765
+106.194.98.237,2025-04-16,00:41:32 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110020,28.6327,77.2198
+116.206.223.167,2025-04-16,00:51:42 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+116.206.223.167,2025-04-16,02:23:58 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+122.171.18.209,2025-04-21,21:19:33 UTC,necessary,desktop,en,Chrome,Windows,India,KA,Karnataka,Bengaluru,562130,12.9753,77.591
+110.227.48.183,2025-04-21,21:23:41 UTC,necessary,desktop,en,Chrome,Windows,India,MP,Madhya Pradesh,Bhopal,462042,23.2505,77.4065
+157.40.99.252,2025-04-21,23:23:27 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+152.59.177.185,2025-04-22,02:12:31 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Lucknow,226003,26.8373,80.9165
+122.171.18.209,2025-04-22,02:40:23 UTC,necessary,desktop,en,Chrome,Windows,India,KA,Karnataka,Bengaluru,562130,12.9753,77.591
+174.101.25.116,2025-04-22,19:48:43 UTC,necessary,desktop,en,Chrome,Windows,United States,OH,Ohio,Bellefontaine,43311,40.3626,-83.7565
+152.59.183.187,2025-04-22,21:00:19 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Lucknow,226016,26.8373,80.9165
+103.199.200.17,2025-04-26,00:23:15 UTC,necessary,desktop,en,Chrome,Windows,India,JH,Jharkhand,Barkā Kānā,,23.6212,85.4675
+49.43.88.26,2025-04-26,00:36:04 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Ludhiana,141007,30.9146,75.8543
+49.37.232.63,2025-04-26,20:19:28 UTC,necessary,desktop,en,Chrome,Linux,India,KL,Kerala,Kochi,682018,9.9406,76.2653
+122.173.248.172,2025-04-29,01:11:47 UTC,necessary,desktop,en,Chrome,Windows,India,TN,Tamil Nadu,Coimbatore,641014,11.0102,76.9701
+122.174.219.117,2025-04-29,19:21:06 UTC,necessary,desktop,en,Chrome,Windows,India,TN,Tamil Nadu,Coimbatore,641012,11.0102,76.9701
+116.206.202.187,2025-04-29,20:37:37 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700078,22.5643,88.3693
+43.227.131.154,2025-04-29,22:09:39 UTC,necessary,desktop,en,Chrome,Windows,India,AP,Andhra Pradesh,Rajahmundry,533103,17.0129,81.7793
+152.58.181.200,2025-04-30,11:09:27 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700078,22.5643,88.3693
+152.59.170.57,2025-04-30,21:03:15 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,804453,25.5943,85.1352
+101.0.63.214,2025-04-30,22:51:43 UTC,necessary,desktop,en,Chrome,Windows,India,KA,Karnataka,Bengaluru,560066,12.9753,77.591
+101.0.63.214,2025-05-01,15:37:08 UTC,necessary,desktop,en,Chrome,Windows,India,KA,Karnataka,Bengaluru,560066,12.9753,77.591
+27.59.71.0,2025-05-01,20:45:23 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,Delhi,110011,28.6542,77.2373
+162.255.23.112,2025-05-02,02:47:33 UTC,necessary,mobile,en,,iOS,United States,AZ,Arizona,Phoenix,85034,33.4413,-112.0421
+152.56.133.118,2025-05-03,04:38:58 UTC,necessary,desktop,en,Firefox,Windows,India,BR,Bihar,Patna,800020,25.5943,85.1352
+152.56.133.118,2025-05-03,04:39:42 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800020,25.5943,85.1352
+76.91.108.225,2025-05-06,00:13:34 UTC,necessary,desktop,en,Chrome,Windows,United States,CA,California,San Bernardino,92410,34.11,-117.2955
+206.168.209.9,2025-05-06,21:54:03 UTC,necessary,desktop,en,Chrome,Windows,United States,OH,Ohio,Columbus,43215,39.9598,-82.9886
+152.58.96.94,2025-05-07,14:48:10 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,Delhi,110001,28.6542,77.2373
+116.206.202.135,2025-05-07,18:15:50 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700078,22.5643,88.3693
+152.58.96.94,2025-05-07,20:29:54 UTC,necessary,desktop,en,Edge,Windows,India,DL,National Capital Territory of Delhi,Delhi,110001,28.6542,77.2373
+49.15.245.78,2025-05-07,21:40:56 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Nagpur,440015,21.1463,79.0849
+223.185.42.36,2025-05-07,22:52:40 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Nagpur,440010,21.1463,79.0849
+45.113.89.251,2025-05-08,00:01:36 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700094,22.5643,88.3693
+49.15.246.91,2025-05-08,23:31:02 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Nagpur,440015,21.1463,79.0849
+152.58.27.219,2025-05-08,23:58:24 UTC,necessary,desktop,en,Chrome,Windows,India,MP,Madhya Pradesh,Indore,452001,22.717,75.8337
+152.59.159.4,2025-05-09,02:22:21 UTC,necessary,desktop,en,Opera,Windows,India,WB,West Bengal,Siliguri,734010,26.7084,88.4318
+49.37.43.202,2025-05-12,16:55:45 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700054,22.5643,88.3693
+223.29.193.224,2025-05-12,18:00:01 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700054,22.5643,88.3693
+49.43.88.197,2025-05-15,21:04:34 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Ludhiana,141007,30.9146,75.8543
+49.43.34.199,2025-05-15,22:45:46 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Surat,395007,21.1981,72.8298
+152.59.5.137,2025-05-16,00:08:02 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Vadodara,390007,22.3008,73.2043
+152.58.27.232,2025-05-16,21:58:04 UTC,necessary,desktop,en,Chrome,Windows,India,MP,Madhya Pradesh,Bhopal,462016,23.2505,77.4065
+206.168.209.9,2025-05-17,01:58:23 UTC,necessary,desktop,en,Chrome,Windows,United States,OH,Ohio,Columbus,43215,39.9598,-82.9886
+49.37.41.112,2025-05-17,04:29:00 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700054,22.5643,88.3693
+49.43.88.75,2025-05-17,21:18:06 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Ludhiana,141007,30.9146,75.8543
+223.29.193.224,2025-05-19,17:16:44 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700054,22.5643,88.3693
+49.43.115.203,2025-05-19,21:56:12 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Kanpur,208025,26.4631,80.3479
+152.58.96.0,2025-05-20,00:09:21 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Meerut,250002,28.9834,77.706
+152.58.16.32,2025-05-20,20:26:49 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Pune,411015,18.5211,73.8502
+27.60.33.164,2025-05-20,21:06:48 UTC,necessary,desktop,en,Chrome,Windows,India,AS,Assam,Guwahati,781040,26.1885,91.7392
+43.251.91.107,2025-05-21,15:02:40 UTC,necessary,desktop,en,Chrome,OS X,India,WB,West Bengal,Kolkata,700078,22.5643,88.3693
+45.249.164.249,2025-05-23,00:34:09 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700026,22.5643,88.3693
+49.36.136.4,2025-05-24,12:23:32 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110020,28.6327,77.2198
+152.58.97.187,2025-05-24,17:55:41 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Meerut,250002,28.9834,77.706
+76.91.108.225,2025-05-25,01:14:19 UTC,necessary,desktop,en,Chrome,Windows,United States,CA,California,San Bernardino,92410,34.11,-117.2955
+122.167.215.252,2025-05-25,10:54:54 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800001,25.5943,85.1352
+115.96.110.161,2025-05-26,21:09:46 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700017,22.5643,88.3693
+157.49.46.122,2025-05-27,22:02:50 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Navi Mumbai,400701,19.1297,73.0149
+157.49.46.122,2025-05-28,20:50:18 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Navi Mumbai,400701,19.1297,73.0149
+49.37.10.46,2025-05-28,21:49:38 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+115.187.46.77,2025-05-29,04:48:13 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+115.187.46.77,2025-05-29,05:09:12 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+152.58.130.32,2025-05-30,02:27:38 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Lucknow,226003,26.8373,80.9165
+152.58.182.132,2025-05-30,04:41:08 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700034,22.5643,88.3693
+103.189.103.149,2025-05-31,01:52:00 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Digha,721428,21.6248,87.5182
+49.37.24.209,2025-05-31,02:38:56 UTC,necessary,desktop,en,Chrome,Windows,India,JH,Jharkhand,Ranchi,834002,23.3426,85.3099
+45.251.232.114,2025-05-31,02:49:01 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+103.114.66.145,2025-05-31,03:28:02 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Amritsar,143501,31.6203,74.8765
+152.59.166.219,2025-05-31,16:11:25 UTC,necessary,mobile,en,Chrome,iOS,India,WB,West Bengal,Kolkata,700095,22.5643,88.3693
+223.29.193.224,2025-06-02,19:34:10 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700054,22.5643,88.3693
+183.83.152.241,2025-06-02,21:14:49 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110020,28.6327,77.2198
+115.187.48.18,2025-06-02,23:14:10 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+115.187.48.18,2025-06-02,23:27:39 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+183.83.152.241,2025-06-03,01:33:19 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110020,28.6327,77.2198
+157.51.111.212,2025-06-03,21:56:43 UTC,necessary,desktop,en,Chrome,Windows,India,TN,Tamil Nadu,Salem,636010,11.6602,78.1532
+152.59.3.43,2025-06-04,05:01:41 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Vadodara,390002,22.3008,73.2043
+49.43.115.133,2025-06-04,20:56:20 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Kanpur,208024,26.4631,80.3479
+103.67.97.238,2025-06-05,20:30:46 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Howrah,711102,22.574,88.3191
+49.47.133.35,2025-06-06,00:54:01 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800001,25.5943,85.1352
+49.47.133.35,2025-06-06,01:02:57 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800001,25.5943,85.1352
+103.183.81.254,2025-06-06,20:32:20 UTC,necessary,desktop,en,Edge,Windows,India,MH,Maharashtra,Nashik,422222,20.0024,73.7945
+115.187.48.18,2025-06-07,04:00:48 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700047,22.5643,88.3693
+103.199.200.112,2025-06-09,12:27:51 UTC,necessary,desktop,en,Chrome,Windows,India,JH,Jharkhand,Barkā Kānā,,23.6212,85.4675
+115.187.48.18,2025-06-09,20:50:46 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700047,22.5643,88.3693
+157.119.105.133,2025-06-10,00:07:04 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700028,22.5643,88.3693
+103.219.45.244,2025-06-10,22:16:10 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700003,22.5643,88.3693
+103.219.45.244,2025-06-10,22:57:18 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700003,22.5643,88.3693
+203.192.213.73,2025-06-11,21:18:51 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Pune,411009,18.5211,73.8502
+206.168.209.9,2025-06-12,19:23:17 UTC,necessary,mobile,en,Chrome,iOS,United States,OH,Ohio,Columbus,43215,39.9598,-82.9886
+49.43.115.86,2025-06-12,21:19:04 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Kanpur,208024,26.4631,80.3479
+152.56.156.18,2025-06-13,05:41:44 UTC,necessary,mobile,en,Chrome,Android,India,WB,West Bengal,Kolkata,700014,22.5643,88.3693
+152.58.30.69,2025-06-13,12:41:28 UTC,necessary,desktop,en,Chrome,OS X,India,MH,Maharashtra,Pune,411004,18.5211,73.8502
+223.29.193.224,2025-06-16,15:11:24 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700026,22.5643,88.3693
+139.5.229.179,2025-06-16,21:17:38 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700034,22.5643,88.3693
+49.37.26.90,2025-06-17,17:25:40 UTC,necessary,mobile,en,Chrome,Android,India,JH,Jharkhand,Ranchi,834001,23.3426,85.3099
+223.178.208.11,2025-06-17,21:25:05 UTC,necessary,desktop,en,Chrome,Windows,India,CH,Chandigarh,Chandigarh,140603,30.7339,76.7889
+223.178.208.11,2025-06-17,22:02:20 UTC,necessary,desktop,en,Chrome,Windows,India,CH,Chandigarh,Chandigarh,140603,30.7339,76.7889
+103.182.83.162,2025-06-18,17:56:57 UTC,necessary,desktop,en,Chrome,Windows,India,OD,Odisha,Jaleshwar,756032,21.8049,87.2167
+116.75.134.121,2025-06-18,22:17:48 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Pune,411005,18.5211,73.8502
+116.75.134.121,2025-06-19,03:39:03 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Pune,411005,18.5211,73.8502
+49.43.112.255,2025-06-19,23:35:59 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Kanpur,208024,26.4631,80.3479
+152.56.133.175,2025-06-20,21:58:35 UTC,necessary,desktop,en,Chrome,Windows,India,BR,Bihar,Patna,800023,25.5943,85.1352
+49.37.43.154,2025-06-21,15:50:42 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700034,22.5643,88.3693
+223.29.193.224,2025-06-21,20:19:21 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700026,22.5643,88.3693
+223.29.193.224,2025-06-21,22:06:31 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700026,22.5643,88.3693
+166.62.16.246,2025-06-24,07:24:59 UTC,necessary,desktop,en,Chrome,Windows,Japan,13,Tokyo,Chiyoda,100-0001,35.694,139.754
+49.43.43.88,2025-06-25,00:47:05 UTC,necessary,desktop,en,Chrome,Windows,India,MP,Madhya Pradesh,Bhopal,462030,23.2505,77.4065
+49.43.43.88,2025-06-25,02:06:08 UTC,necessary,desktop,en,Chrome,Windows,India,MP,Madhya Pradesh,Bhopal,462030,23.2505,77.4065
+103.80.15.52,2025-06-25,22:42:37 UTC,necessary,desktop,en,Chrome,Windows,India,AP,Andhra Pradesh,Rajahmundry,533103,17.0129,81.7793
+49.43.3.157,2025-06-25,23:08:59 UTC,necessary,desktop,en,Chrome,Windows,India,MP,Madhya Pradesh,Indore,452001,22.717,75.8337
+152.59.163.0,2025-06-27,21:29:52 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+152.58.180.68,2025-07-01,01:02:13 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700050,22.5643,88.3693
+49.47.11.46,2025-07-01,02:00:01 UTC,necessary,desktop,en,Chrome,Windows,India,CG,Chhattisgarh,Raipur,493221,21.2333,81.6333
+42.108.21.11,2025-07-02,22:57:56 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110020,28.6327,77.2198
+152.59.163.0,2025-07-03,23:23:36 UTC,necessary,desktop,en,Firefox,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+152.58.96.128,2025-07-04,10:50:04 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302012,26.9136,75.7858
+152.59.180.124,2025-07-04,20:55:18 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Lucknow,226003,26.8373,80.9165
+45.249.165.57,2025-07-05,06:41:21 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700094,22.5643,88.3693
+103.152.102.210,2025-07-05,20:07:37 UTC,necessary,desktop,en,Firefox,Linux,Bangladesh,C,Dhaka Division,Savar Upazila,1340,23.8486,90.25
+115.187.48.236,2025-07-07,22:37:18 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700047,22.5643,88.3693
+210.89.59.50,2025-07-07,22:47:56 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144102,31.33,75.5844
+175.101.99.30,2025-07-08,23:32:23 UTC,necessary,desktop,en,Chrome,Windows,India,AP,Andhra Pradesh,Palakollu,534265,16.5152,81.7281
+175.101.99.60,2025-07-09,23:38:43 UTC,necessary,desktop,en,Chrome,Windows,India,AP,Andhra Pradesh,Palakollu,534265,16.5152,81.7281
+152.58.168.107,2025-07-10,02:12:31 UTC,necessary,desktop,en,Chrome,Windows,India,NL,Nagaland,Dimāpur,797112,25.9169,93.7274
+152.58.144.8,2025-07-10,20:05:50 UTC,necessary,desktop,en,Chrome,Windows,India,AS,Assam,Guwahati,781030,26.1885,91.7392
+223.29.193.224,2025-07-12,01:47:12 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+157.49.16.129,2025-07-13,22:01:27 UTC,necessary,desktop,en,Edge,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110002,28.6327,77.2198
+45.119.31.26,2025-07-13,22:02:20 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Noida,110091,28.5759,77.3345
+103.220.208.139,2025-07-15,04:30:22 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700047,22.5643,88.3693
+103.179.0.199,2025-07-16,23:06:01 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302021,26.9136,75.7858
+103.77.45.223,2025-07-18,01:25:51 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+103.179.0.36,2025-07-19,00:06:49 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302021,26.9136,75.7858
+157.49.10.192,2025-07-19,02:22:35 UTC,necessary,mobile,en,Safari,iOS,India,DL,National Capital Territory of Delhi,Delhi,110001,28.6542,77.2373
+116.75.135.84,2025-07-22,21:42:19 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Pune,411016,18.5211,73.8502
+76.91.108.225,2025-07-23,05:09:05 UTC,necessary,desktop,en,Chrome,OS X,United States,CA,California,Corona,92882,33.8419,-117.6043
+157.49.42.20,2025-07-26,23:19:12 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110002,28.6327,77.2198
+152.59.164.152,2025-07-28,22:29:43 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700014,22.5643,88.3693
+49.37.32.72,2025-07-29,00:06:48 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+103.250.162.64,2025-07-29,01:23:07 UTC,necessary,desktop,en,Edge,Windows,India,GJ,Gujarat,Wānkāner,363621,22.6139,70.945
+103.80.15.191,2025-07-29,23:32:29 UTC,necessary,desktop,en,Chrome,Windows,India,AP,Andhra Pradesh,Rajahmundry,533103,17.0129,81.7793
+114.31.189.230,2025-07-30,21:14:27 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Rajkot,360004,22.2904,70.7915
+103.182.83.75,2025-07-30,23:48:56 UTC,necessary,desktop,en,Chrome,Windows,India,OD,Odisha,Jaleshwar,756032,21.8049,87.2167
+114.31.188.63,2025-08-01,03:33:13 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Rajkot,360004,22.2904,70.7915
+152.58.177.170,2025-08-01,14:16:37 UTC,necessary,mobile,en,Chrome,Android,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+42.108.115.32,2025-08-01,20:34:43 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Rajkot,360022,22.2904,70.7915
+49.43.228.226,2025-08-01,21:29:49 UTC,necessary,desktop,en,Firefox,Windows,India,TS,Telangana,Hyderabad,500055,17.3843,78.4583
+103.94.104.72,2025-08-01,22:23:36 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700003,22.5643,88.3693
+103.94.104.72,2025-08-02,00:10:33 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700003,22.5643,88.3693
+49.43.228.226,2025-08-02,21:03:18 UTC,necessary,desktop,en,Firefox,Windows,India,TS,Telangana,Hyderabad,500055,17.3843,78.4583
+152.58.129.230,2025-08-03,03:49:25 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Lucknow,226017,26.8373,80.9165
+45.249.165.75,2025-08-03,04:10:09 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700014,22.5643,88.3693
+106.219.205.101,2025-08-04,21:20:41 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302012,26.9136,75.7858
+106.219.205.101,2025-08-04,22:45:16 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302012,26.9136,75.7858
+49.43.228.226,2025-08-06,05:51:26 UTC,necessary,desktop,en,Firefox,Windows,India,TS,Telangana,Hyderabad,500028,17.3843,78.4583
+103.220.208.79,2025-08-07,01:41:22 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+206.168.209.9,2025-08-07,02:20:49 UTC,necessary,desktop,en,Chrome,Windows,United States,OH,Ohio,Columbus,43215,39.9598,-82.9886
+49.37.53.223,2025-08-08,21:41:12 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Asansol,713325,23.6833,86.9833
+110.226.162.222,2025-08-09,11:51:00 UTC,necessary,mobile,en,Chrome,Android,India,RJ,Rajasthan,Jaipur,302021,26.9136,75.7858
+38.137.30.197,2025-08-09,21:18:36 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Mohali,160055,30.674,76.7249
+45.116.189.104,2025-08-11,11:15:39 UTC,necessary,desktop,en,Safari,OS X,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+49.37.53.143,2025-08-11,21:43:59 UTC,necessary,mobile,en,Chrome,iOS,India,WB,West Bengal,Asansol,713325,23.6833,86.9833
+49.37.52.7,2025-08-12,09:04:39 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Asansol,713325,23.6833,86.9833
+49.43.115.229,2025-08-14,06:12:55 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Kanpur,208021,26.4631,80.3479
+103.220.208.181,2025-08-14,06:13:34 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+223.191.59.195,2025-08-14,06:14:39 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700004,22.5643,88.3693
+49.37.52.7,2025-08-14,08:04:51 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Asansol,713325,23.6833,86.9833
+223.29.193.224,2025-08-14,19:18:13 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+223.191.59.195,2025-08-14,19:51:55 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700004,22.5643,88.3693
+152.56.133.36,2025-08-14,22:04:32 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Jalpāiguri,735101,26.5161,88.7363
+202.8.112.45,2025-08-14,22:05:09 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+103.179.0.131,2025-08-14,22:06:44 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302022,26.9136,75.7858
+152.58.152.222,2025-08-14,22:34:05 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Lucknow,226016,26.8373,80.9165
+45.251.232.187,2025-08-14,22:36:18 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700010,22.5643,88.3693
+49.36.243.177,2025-08-14,22:58:55 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302021,26.9136,75.7858
+152.56.147.207,2025-08-14,23:05:54 UTC,necessary,mobile,en,Chrome,Android,India,UP,Uttar Pradesh,Varanasi,221001,25.315,83.0058
+152.58.154.218,2025-08-14,23:07:25 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Lucknow,226016,26.8373,80.9165
+42.108.85.146,2025-08-14,23:07:50 UTC,necessary,mobile,en,Chrome,Android,India,WB,West Bengal,Kolkata,700026,22.5643,88.3693
+111.90.174.96,2025-08-14,23:09:45 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Rajkot,360003,22.2904,70.7915
+206.168.209.9,2025-08-14,23:10:13 UTC,necessary,desktop,en,Chrome,Windows,United States,OH,Ohio,Columbus,43215,39.9598,-82.9886
+106.200.2.87,2025-08-14,23:26:07 UTC,necessary,desktop,en,Chrome,Windows,India,UK,Uttarakhand,Kashipur,244713,29.2211,78.9606
+49.37.32.156,2025-08-14,23:34:07 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+103.220.208.181,2025-08-14,23:53:59 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+223.223.134.187,2025-08-15,00:18:56 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700006,22.5643,88.3693
+45.249.165.15,2025-08-15,00:46:43 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700014,22.5643,88.3693
+103.85.97.152,2025-08-15,00:48:32 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+49.37.32.156,2025-08-15,00:49:05 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+45.249.165.15,2025-08-15,00:50:24 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700014,22.5643,88.3693
+223.191.59.195,2025-08-15,01:04:54 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700004,22.5643,88.3693
+76.91.108.225,2025-08-15,01:05:17 UTC,necessary,desktop,en,Chrome,Windows,United States,CA,California,Corona,92879,33.8789,-117.5353
+45.249.165.15,2025-08-15,01:12:22 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700014,22.5643,88.3693
+45.249.165.15,2025-08-15,01:12:35 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700014,22.5643,88.3693
+49.37.52.7,2025-08-15,01:19:23 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Asansol,713325,23.6833,86.9833
+152.59.160.177,2025-08-15,02:54:06 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700002,22.5643,88.3693
+152.59.2.178,2025-08-15,03:27:38 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Vadodara,390007,22.3008,73.2043
+223.185.33.168,2025-08-15,03:55:37 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+103.80.14.55,2025-08-15,04:10:28 UTC,necessary,desktop,en,Chrome,Windows,India,AP,Andhra Pradesh,Rajahmundry,533107,17.0129,81.7793
+202.148.59.122,2025-08-15,04:23:41 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Wardha,442001,20.7405,78.6062
+38.183.41.152,2025-08-15,04:24:01 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+152.59.2.178,2025-08-15,05:03:25 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Vadodara,390007,22.3008,73.2043
+103.77.45.83,2025-08-15,08:29:09 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+49.37.52.7,2025-08-15,11:38:38 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Asansol,713325,23.6833,86.9833
+116.193.130.161,2025-08-15,21:21:25 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700006,22.5643,88.3693
+152.59.161.28,2025-08-15,21:26:39 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700002,22.5643,88.3693
+152.58.25.215,2025-08-15,23:12:28 UTC,necessary,desktop,en,Chrome,Windows,India,MP,Madhya Pradesh,Indore,452003,22.717,75.8337
+111.90.174.96,2025-08-15,23:13:14 UTC,necessary,desktop,en,Edge,Windows,India,GJ,Gujarat,Rajkot,360003,22.2904,70.7915
+223.191.59.195,2025-08-16,00:45:23 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700004,22.5643,88.3693
+223.29.193.224,2025-08-16,01:12:21 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+76.91.108.225,2025-08-16,01:40:24 UTC,necessary,desktop,en,Chrome,OS X,United States,CA,California,Corona,92879,33.8789,-117.5353
+76.91.108.225,2025-08-16,01:50:22 UTC,necessary,desktop,en,Chrome,OS X,United States,CA,California,Corona,92879,33.8789,-117.5353
+76.91.108.225,2025-08-16,02:38:54 UTC,necessary,desktop,en,Chrome,OS X,United States,CA,California,Corona,92879,33.8789,-117.5353
+106.221.124.108,2025-08-16,02:56:40 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+206.168.209.9,2025-08-16,04:06:13 UTC,necessary,desktop,en,Chrome,Windows,United States,OH,Ohio,Columbus,43215,39.9598,-82.9886
+49.43.115.72,2025-08-16,04:33:35 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Kanpur,208021,26.4631,80.3479
+106.221.124.108,2025-08-16,05:16:01 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+49.43.115.72,2025-08-16,19:25:43 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Kanpur,208021,26.4631,80.3479
+110.235.233.28,2025-08-17,00:21:29 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,Delhi,110008,28.6542,77.2373
+223.185.33.168,2025-08-17,01:05:38 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700029,22.5643,88.3693
+103.101.213.213,2025-08-17,02:00:03 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700060,22.5643,88.3693
+49.37.52.47,2025-08-17,17:57:55 UTC,necessary,mobile,en,Safari,iOS,India,WB,West Bengal,Asansol,713325,23.6833,86.9833
+14.139.69.35,2025-08-18,06:16:15 UTC,necessary,desktop,en,Chrome,Windows,India,TS,Telangana,Hyderabad,500009,17.3843,78.4583
+14.139.69.35,2025-08-18,06:18:21 UTC,necessary,desktop,en,Chrome,Windows,India,TS,Telangana,Hyderabad,500009,17.3843,78.4583
+152.56.146.46,2025-08-18,10:41:12 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Varanasi,221001,25.315,83.0058
+152.58.177.33,2025-08-18,11:41:27 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700004,22.5643,88.3693
+49.37.32.200,2025-08-18,21:15:08 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700016,22.5643,88.3693
+103.163.199.194,2025-08-18,21:19:06 UTC,necessary,desktop,en,Edge,Windows,India,MH,Maharashtra,Nashik,422222,20.0024,73.7945
+103.215.225.110,2025-08-18,21:58:17 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+14.139.69.35,2025-08-18,23:00:12 UTC,necessary,desktop,en,Chrome,Windows,India,TS,Telangana,Hyderabad,500009,17.3843,78.4583
+14.139.69.35,2025-08-18,23:01:21 UTC,necessary,desktop,en,Chrome,Windows,India,TS,Telangana,Hyderabad,500009,17.3843,78.4583
+38.183.52.20,2025-08-18,23:07:19 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+152.56.133.236,2025-08-19,23:03:00 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Jalpāiguri,735132,26.5161,88.7363
+45.249.165.15,2025-08-21,00:39:33 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700032,22.5643,88.3693
+49.37.32.172,2025-08-21,20:52:39 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+152.59.37.34,2025-08-21,22:00:20 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Ahmedabad,382350,23.0276,72.5871
+152.59.37.34,2025-08-21,22:11:42 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Ahmedabad,382350,23.0276,72.5871
+49.43.115.127,2025-08-21,22:34:52 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Kanpur,208021,26.4631,80.3479
+103.220.208.181,2025-08-22,04:04:23 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700052,22.5643,88.3693
+103.215.225.72,2025-08-22,10:49:43 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700012,22.5643,88.3693
+38.183.55.133,2025-08-22,19:52:58 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+103.67.97.238,2025-08-22,20:19:44 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Howrah,711102,22.574,88.3191
+223.185.62.240,2025-08-23,19:29:39 UTC,necessary,desktop,en,Chrome,OS X,India,JH,Jharkhand,Ranchi,834001,23.3426,85.3099
+38.183.55.133,2025-08-23,20:18:33 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+152.56.146.236,2025-08-23,20:55:26 UTC,necessary,mobile,en,Chrome,iOS,India,UP,Uttar Pradesh,Varanasi,221001,25.315,83.0058
+38.183.55.133,2025-08-25,21:37:34 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+152.56.146.46,2025-08-26,03:33:05 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Varanasi,221001,25.315,83.0058
+76.91.108.225,2025-08-26,23:32:31 UTC,necessary,desktop,en,Chrome,Windows,United States,CA,California,Corona,92879,33.8789,-117.5353
+152.58.180.146,2025-08-28,02:02:11 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700032,22.5643,88.3693
+106.219.123.172,2025-08-29,21:13:51 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110002,28.6327,77.2198
+152.58.183.162,2025-08-30,21:21:04 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700032,22.5643,88.3693
+152.59.25.193,2025-08-30,23:21:59 UTC,necessary,desktop,en,Chrome,Windows,India,MP,Madhya Pradesh,Indore,452001,22.717,75.8337
+49.37.40.115,2025-08-31,00:47:22 UTC,necessary,desktop,en,Chrome,OS X,India,WB,West Bengal,Kolkata,700061,22.5643,88.3693
+47.15.84.200,2025-09-01,11:50:11 UTC,necessary,mobile,en,Chrome,Android,India,RJ,Rajasthan,Jaipur,302012,26.9136,75.7858
+223.178.210.98,2025-09-01,21:26:03 UTC,necessary,desktop,en,Chrome,OS X,India,CH,Chandigarh,Chandigarh,160019,30.7339,76.7889
+223.178.210.98,2025-09-01,21:26:43 UTC,necessary,desktop,en,Chrome,OS X,India,CH,Chandigarh,Chandigarh,160019,30.7339,76.7889
+152.58.178.78,2025-09-01,23:01:17 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700028,22.5643,88.3693
+49.47.11.175,2025-09-02,17:56:50 UTC,necessary,desktop,en,Chrome,Windows,India,CG,Chhattisgarh,Raipur,492013,21.2333,81.6333
+223.29.193.224,2025-09-02,19:35:02 UTC,necessary,desktop,en,Chrome,OS X,India,WB,West Bengal,Kolkata,700026,22.5643,88.3693
+76.91.108.225,2025-09-03,04:31:47 UTC,necessary,desktop,en,Chrome,Windows,United States,CA,California,Corona,92879,33.8789,-117.5353
+223.29.193.224,2025-09-04,18:55:24 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700026,22.5643,88.3693
+223.29.193.224,2025-09-04,20:09:52 UTC,necessary,desktop,en,Edge,Windows,India,WB,West Bengal,Kolkata,700026,22.5643,88.3693
+43.231.240.187,2025-09-04,20:53:00 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700005,22.5643,88.3693
+76.91.108.225,2025-09-05,00:35:49 UTC,necessary,desktop,en,Chrome,Windows,United States,CA,California,Corona,92879,33.8789,-117.5353
+106.219.120.211,2025-09-05,21:05:46 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110002,28.6327,77.2198
+49.37.34.162,2025-09-05,21:11:55 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+76.91.108.225,2025-09-05,23:31:40 UTC,necessary,desktop,en,Chrome,OS X,United States,CA,California,Corona,92879,33.8789,-117.5353
+49.47.11.175,2025-09-06,08:14:02 UTC,necessary,desktop,en,Chrome,Windows,India,CG,Chhattisgarh,Raipur,492013,21.2333,81.6333
+106.219.120.211,2025-09-06,21:10:03 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110002,28.6327,77.2198
+114.31.188.174,2025-09-07,11:27:21 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Rajkot,360004,22.2904,70.7915
+122.172.42.242,2025-09-09,10:32:44 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Ahmedabad,382418,23.0276,72.5871
+106.219.203.25,2025-09-10,04:17:34 UTC,necessary,mobile,en,Chrome,Android,India,RJ,Rajasthan,Jaipur,302003,26.9136,75.7858
+103.220.208.181,2025-09-14,07:21:38 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700052,22.5643,88.3693
+2401:4900:41e1:cebe:4db2:cbcb:6813:aa3e,2025-09-18,04:54:37 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Alwar,301001,27.5634,76.626
+2404:7c80:85:d709:dd88:92b:8c33:1356,2025-09-18,18:28:46 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:85:d709:71fe:1884:568c:4e6d,2025-09-19,21:40:39 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+111.90.174.102,2025-09-22,21:51:32 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Rajkot,360003,22.2904,70.7915
+2405:201:6044:d022:948c:518f:a32a:57e2,2025-09-24,01:40:51 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Kanpur,208025,26.4631,80.3479
+2404:7c80:85:ba9e:591:29fe:b5ad:5846,2025-09-24,20:41:29 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2401:4900:5986:84b:5508:b636:e66d:9aa5,2025-09-26,14:24:21 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Rajpura,140402,30.4757,76.5901
+2404:7c80:85:eada:e077:27bb:ba54:24f0,2025-09-26,22:07:40 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+152.59.159.108,2025-09-27,00:39:31 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Jalpāiguri,735132,26.5161,88.7363
+2404:7c80:85:eada:e077:27bb:ba54:24f0,2025-09-27,09:03:51 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+122.162.222.192,2025-09-27,11:48:19 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Ahmedabad,380001,23.0276,72.5871
+2406:9e00:112f:e1bc:a4d9:1915:63da:478,2025-10-01,22:16:14 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Pune,411005,18.5211,73.8502
+42.108.156.124,2025-10-02,22:36:51 UTC,necessary,mobile,en,Chrome,Android,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+2409:40e1:100f:9bd5:78a4:9ff:feba:7c04,2025-10-02,22:50:36 UTC,necessary,mobile,en,Chrome,Android,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+106.200.5.151,2025-10-03,02:07:36 UTC,necessary,desktop,en,Chrome,Windows,India,UK,Uttarakhand,Dehradun,248001,30.3275,78.0325
+2404:7c80:85:956c:6909:1f70:a83c:9abc,2025-10-03,06:31:37 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2405:201:5c24:f057:c544:1286:e0a7:931a,2025-10-03,17:06:05 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302021,26.9136,75.7858
+111.90.174.102,2025-10-03,20:31:43 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Rajkot,360003,22.2904,70.7915
+2406:9e00:112f:c273:8019:f1a8:1ad7:b046,2025-10-03,21:25:47 UTC,necessary,desktop,en,Edge,Windows,India,MH,Maharashtra,Pune,411005,18.5211,73.8502
+49.205.253.61,2025-10-03,21:55:04 UTC,necessary,desktop,en,Chrome,Windows,India,TS,Telangana,Hyderabad,500009,17.3843,78.4583
+2405:201:5c24:f057:c438:b903:b2b5:13f8,2025-10-03,23:05:53 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302021,26.9136,75.7858
+2405:201:8031:c073:2df6:c8ca:61c6:442c,2025-10-04,21:33:46 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700028,22.5643,88.3693
+2405:201:8031:c073:2df6:c8ca:61c6:442c,2025-10-04,23:00:34 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700028,22.5643,88.3693
+2405:201:8031:c073:2df6:c8ca:61c6:442c,2025-10-04,23:13:01 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700028,22.5643,88.3693
+2409:40c1:414c:1bd6:6416:332d:fe71:c808,2025-10-05,04:56:20 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Vadodara,390001,22.3008,73.2043
+2401:b200:2004:f3af:f972:3c2e:6bd3:3e6,2025-10-06,16:33:31 UTC,necessary,desktop,en,Chrome,Windows,India,KL,Kerala,Thrissur,680010,10.516,76.2157
+2401:b200:2004:f3af:f972:3c2e:6bd3:3e6,2025-10-06,16:35:06 UTC,necessary,desktop,en,Chrome,Windows,India,KL,Kerala,Thrissur,680010,10.516,76.2157
+2404:7c80:85:956c:c2e:505:d627:4abc,2025-10-06,23:05:59 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:85:956c:c2e:505:d627:4abc,2025-10-07,07:54:16 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+103.101.213.27,2025-10-07,22:48:34 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700061,22.5643,88.3693
+2409:40e1:1136:3a92:30e3:84bd:2182:9aa2,2025-10-09,01:01:57 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+2409:40e1:1136:3a92:30e3:84bd:2182:9aa2,2025-10-09,01:07:48 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+2409:40e1:1136:3a92:30e3:84bd:2182:9aa2,2025-10-09,01:12:27 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+2401:4900:1f3e:72c6:e8fe:d470:10f5:4180,2025-10-10,17:53:17 UTC,necessary,mobile,en,Chrome,Android,India,GJ,Gujarat,Ahmedabad,380001,23.0276,72.5871
+103.189.103.175,2025-10-11,03:41:42 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Digha,721428,21.6248,87.5182
+27.131.212.65,2025-10-13,15:06:25 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700028,22.5643,88.3693
+2401:4900:1a88:3e28:94b1:95e8:c0c6:cfee,2025-10-14,21:01:21 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Bhavnagar,364001,21.764,72.1505
+2404:7c80:85:cc66:b1dd:adc1:de36:7b49,2025-10-15,15:48:31 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+27.59.76.107,2025-10-15,21:28:13 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110002,28.6327,77.2198
+2401:4900:1c33:d219:c5b5:342:1151:914a,2025-10-15,22:12:57 UTC,necessary,desktop,en,Chrome,Windows,India,CG,Chhattisgarh,Raipur,492015,21.2333,81.6333
+2401:4900:1c33:d219:c5b5:342:1151:914a,2025-10-15,22:13:38 UTC,necessary,desktop,en,Chrome,Windows,India,CG,Chhattisgarh,Raipur,492015,21.2333,81.6333
+2409:40e0:28:706a:895e:be8:5e02:18f9,2025-10-16,00:34:24 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700006,22.5643,88.3693
+2404:7c80:86:a7d:c529:6b46:b0f:324f,2025-10-18,08:28:56 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+103.163.198.8,2025-10-18,21:49:25 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Nashik,422222,20.0024,73.7945
+103.163.198.8,2025-10-18,21:50:07 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Nashik,422222,20.0024,73.7945
+103.163.198.8,2025-10-18,22:58:57 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Nashik,422222,20.0024,73.7945
+103.163.198.8,2025-10-19,01:58:44 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Nashik,422222,20.0024,73.7945
+103.163.198.8,2025-10-19,13:12:38 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Nashik,422222,20.0024,73.7945
+2404:7c80:85:d0bd:3c62:ef15:2ee0:f2e0,2025-10-20,15:02:39 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2401:4900:7924:5d07:2c53:fc5f:2339:72da,2025-10-21,14:22:15 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Ahmedabad,380001,23.0276,72.5871
+106.221.75.137,2025-10-21,19:42:07 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Ahmedabad,380007,23.0276,72.5871
+157.48.91.59,2025-10-21,21:49:13 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302012,26.9136,75.7858
+157.48.91.59,2025-10-21,21:53:32 UTC,necessary,desktop,en,Chrome,Windows,India,RJ,Rajasthan,Jaipur,302012,26.9136,75.7858
+2402:3a80:43ab:5c93:9c97:c68:b277:1d68,2025-10-21,23:30:25 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,Delhi,110001,28.6542,77.2373
+2402:3a80:43ab:5c93:9c97:c68:b277:1d68,2025-10-22,00:34:46 UTC,necessary,desktop,en,Chrome,Windows,India,DL,National Capital Territory of Delhi,Delhi,110001,28.6542,77.2373
+2404:7c80:85:7129:7848:ad61:4656:5fc1,2025-10-22,20:15:46 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2409:40e1:303a:ad17:9909:ad58:e5df:b5b6,2025-10-22,21:26:21 UTC,necessary,desktop,en,Opera,Windows,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+2409:40e1:303a:ad17:9909:ad58:e5df:b5b6,2025-10-22,21:29:29 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+2404:7c80:85:7129:88a8:bd7:2098:5af3,2025-10-23,08:13:48 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+157.119.105.42,2025-10-25,02:11:35 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Howrah,711102,22.574,88.3191
+45.251.232.209,2025-10-26,17:30:35 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700010,22.5643,88.3693
+2404:7c80:85:7129:6c25:5d1:508a:efba,2025-10-26,19:30:18 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2402:3a80:1983:da14:d94e:ea19:6eba:bad2,2025-10-27,21:37:27 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+2409:40e0:103:dc46:b39:9134:3940:64ca,2025-10-28,05:46:29 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700012,22.5643,88.3693
+2404:7c80:84:7352:e89c:b448:5fd9:b3f0,2025-10-29,20:05:49 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:84:7352:1933:3a0a:9518:a70e,2025-10-30,08:45:09 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+106.215.89.118,2025-10-30,21:33:33 UTC,necessary,desktop,en,Opera,Windows,India,DL,National Capital Territory of Delhi,New Delhi,110020,28.6327,77.2198
+2404:7c80:84:7352:e89c:b448:5fd9:b3f0,2025-10-30,23:40:27 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2401:4900:1f35:e90e:4109:8e7d:e0b9:5023,2025-10-31,00:08:52 UTC,necessary,mobile,en,Chrome,Android,India,DL,National Capital Territory of Delhi,New Delhi,110003,28.6327,77.2198
+2404:7c80:85:88bc:b464:6f31:29ba:4e01,2025-10-31,10:45:35 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2401:4900:675d:4fd4:24bd:d6ff:fe00:7504,2025-10-31,12:27:53 UTC,necessary,mobile,en,Chrome,Android,India,TS,Telangana,Hyderabad,500055,17.3843,78.4583
+2404:7c80:85:88bc:e81a:f992:e5df:a87f,2025-11-01,21:52:48 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+157.119.105.42,2025-11-01,23:13:49 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Howrah,711102,22.574,88.3191
+2404:7c80:85:88bc:983e:a896:94d7:42f3,2025-11-03,13:21:45 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:85:88bc:983e:a896:94d7:42f3,2025-11-03,21:54:14 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:85:88bc:98ca:95b3:4a59:8a30,2025-11-04,07:53:12 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:85:2374:416e:ca4a:65a1:179,2025-11-05,08:58:06 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:85:2374:39b:3ebc:27a6:fa3,2025-11-06,09:08:03 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+27.7.162.123,2025-11-06,22:38:50 UTC,necessary,desktop,en,Chrome,Windows,India,KA,Karnataka,Bengaluru,562130,12.9753,77.591
+27.7.162.123,2025-11-06,23:14:33 UTC,necessary,desktop,en,Chrome,Windows,India,KA,Karnataka,Bengaluru,562130,12.9753,77.591
+103.220.208.144,2025-11-07,00:05:18 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700052,22.5643,88.3693
+2404:7c80:85:ce12:ecdf:1dba:8a5c:285d,2025-11-07,09:34:42 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2409:40d7:e:4937:d42b:d6a8:82f5:bdcd,2025-11-07,22:06:54 UTC,necessary,desktop,en,Chrome,Windows,India,HP,Himachal Pradesh,Ghumārwīn,174021,31.4458,76.7177
+2409:40d7:e:4937:d42b:d6a8:82f5:bdcd,2025-11-07,22:08:24 UTC,necessary,desktop,en,Chrome,Windows,India,HP,Himachal Pradesh,Ghumārwīn,174021,31.4458,76.7177
+2404:7c80:85:ce12:780:d0ce:b83d:4e54,2025-11-08,10:01:00 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2409:40e1:303a:bc5c:2072:80bf:38f0:9b7c,2025-11-08,22:52:19 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700023,22.5643,88.3693
+2404:7c80:86:824:7504:cc1e:a5db:186e,2025-11-09,10:00:45 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:86:824:bcd1:9af6:61ed:ee1,2025-11-10,06:56:06 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2405:201:802a:f821:24d7:355e:ccef:548c,2025-11-10,22:01:50 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700063,22.5643,88.3693
+2409:40e1:11ba:d0b5:9092:9494:c2ab:c8c9,2025-11-11,02:25:41 UTC,necessary,desktop,en,Opera,Windows,India,WB,West Bengal,Kolkata,700071,22.5643,88.3693
+2404:7c80:86:824:91ca:95d4:d7e4:cb05,2025-11-11,07:14:29 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2401:4900:815f:dc95:98fc:145b:7d8d:273b,2025-11-11,21:58:22 UTC,necessary,desktop,en,Chrome,Windows,India,CH,Chandigarh,Chandigarh,160009,30.7339,76.7889
+2404:7c80:84:c929:2877:da04:ab6d:ca2c,2025-11-11,22:49:37 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2401:4900:815f:dc95:f0cf:88b6:3255:7722,2025-11-12,21:13:05 UTC,necessary,desktop,en,Chrome,Windows,India,CH,Chandigarh,Chandigarh,160009,30.7339,76.7889
+103.179.0.83,2025-11-12,22:28:35 UTC,necessary,desktop,en,Edge,Windows,India,RJ,Rajasthan,Jaipur,302022,26.9136,75.7858
+2404:7c80:84:17ae:1c6a:b81f:101e:11fd,2025-11-13,01:32:08 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2405:f600:3:b04b:d40c:169a:c726:798c,2025-11-16,01:01:17 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Rajkot,360004,22.2904,70.7915
+106.219.145.2,2025-11-16,03:37:02 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Agra,282007,27.1823,78.0252
+2404:7c80:85:5880:d9ca:f4f:b0de:1db2,2025-11-17,08:08:47 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2409:40c1:1036:ea39:4555:9876:2dc3:f43e,2025-11-17,21:34:13 UTC,necessary,desktop,en,Edge,Windows,India,GJ,Gujarat,Surat,395007,21.1981,72.8298
+2404:7c80:85:5c0e:e5d7:13a:9ed9:8bee,2025-11-18,01:48:31 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2409:40c2:1195:b3bb:e921:70b0:2b92:cd7,2025-11-19,22:28:54 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Pune,411017,18.5211,73.8502
+116.193.143.226,2025-11-20,23:04:38 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700012,22.5643,88.3693
+106.200.4.253,2025-11-21,00:57:00 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Hāpur,245205,28.7328,77.7881
+2409:40c2:121c:5662:39d0:e8fd:7153:5c04,2025-11-22,01:54:43 UTC,necessary,desktop,en,Chrome,Windows,India,MH,Maharashtra,Pune,411006,18.5211,73.8502
+2404:7c80:85:dce3:c5b8:df66:69db:c531,2025-11-22,06:07:04 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2409:40d7:ee:1514:a01f:3670:9794:4159,2025-11-22,09:03:34 UTC,necessary,desktop,en,Chrome,Windows,India,HP,Himachal Pradesh,Una,174303,31.4628,76.273
+2404:7c80:85:4fd8:e529:9b60:bb78:c176,2025-11-23,12:54:36 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+27.131.213.207,2025-11-24,16:43:01 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700028,22.5643,88.3693
+2405:201:6000:8040:6c04:fee:69c8:a269,2025-11-24,21:37:28 UTC,necessary,desktop,en,Chrome,Windows,India,UP,Uttar Pradesh,Lucknow,226017,26.8373,80.9165
+103.220.208.19,2025-11-24,22:54:52 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700052,22.5643,88.3693
+2603:8000:2d01:1d70:85f0:4ba2:a6b1:2387,2025-11-26,02:17:55 UTC,necessary,desktop,en,Chrome,Windows,United States,CA,California,Corona,92879,33.8789,-117.5353
+2404:7c80:86:a25:742e:72e6:ac1b:529c,2025-11-27,06:04:44 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:86:a25:742e:72e6:ac1b:529c,2025-11-27,23:26:10 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:86:a25:a82f:71ae:a1c2:c4c9,2025-11-29,05:56:16 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:85:3fdf:3df5:ce37:eb03:7395,2025-11-30,09:35:33 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+117.247.26.225,2025-11-30,15:23:27 UTC,necessary,desktop,en,Chrome,Windows,India,KA,Karnataka,Bengaluru,562130,12.9753,77.591
+2404:7c80:85:3fdf:3df5:ce37:eb03:7395,2025-11-30,17:54:06 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2409:40e1:1130:d79b:bf52:7d04:5554:8102,2025-12-03,00:01:52 UTC,necessary,desktop,en,Firefox,Windows,India,WB,West Bengal,Kolkata,700001,22.5643,88.3693
+2404:7c80:85:3fdf:acfa:cbe6:3110:3d72,2025-12-03,06:32:53 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:85:3fdf:acfa:cbe6:3110:3d72,2025-12-04,05:16:57 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2404:7c80:85:1eb9:e5aa:1675:aeff:6e3f,2025-12-05,12:19:59 UTC,necessary,desktop,en,Chrome,Windows,India,PB,Punjab,Jalandhar,144301,31.33,75.5844
+2409:40e3:3c:e4b5:f5e1:9ff5:3510:1e62,2025-12-05,22:58:00 UTC,necessary,desktop,en,Chrome,OS X,India,UP,Uttar Pradesh,Lucknow,226002,26.8373,80.9165
+2409:40d7:af:12de:d46:2e3b:9104:e3cd,2025-12-05,23:24:10 UTC,necessary,desktop,en,Chrome,Windows,India,HP,Himachal Pradesh,Una,174306,31.4628,76.273
+45.123.13.156,2025-12-06,12:18:48 UTC,necessary,desktop,en,Chrome,Windows,India,WB,West Bengal,Kolkata,700094,22.5643,88.3693
+2402:3a80:4659:3357:b946:50a2:ee14:fa1f,2025-12-06,22:43:05 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Ahmedabad,380009,23.0276,72.5871
+2405:201:201c:f869:35e6:3e62:c008:4c82,2025-12-06,23:13:29 UTC,necessary,desktop,en,Chrome,Windows,India,GJ,Gujarat,Surat,395007,21.1981,72.8298

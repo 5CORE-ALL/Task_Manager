@@ -1,0 +1,302 @@
+[01-Jun-2025 03:30:23 Asia/Kolkata] PHP Fatal error:  During class fetch: Uncaught ParseError: Unclosed '{' on line 10 in /home/undfwi81asbf/public_html/app/Traits/SendSmsTraits.php:84
+Stack trace:
+#0 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#1 /home/undfwi81asbf/public_html/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php(72): Composer\Autoload\ClassLoader->loadClass()
+#2 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(576): include('/home/undfwi81a...')
+#3 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 [internal function]: Composer\Autoload\ClassLoader->loadClass()
+#5 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(1113): is_a()
+#6 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(1050): Illuminate\Routing\Route->controllerMiddleware()
+#7 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(820): Illuminate\Routing\Route->gatherMiddleware()
+#8 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(802): Illuminate\Routing\Router->gatherRouteMiddleware()
+#9 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(786): Illuminate\Routing\Router->runRouteWithinStack()
+#10 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(750): Illuminate\Routing\Router->runRoute()
+#11 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(739): Illuminate\Routing\Router->dispatchToRoute()
+#12 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(201): Illuminate\Routing\Router->dispatch()
+#13 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(144): Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}()
+#14 /home/undfwi81asbf/public_html/vendor/livewire/livewire/src/Features/SupportDisablingBackButtonCache/DisableBackButtonCacheMiddleware.php(19): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#15 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Livewire\Features\SupportDisablingBackButtonCache\DisableBackButtonCacheMiddleware->handle()
+#16 /home/undfwi81asbf/public_html/vendor/barryvdh/laravel-debugbar/src/Middleware/InjectDebugbar.php(66): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#17 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Barryvdh\Debugbar\Middleware\InjectDebugbar->handle()
+#18 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#19 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\Foundation\Http\Middleware\TransformsRequest->handle()
+#20 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull->handle()
+#21 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#22 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(51): Illuminate\Foundation\Http\Middleware\TransformsRequest->handle()
+#23 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\TrimStrings->handle()
+#24 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php(27): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#25 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\ValidatePostSize->handle()
+#26 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(110): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#27 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance->handle()
+#28 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(49): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#29 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\HandleCors->handle()
+#30 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#31 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\TrustProxies->handle()
+#32 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php(22): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#33 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks->handle()
+#34 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(119): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#35 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\Pipeline\Pipeline->then()
+#36 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(145): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter()
+#37 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1188): Illuminate\Foundation\Http\Kernel->handle()
+#38 /home/undfwi81asbf/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest()
+#39 /home/undfwi81asbf/public_html/index.php(21): require_once('/home/undfwi81a...')
+#40 {main} in /home/undfwi81asbf/public_html/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php on line 72
+[01-Jun-2025 03:30:31 Asia/Kolkata] PHP Fatal error:  During class fetch: Uncaught ParseError: Unclosed '{' on line 10 in /home/undfwi81asbf/public_html/app/Traits/SendSmsTraits.php:84
+Stack trace:
+#0 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#1 /home/undfwi81asbf/public_html/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php(72): Composer\Autoload\ClassLoader->loadClass()
+#2 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(576): include('/home/undfwi81a...')
+#3 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 [internal function]: Composer\Autoload\ClassLoader->loadClass()
+#5 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(1113): is_a()
+#6 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(1050): Illuminate\Routing\Route->controllerMiddleware()
+#7 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(820): Illuminate\Routing\Route->gatherMiddleware()
+#8 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(802): Illuminate\Routing\Router->gatherRouteMiddleware()
+#9 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(786): Illuminate\Routing\Router->runRouteWithinStack()
+#10 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(750): Illuminate\Routing\Router->runRoute()
+#11 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(739): Illuminate\Routing\Router->dispatchToRoute()
+#12 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(201): Illuminate\Routing\Router->dispatch()
+#13 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(144): Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}()
+#14 /home/undfwi81asbf/public_html/vendor/livewire/livewire/src/Features/SupportDisablingBackButtonCache/DisableBackButtonCacheMiddleware.php(19): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#15 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Livewire\Features\SupportDisablingBackButtonCache\DisableBackButtonCacheMiddleware->handle()
+#16 /home/undfwi81asbf/public_html/vendor/barryvdh/laravel-debugbar/src/Middleware/InjectDebugbar.php(66): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#17 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Barryvdh\Debugbar\Middleware\InjectDebugbar->handle()
+#18 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#19 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\Foundation\Http\Middleware\TransformsRequest->handle()
+#20 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull->handle()
+#21 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#22 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(51): Illuminate\Foundation\Http\Middleware\TransformsRequest->handle()
+#23 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\TrimStrings->handle()
+#24 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php(27): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#25 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\ValidatePostSize->handle()
+#26 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(110): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#27 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance->handle()
+#28 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(49): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#29 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\HandleCors->handle()
+#30 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#31 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\TrustProxies->handle()
+#32 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php(22): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#33 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks->handle()
+#34 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(119): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#35 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\Pipeline\Pipeline->then()
+#36 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(145): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter()
+#37 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1188): Illuminate\Foundation\Http\Kernel->handle()
+#38 /home/undfwi81asbf/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest()
+#39 /home/undfwi81asbf/public_html/index.php(21): require_once('/home/undfwi81a...')
+#40 {main} in /home/undfwi81asbf/public_html/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php on line 72
+[01-Jun-2025 03:30:32 Asia/Kolkata] PHP Fatal error:  During class fetch: Uncaught ParseError: Unclosed '{' on line 10 in /home/undfwi81asbf/public_html/app/Traits/SendSmsTraits.php:84
+Stack trace:
+#0 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#1 /home/undfwi81asbf/public_html/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php(72): Composer\Autoload\ClassLoader->loadClass()
+#2 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(576): include('/home/undfwi81a...')
+#3 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 [internal function]: Composer\Autoload\ClassLoader->loadClass()
+#5 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(1113): is_a()
+#6 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(1050): Illuminate\Routing\Route->controllerMiddleware()
+#7 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(820): Illuminate\Routing\Route->gatherMiddleware()
+#8 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(802): Illuminate\Routing\Router->gatherRouteMiddleware()
+#9 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(786): Illuminate\Routing\Router->runRouteWithinStack()
+#10 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(750): Illuminate\Routing\Router->runRoute()
+#11 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(739): Illuminate\Routing\Router->dispatchToRoute()
+#12 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(201): Illuminate\Routing\Router->dispatch()
+#13 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(144): Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}()
+#14 /home/undfwi81asbf/public_html/vendor/livewire/livewire/src/Features/SupportDisablingBackButtonCache/DisableBackButtonCacheMiddleware.php(19): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#15 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Livewire\Features\SupportDisablingBackButtonCache\DisableBackButtonCacheMiddleware->handle()
+#16 /home/undfwi81asbf/public_html/vendor/barryvdh/laravel-debugbar/src/Middleware/InjectDebugbar.php(66): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#17 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Barryvdh\Debugbar\Middleware\InjectDebugbar->handle()
+#18 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#19 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\Foundation\Http\Middleware\TransformsRequest->handle()
+#20 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull->handle()
+#21 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#22 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(51): Illuminate\Foundation\Http\Middleware\TransformsRequest->handle()
+#23 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\TrimStrings->handle()
+#24 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php(27): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#25 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\ValidatePostSize->handle()
+#26 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(110): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#27 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance->handle()
+#28 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(49): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#29 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\HandleCors->handle()
+#30 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#31 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\TrustProxies->handle()
+#32 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php(22): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#33 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks->handle()
+#34 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(119): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#35 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\Pipeline\Pipeline->then()
+#36 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(145): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter()
+#37 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1188): Illuminate\Foundation\Http\Kernel->handle()
+#38 /home/undfwi81asbf/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest()
+#39 /home/undfwi81asbf/public_html/index.php(21): require_once('/home/undfwi81a...')
+#40 {main} in /home/undfwi81asbf/public_html/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php on line 72
+[01-Jun-2025 03:30:44 Asia/Kolkata] PHP Fatal error:  During class fetch: Uncaught ParseError: Unclosed '{' on line 10 in /home/undfwi81asbf/public_html/app/Traits/SendSmsTraits.php:84
+Stack trace:
+#0 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#1 /home/undfwi81asbf/public_html/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php(72): Composer\Autoload\ClassLoader->loadClass()
+#2 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(576): include('/home/undfwi81a...')
+#3 /home/undfwi81asbf/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 [internal function]: Composer\Autoload\ClassLoader->loadClass()
+#5 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(1113): is_a()
+#6 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Route.php(1050): Illuminate\Routing\Route->controllerMiddleware()
+#7 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(820): Illuminate\Routing\Route->gatherMiddleware()
+#8 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(802): Illuminate\Routing\Router->gatherRouteMiddleware()
+#9 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(786): Illuminate\Routing\Router->runRouteWithinStack()
+#10 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(750): Illuminate\Routing\Router->runRoute()
+#11 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Routing/Router.php(739): Illuminate\Routing\Router->dispatchToRoute()
+#12 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(201): Illuminate\Routing\Router->dispatch()
+#13 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(144): Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}()
+#14 /home/undfwi81asbf/public_html/vendor/livewire/livewire/src/Features/SupportDisablingBackButtonCache/DisableBackButtonCacheMiddleware.php(19): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#15 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Livewire\Features\SupportDisablingBackButtonCache\DisableBackButtonCacheMiddleware->handle()
+#16 /home/undfwi81asbf/public_html/vendor/barryvdh/laravel-debugbar/src/Middleware/InjectDebugbar.php(66): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#17 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Barryvdh\Debugbar\Middleware\InjectDebugbar->handle()
+#18 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#19 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\Foundation\Http\Middleware\TransformsRequest->handle()
+#20 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull->handle()
+#21 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#22 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(51): Illuminate\Foundation\Http\Middleware\TransformsRequest->handle()
+#23 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\TrimStrings->handle()
+#24 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php(27): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#25 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\ValidatePostSize->handle()
+#26 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(110): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#27 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance->handle()
+#28 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(49): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#29 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\HandleCors->handle()
+#30 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#31 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Http\Middleware\TrustProxies->handle()
+#32 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php(22): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#33 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(183): Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks->handle()
+#34 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(119): Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}()
+#35 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\Pipeline\Pipeline->then()
+#36 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(145): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter()
+#37 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1188): Illuminate\Foundation\Http\Kernel->handle()
+#38 /home/undfwi81asbf/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest()
+#39 /home/undfwi81asbf/public_html/index.php(21): require_once('/home/undfwi81a...')
+#40 {main} in /home/undfwi81asbf/public_html/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php on line 72
+[18-Jun-2025 23:29:25 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Http\Request as Request because the name is already in use in /home/undfwi81asbf/public_html/app/Http/Controllers/ChatBotController.php on line 27
+[21-Jun-2025 02:23:33 Asia/Kolkata] PHP Fatal error:  Trait "App\Traits\SendSmsTraits" not found in /home/undfwi81asbf/public_html/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php on line 72
+[21-Jun-2025 23:39:13 Asia/Kolkata] PHP Fatal error:  Trait "App\Http\Controllers\Illuminate\Support\Facades\Auth" not found in /home/undfwi81asbf/public_html/app/Http/Controllers/ChatBotController.php on line 38
+[21-Jun-2025 23:39:35 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Auth as Auth because the name is already in use in /home/undfwi81asbf/public_html/app/Http/Controllers/ChatBotController.php on line 36
+[21-Jun-2025 23:39:53 Asia/Kolkata] PHP Fatal error:  Trait "App\Http\Controllers\Illuminate\Support\Facades\Auth" not found in /home/undfwi81asbf/public_html/app/Http/Controllers/ChatBotController.php on line 38
+[03-Jul-2025 01:45:20 Asia/Kolkata] PHP Deprecated:  Optional parameter $email declared before required parameter $request is implicitly treated as a required parameter in /home/undfwi81asbf/public_html/app/Http/Controllers/ChatBotController.php on line 219
+[03-Jul-2025 01:45:20 Asia/Kolkata] PHP Deprecated:  Optional parameter $message declared before required parameter $request is implicitly treated as a required parameter in /home/undfwi81asbf/public_html/app/Http/Controllers/ChatBotController.php on line 219
+[11-Jul-2025 23:27:03 Asia/Kolkata] PHP Fatal error:  'goto' to undefined label 'respond' in /home/undfwi81asbf/public_html/app/Http/Controllers/ChatBotController.php on line 535
+[26-Jul-2025 22:08:59 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:09:01 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:09:13 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:09:38 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:09:45 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:09:45 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:09:45 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:09:49 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:09:56 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:09:59 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:01 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:02 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:03 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:06 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:07 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:08 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:09 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:12 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:13 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:13 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:14 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:14 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:25 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[26-Jul-2025 22:10:49 UTC] PHP Parse error:  Unclosed '{' on line 91 does not match ')' in /home/undfwi81asbf/public_html/app/Helper/helper.php on line 101
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\Client::fetchAccessTokenWithAssertion(): Implicitly marking parameter $authHttp as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/Client.php on line 324
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\Client::authorize(): Implicitly marking parameter $http as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/Client.php on line 457
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\AccessToken\Revoke::__construct(): Implicitly marking parameter $http as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/AccessToken/Revoke.php on line 42
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\AccessToken\Verify::__construct(): Implicitly marking parameter $http as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/AccessToken/Verify.php on line 69
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\AccessToken\Verify::__construct(): Implicitly marking parameter $cache as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/AccessToken/Verify.php on line 69
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\AuthHandler\Guzzle6AuthHandler::__construct(): Implicitly marking parameter $cache as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/AuthHandler/Guzzle6AuthHandler.php on line 23
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\AuthHandler\Guzzle6AuthHandler::attachCredentials(): Implicitly marking parameter $tokenCallback as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/AuthHandler/Guzzle6AuthHandler.php on line 29
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\AuthHandler\Guzzle6AuthHandler::attachCredentialsCache(): Implicitly marking parameter $tokenCallback as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/AuthHandler/Guzzle6AuthHandler.php on line 46
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\Http\REST::decodeHttpResponse(): Implicitly marking parameter $request as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/Http/REST.php on line 121
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\Http\REST::decodeBody(): Implicitly marking parameter $request as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/Http/REST.php on line 150
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\Http\REST::determineExpectedClass(): Implicitly marking parameter $request as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/Http/REST.php on line 160
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\Http\REST::isAltMedia(): Implicitly marking parameter $request as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/Http/REST.php on line 187
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\Service\Exception::__construct(): Implicitly marking parameter $previous as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/Service/Exception.php on line 39
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Google\Task\Composer::cleanup(): Implicitly marking parameter $filesystem as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/google/apiclient/src/Task/Composer.php on line 31
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  can_impersonate(): Implicitly marking parameter $guard as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/lab404/laravel-impersonate/src/helpers.php on line 13
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  can_be_impersonated(): Implicitly marking parameter $guard as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/lab404/laravel-impersonate/src/helpers.php on line 31
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  is_impersonating(): Implicitly marking parameter $guard as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/lab404/laravel-impersonate/src/helpers.php on line 48
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Carbon\Traits\Date::getDaysFromStartOfWeek(): Implicitly marking parameter $weekStartsAt as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/nesbot/carbon/src/Carbon/Traits/Date.php on line 1394
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Carbon\Traits\Date::setDaysFromStartOfWeek(): Implicitly marking parameter $weekStartsAt as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/nesbot/carbon/src/Carbon/Traits/Date.php on line 1412
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Carbon\Traits\Date::utcOffset(): Implicitly marking parameter $minuteOffset as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/nesbot/carbon/src/Carbon/Traits/Date.php on line 1481
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Carbon\Traits\Localization::locale(): Implicitly marking parameter $locale as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/nesbot/carbon/src/Carbon/Traits/Localization.php on line 447
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Carbon\Traits\Test::setDefaultTimezone(): Implicitly marking parameter $date as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/nesbot/carbon/src/Carbon/Traits/Test.php on line 203
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Return type of Carbon\Traits\Date::createFromTimestamp($timestamp, $tz = null) should either be compatible with DateTime::createFromTimestamp(int|float $timestamp): static, or the #[\ReturnTypeWillChange] attribute should be used to temporarily suppress the notice in /home/undfwi81asbf/public_html/vendor/nesbot/carbon/src/Carbon/Traits/Timestamp.php on line 29
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Carbon\CarbonTimeZone::toOffsetName(): Implicitly marking parameter $date as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/nesbot/carbon/src/Carbon/CarbonTimeZone.php on line 158
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Carbon\CarbonTimeZone::toOffsetTimeZone(): Implicitly marking parameter $date as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/nesbot/carbon/src/Carbon/CarbonTimeZone.php on line 172
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Carbon\CarbonTimeZone::toRegionName(): Implicitly marking parameter $date as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/nesbot/carbon/src/Carbon/CarbonTimeZone.php on line 188
+[31-Jul-2025 19:21:26 UTC] PHP Deprecated:  Carbon\CarbonTimeZone::toRegionTimeZone(): Implicitly marking parameter $date as nullable is deprecated, the explicit nullable type must be used instead in /home/undfwi81asbf/public_html/vendor/nesbot/carbon/src/Carbon/CarbonTimeZone.php on line 230
+[31-Jul-2025 19:21:26 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "config" does not exist in /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php:938
+Stack trace:
+#0 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(938): ReflectionClass->__construct('config')
+#1 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(815): Illuminate\Container\Container->build('config')
+#2 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1046): Illuminate\Container\Container->resolve('config', Array, true)
+#3 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(751): Illuminate\Foundation\Application->resolve('config', Array)
+#4 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1028): Illuminate\Container\Container->make('config', Array)
+#5 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(1559): Illuminate\Foundation\Application->make('config')
+#6 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(579): Illuminate\Container\Container->offsetGet('config')
+#7 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(630): Illuminate\Log\LogManager->getDefaultDriver()
+#8 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(125): Illuminate\Log\LogManager->parseDriver(NULL)
+#9 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(700): Illuminate\Log\LogManager->driver()
+#10 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(378): Illuminate\Log\LogManager->error('Call to undefin...', Array)
+#11 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(341): Illuminate\Foundation\Exceptions\Handler->reportThrowable(Object(Error))
+#12 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(500): Illuminate\Foundation\Exceptions\Handler->report(Object(Error))
+#13 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(147): Illuminate\Foundation\Http\Kernel->reportException(Object(Error))
+#14 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1188): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#15 /home/undfwi81asbf/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#16 /home/undfwi81asbf/public_html/index.php(21): require_once('/home/undfwi81a...')
+#17 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [config] does not exist. in /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php:940
+Stack trace:
+#0 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(815): Illuminate\Container\Container->build('config')
+#1 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1046): Illuminate\Container\Container->resolve('config', Array, true)
+#2 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(751): Illuminate\Foundation\Application->resolve('config', Array)
+#3 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1028): Illuminate\Container\Container->make('config', Array)
+#4 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(1559): Illuminate\Foundation\Application->make('config')
+#5 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(579): Illuminate\Container\Container->offsetGet('config')
+#6 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(630): Illuminate\Log\LogManager->getDefaultDriver()
+#7 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(125): Illuminate\Log\LogManager->parseDriver(NULL)
+#8 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(700): Illuminate\Log\LogManager->driver()
+#9 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(378): Illuminate\Log\LogManager->error('Call to undefin...', Array)
+#10 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(341): Illuminate\Foundation\Exceptions\Handler->reportThrowable(Object(Error))
+#11 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(500): Illuminate\Foundation\Exceptions\Handler->report(Object(Error))
+#12 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(147): Illuminate\Foundation\Http\Kernel->reportException(Object(Error))
+#13 /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1188): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#14 /home/undfwi81asbf/public_html/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#15 /home/undfwi81asbf/public_html/index.php(21): require_once('/home/undfwi81a...')
+#16 {main}
+  thrown in /home/undfwi81asbf/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 940
+[03-Aug-2025 01:25:54 Asia/Kolkata] PHP Fatal error:  Cannot use try without catch or finally in /home/undfwi81asbf/public_html/app/Http/Controllers/PayrollController.php on line 454
+[28-Aug-2025 18:20:24 Asia/Kolkata] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 20480 bytes) in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/vendor/laravel/framework/src/Illuminate/Cache/FileStore.php on line 314
+[02-Sep-2025 01:33:58 Asia/Kolkata] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 24576 bytes) in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/vendor/laravel/framework/src/Illuminate/Cache/FileStore.php on line 314
+[06-Sep-2025 18:44:05 Asia/Kolkata] PHP Fatal error:  Trait "App\Traits\SendSmsTraits" not found in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php on line 73
+[06-Sep-2025 18:44:10 Asia/Kolkata] PHP Fatal error:  Trait "App\Traits\SendSmsTraits" not found in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/packages/workdo/Taskly/src/Http/Controllers/ProjectController.php on line 73
+[10-Sep-2025 22:54:00 Asia/Kolkata] PHP Fatal error:  Cannot redeclare App\Http\Controllers\PayrollController::salarySlip() in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/app/Http/Controllers/PayrollController.php on line 878
+[13-Sep-2025 23:36:08 Asia/Kolkata] PHP Fatal error:  Namespace declaration statement has to be the very first statement or after any declare call in the script in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/packages/workdo/Taskly/src/DataTables/ProjectTaskDatatable.php on line 3
+[13-Sep-2025 23:36:11 Asia/Kolkata] PHP Fatal error:  Namespace declaration statement has to be the very first statement or after any declare call in the script in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/packages/workdo/Taskly/src/DataTables/ProjectTaskDatatable.php on line 3
+[13-Sep-2025 23:36:13 Asia/Kolkata] PHP Fatal error:  Namespace declaration statement has to be the very first statement or after any declare call in the script in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/packages/workdo/Taskly/src/DataTables/ProjectTaskDatatable.php on line 3
+[13-Sep-2025 23:36:16 Asia/Kolkata] PHP Fatal error:  Namespace declaration statement has to be the very first statement or after any declare call in the script in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/packages/workdo/Taskly/src/DataTables/ProjectTaskDatatable.php on line 3
+[11-Oct-2025 01:47:56 Asia/Kolkata] PHP Fatal error:  Cannot declare class Workdo\Taskly\DataTables\ProjectMissedTaskDatatable, because the name is already in use in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/packages/workdo/Taskly/src/Http/Controllers/MissedTaskController.php on line 27
+[08-Nov-2025 05:18:40 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Artisan as Artisan because the name is already in use in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/routes/web.php on line 50
+[08-Nov-2025 05:18:40 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Artisan as Artisan because the name is already in use in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/routes/web.php on line 50
+[08-Nov-2025 05:18:41 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Artisan as Artisan because the name is already in use in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/routes/web.php on line 50
+[08-Nov-2025 05:18:41 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Artisan as Artisan because the name is already in use in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/routes/web.php on line 50
+[08-Nov-2025 05:18:42 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Artisan as Artisan because the name is already in use in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/routes/web.php on line 50
+[08-Nov-2025 05:18:43 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Artisan as Artisan because the name is already in use in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/routes/web.php on line 50
+[08-Nov-2025 05:18:47 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Artisan as Artisan because the name is already in use in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/routes/web.php on line 50
+[08-Nov-2025 05:18:52 Asia/Kolkata] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Artisan as Artisan because the name is already in use in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/routes/web.php on line 50
+[14-Nov-2025 18:16:54 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'coreadmin'@'184.168.98.110' (using password: YES) in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/abc.php:12
+Stack trace:
+#0 /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/abc.php(12): mysqli->__construct()
+#1 {main}
+  thrown in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/abc.php on line 12
+[21-Nov-2025 03:30:37 Asia/Kolkata] PHP Fatal error:  Cannot redeclare App\Http\Controllers\PayrollController::generateSalarySlipPDF() in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/app/Http/Controllers/PayrollController.php on line 1604
+[29-Nov-2025 23:35:06 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'coreadmin'@'184.168.98.110' (using password: YES) in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/abc.php:12
+Stack trace:
+#0 /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/abc.php(12): mysqli->__construct()
+#1 {main}
+  thrown in /home/undfwi81asbf/public_html/new-tm.5coremanagement.com/abc.php on line 12

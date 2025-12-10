@@ -1,0 +1,377 @@
+[
+    {
+        "question": "how many task are assigned to software8@5core.com today",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "date": "today"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND DATE(`created_at`) = CURDATE()",
+        "created_at": "2025-06-26 00:33:35"
+    },
+    {
+        "question": "how many task are assigned to software8@5core.com today . please give me the list also",
+        "intent": "task_assigned_today",
+        "entities": {
+            "assign_to": "software8@5core.com"
+        },
+        "sql_query": [
+            "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND DATE(`created_at`) = CURDATE() AND `deleted_at` IS NULL",
+            "SELECT * FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND DATE(`created_at`) = CURDATE() AND `deleted_at` IS NULL"
+        ],
+        "created_at": "2025-06-26 00:34:32"
+    },
+    {
+        "question": "how many task are assigned to software8@5core.com by tech-support@5core.com. please give me the list of task also",
+        "intent": "task_assigned_by_to",
+        "entities": {
+            "assignor": "tech-support@5core.com",
+            "assign_to": "software8@5core.com"
+        },
+        "sql_query": [
+            "SELECT COUNT(*) FROM `tasks` WHERE `assignor` = 'tech-support@5core.com' AND `assign_to` = 'software8@5core.com' AND `deleted_at` IS NULL",
+            "SELECT * FROM `tasks` WHERE `assignor` = 'tech-support@5core.com' AND `assign_to` = 'software8@5core.com' AND `deleted_at` IS NULL"
+        ],
+        "created_at": "2025-06-26 00:37:40"
+    },
+    {
+        "question": "how many task are assigned to @Ritik Bajpai by @Titas Datta which are deleted with done status",
+        "intent": "count",
+        "entities": {
+            "assign_to": "@Ritik Bajpai",
+            "assignor": "@Titas Datta",
+            "status": "Done",
+            "deleted_at": "NOT NULL"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = '@Ritik Bajpai' AND `assignor` = '@Titas Datta' AND `status` = 'Done' AND `deleted_at` IS NOT NULL",
+        "created_at": "2025-06-26 00:49:01"
+    },
+    {
+        "question": "how many task are assigned to software8@5core.com by tech-support@5core.com which are deleted with done status",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "assignor": "tech-support@5core.com",
+            "status": "Done",
+            "deleted": true
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND `assignor` = 'tech-support@5core.com' AND `status` = 'Done' AND `deleted_at` IS NOT NULL",
+        "created_at": "2025-06-26 01:07:52"
+    },
+    {
+        "question": "how many task has been assigned to tech-support@5core.com today",
+        "intent": "count",
+        "entities": {
+            "assign_to": "tech-support@5core.com",
+            "created_at": "today"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'tech-support@5core.com' AND DATE(`created_at`) = CURDATE();",
+        "created_at": "2025-06-26 01:15:37"
+    },
+    {
+        "question": "how many tasks i have",
+        "intent": "count_tasks",
+        "entities": [],
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `deleted_at` IS NULL",
+        "created_at": "2025-06-26 01:44:39"
+    },
+    {
+        "question": "support@5core.com to ecomm4@5core.com  how many overdue task",
+        "intent": null,
+        "entities": null,
+        "sql_query": null,
+        "created_at": "2025-06-26 01:46:24"
+    },
+    {
+        "question": "how many overdue task are there for ecomm4@5core.com from support@5core.com",
+        "intent": "count_overdue_tasks",
+        "entities": {
+            "assign_to": "ecomm4@5core.com",
+            "assignor": "support@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `due_date` <= CURRENT_DATE AND `deleted_at` IS NULL AND `assign_to` = 'ecomm4@5core.com' AND `assignor` = 'support@5core.com'",
+        "created_at": "2025-06-26 01:47:43"
+    },
+    {
+        "question": "how many task are assigned to software8@5core.com  yesterday",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "created_at": "yesterday"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND DATE(`created_at`) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))",
+        "created_at": "2025-06-26 02:56:47"
+    },
+    {
+        "question": "how many task are assigned today to software8@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "created_at": "today"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND DATE(`created_at`) = CURDATE()",
+        "created_at": "2025-06-26 02:57:17"
+    },
+    {
+        "question": "how many task are assigned tommorow to software8@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "due_date": "tomorrow"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND DATE(`due_date`) = DATE_ADD(CURRENT_DATE, INTERVAL 1 DAY) AND `deleted_at` IS NULL",
+        "created_at": "2025-06-26 03:01:03"
+    },
+    {
+        "question": "how many task are assigned to software8@5core.com   yesterday",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "created_at": "yesterday"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND DATE(`created_at`) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)",
+        "created_at": "2025-06-26 03:12:57"
+    },
+    {
+        "question": "how many task are assigned 2025-06-26 to software8@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "assign_date": "2025-06-26"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND `created_at` = '2025-06-26' AND `deleted_at` IS NULL",
+        "created_at": "2025-06-26 03:13:48"
+    },
+    {
+        "question": "how many task are assigned 2025-06-26 02:55:48\n to software8@5core.com",
+        "intent": "count_assigned_tasks",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "created_at": "2025-06-26 02:55:48"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND `created_at` = '2025-06-26 02:55:48' AND `deleted_at` IS NULL",
+        "created_at": "2025-06-26 03:15:24"
+    },
+    {
+        "question": "how many task software8@5core.com have assigned today",
+        "intent": "count_assigned_tasks",
+        "entities": {
+            "assignor": "software8@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assignor` = 'software8@5core.com' AND DATE(`created_at`) = CURDATE()",
+        "created_at": "2025-06-26 21:40:59"
+    },
+    {
+        "question": "how many task are assigned yesterday software8@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "created_at": "yesterday"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND DATE(`created_at`) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))",
+        "created_at": "2025-06-26 21:41:41"
+    },
+    {
+        "question": "how many total task are yesterday assigned to software8@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "created_at": "yesterday"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND DATE(`created_at`) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)",
+        "created_at": "2025-06-26 21:42:34"
+    },
+    {
+        "question": "how many total task are assigned today to software8@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "created_at": "today"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND DATE(`created_at`) = CURDATE()",
+        "created_at": "2025-06-26 21:43:54"
+    },
+    {
+        "question": "currently how many total task software8@5core.com  have",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND `deleted_at` IS NULL",
+        "created_at": "2025-06-26 21:50:01"
+    },
+    {
+        "question": "how many tasks are overdue by software7@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software7@5core.com",
+            "status": "overdue"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software7@5core.com' AND `due_date` <= CURRENT_DATE AND `deleted_at` IS NULL",
+        "created_at": "2025-06-27 00:21:24"
+    },
+    {
+        "question": "give me the overdue task list by software7@5core.com",
+        "intent": "get_overdue_tasks",
+        "entities": {
+            "assign_to": "software7@5core.com"
+        },
+        "sql_query": "SELECT * FROM `tasks` WHERE `due_date` <= CURRENT_DATE AND `deleted_at` IS NULL AND `assign_to` = 'software7@5core.com'",
+        "created_at": "2025-06-27 00:21:51"
+    },
+    {
+        "question": "how many task are assign to software8@5core.com by mgr-advertisement@5core.com",
+        "intent": null,
+        "entities": null,
+        "sql_query": null,
+        "created_at": "2025-07-03 00:29:18"
+    },
+    {
+        "question": "how many task are assigned to software8@5core.com by mgr-advertisement@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "assignor": "mgr-advertisement@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND `assignor` = 'mgr-advertisement@5core.com' AND `deleted_at` IS NULL",
+        "created_at": "2025-07-03 00:30:13"
+    },
+    {
+        "question": "tell me how many task",
+        "intent": "count",
+        "entities": [
+            "tasks"
+        ],
+        "sql_query": "SELECT COUNT(*) FROM `tasks`",
+        "created_at": "2025-07-04 03:02:16"
+    },
+    {
+        "question": "tell me my task only",
+        "intent": "getTasks",
+        "entities": [],
+        "sql_query": "SELECT * FROM `tasks` WHERE `assign_to` = 'user@example.com' AND `deleted_at` IS NULL",
+        "created_at": "2025-07-04 03:02:50"
+    },
+    {
+        "question": "how many task are done by software8@5core.com",
+        "intent": "count",
+        "entities": {
+            "status": "Done",
+            "assign_to": "software8@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `status` = 'Done' AND `assign_to` = 'software8@5core.com'",
+        "created_at": "2025-07-04 03:06:41"
+    },
+    {
+        "question": "currently how many task are done and not deleted by software8@5core.com",
+        "intent": "count",
+        "entities": {
+            "status": "Done",
+            "assignor": "software8@5core.com",
+            "deleted_at": "active"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `status` = 'Done' AND `assignor` = 'software8@5core.com' AND `deleted_at` IS NULL",
+        "created_at": "2025-07-04 03:08:06"
+    },
+    {
+        "question": "i am saying how many task are done with not deleted status by software8@5core.com",
+        "intent": "count",
+        "entities": {
+            "status": "Done",
+            "deleted_at": "active",
+            "assign_to": "software8@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `status` = 'Done' AND `deleted_at` IS NULL AND `assign_to` = 'software8@5core.com'",
+        "created_at": "2025-07-04 03:09:25"
+    },
+    {
+        "question": "how many pending task have software8@5core.com",
+        "intent": "count",
+        "entities": {
+            "status": "pending",
+            "assign_to": "software8@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `status` != 'Done' AND `deleted_at` IS NULL AND `assign_to` = 'software8@5core.com'",
+        "created_at": "2025-07-04 03:09:52"
+    },
+    {
+        "question": "how many overdue task have software8@5core.com",
+        "intent": "count_overdue_tasks",
+        "entities": {
+            "assign_to": "software8@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `due_date` <= CURRENT_DATE AND `deleted_at` IS NULL AND `assign_to` = 'software8@5core.com'",
+        "created_at": "2025-07-04 03:10:04"
+    },
+    {
+        "question": "how many total overdue task have software8@5core.com",
+        "intent": "count_overdue_tasks",
+        "entities": {
+            "assign_to": "software8@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `due_date` <= CURRENT_DATE AND `deleted_at` IS NULL AND `assign_to` = 'software8@5core.com'",
+        "created_at": "2025-07-04 03:11:31"
+    },
+    {
+        "question": "how many task are done today by software8@5core.com",
+        "intent": "count_done_tasks",
+        "entities": {
+            "assign_to": "software8@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `status` = 'Done' AND `assign_to` = 'software8@5core.com' AND DATE(`completion_date`) = CURDATE()",
+        "created_at": "2025-07-04 03:12:07"
+    },
+    {
+        "question": "please let me know how many hours software8@5core.com  spend of done task",
+        "intent": "get_time_spent_on_done_tasks",
+        "entities": {
+            "assign_to": "software8@5core.com"
+        },
+        "sql_query": "SELECT SUM(`etc_done`)\/60 AS 'Total hours spent' FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND `status` = 'Done'",
+        "created_at": "2025-07-04 03:13:32"
+    },
+    {
+        "question": "how many task are assigned to software8@5core.com by tech-support@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "assignor": "tech-support@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND `assignor` = 'tech-support@5core.com' AND `deleted_at` IS NULL",
+        "created_at": "2025-07-10 22:19:17"
+    },
+    {
+        "question": "How many tasks are assigned software8@5core.com by tech-support@5core.com",
+        "intent": null,
+        "entities": null,
+        "sql_query": null,
+        "created_at": "2025-07-11 00:23:45"
+    },
+    {
+        "question": "how many task assigned to software8@5core.com by tech-support@5core.com",
+        "intent": null,
+        "entities": null,
+        "sql_query": null,
+        "created_at": "2025-07-19 13:15:39"
+    },
+    {
+        "question": "how many task assigned to software8@5core.com  by tech-support@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "assignor": "tech-support@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND `assignor` = 'tech-support@5core.com' AND `deleted_at` IS NULL",
+        "created_at": "2025-07-19 13:16:05"
+    },
+    {
+        "question": "how many task are assign to software8@5core.com by tech-support@5core.com",
+        "intent": "count",
+        "entities": {
+            "assign_to": "software8@5core.com",
+            "assignor": "tech-support@5core.com"
+        },
+        "sql_query": "SELECT COUNT(*) FROM `tasks` WHERE `assign_to` = 'software8@5core.com' AND `assignor` = 'tech-support@5core.com' AND `deleted_at` IS NULL",
+        "created_at": "2025-07-19 14:13:54"
+    }
+]
