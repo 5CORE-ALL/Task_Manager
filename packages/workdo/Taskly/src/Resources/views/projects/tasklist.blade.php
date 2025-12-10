@@ -419,9 +419,14 @@
         @stack('addButtonHook')
 
         @permission('task create')
-            <a class="btn btn-sm btn-primary me-2 add-task" data-ajax-popup="true" data-size="lg" data-title="{{ __('Create New Task') }}"
-                data-url="{{ route('tasks.create') }}" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Create') }}"><i
-                    class="ti ti-plus"></i></a>
+            <a class="btn btn-sm btn-primary me-2" data-ajax-popup="true" data-size="lg" data-title="{{ __('Create Single Task') }}"
+                data-url="{{ route('tasks.create') }}" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Single Task') }}"><i
+                    class="ti ti-file-plus"></i></a>
+            <a class="btn btn-sm btn-primary me-2" data-ajax-popup="true" data-size="xl" data-title="{{ __('Create Multiple Tasks') }}"
+                data-url="{{ route('tasks.create.multiple') }}" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Multiple Tasks') }}"><i
+                    class="ti ti-files"></i></a>
+            <a href="{{ route('project.staging') }}" target="_blank" class="btn btn-sm btn-primary me-2" data-bs-toggle="tooltip"
+                data-bs-original-title="{{ __('Staging') }}"><i class="fa fa-sitemap"></i></a>
                     
             <a class="btn btn-sm btn-primary me-2" href="{{ route('reviews.index') }}" target="_blank" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Reviews') }}">
                 <i class="ti ti-star"></i>
