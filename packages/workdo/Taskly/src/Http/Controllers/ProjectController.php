@@ -1222,14 +1222,6 @@ public function StagingSubmitTask(Request $request)
 
     $createdTasks = [];
     $currentWorkspace = getActiveWorkSpace();
-    $firstStage = Stage::where('workspace_id', '=', $currentWorkspace)->orderBy('order')->first();
-    $firstStageName = $firstStage ? $firstStage->name : 'pending';
-    
-    // Check if there are any tasks already assigned to the board for this event
-    $hasActiveTasks = StagingTask::where('event_id', $request->event_id)
-        ->where('status', '!=', 'pending')
-        ->where('status', '!=', 'Done')
-        ->exists();
     
     foreach ($sortedTasks as $index => $task) {
         // Check if this task already exists to prevent duplicates
@@ -1251,12 +1243,7 @@ public function StagingSubmitTask(Request $request)
         
         \Log::info('Creating new task: ' . ($task['task'] ?? '') . ' for event ' . $request->event_id);
         
-        // Determine status: if no active tasks, assign first task; otherwise all are pending
-        $taskStatus = 'pending';
-        if (!$hasActiveTasks && $index == 0) {
-            $taskStatus = $firstStageName;
-        }
-        
+        // Always save tasks with 'pending' status - they will be triggered manually
         $stagingTask = StagingTask::create([
             'event_id'    => $request->event_id,
             'user_id'     => Auth::id(),
@@ -1266,7 +1253,7 @@ public function StagingSubmitTask(Request $request)
             'assignee_id' => $task['assignee_id'] ?? null,
             'start_date'  => $task['start_date'] ?? null,
             'end_date'    => $task['end_date'] ?? null,
-            'status'      => $taskStatus,
+            'status'      => 'pending', // Always set to pending - trigger manually
             'priority'    => $task['priority_value'] ?? 'normal',
             'task_note'   => $task['task_note'] ?? null,
             'eta_time'    => $task['eta_time'] ?? null,
@@ -1282,21 +1269,9 @@ public function StagingSubmitTask(Request $request)
         \Log::info('Created staging task: ' . $stagingTask->id . ' with status: ' . $stagingTask->status);
     }
 
-    // Only assign the first task if no tasks are currently active
-    // Otherwise, let the completion handler assign tasks in order by start_date
-    if (!empty($createdTasks) && !$hasActiveTasks) {
-        $firstTask = $createdTasks[0];
-        $this->assignStagingTaskToBoard($firstTask);
-    }
-
     \Log::info('StagingSubmitTask completed for event ' . $request->event_id . ' - Created ' . count($createdTasks) . ' tasks');
     
-    $message = 'Tasks saved successfully!';
-    if (!empty($createdTasks) && !$hasActiveTasks) {
-        $message = 'Tasks saved and first task assigned successfully!';
-    } elseif (!empty($createdTasks)) {
-        $message = count($createdTasks) . ' new task(s) added to the event. They will be assigned when previous tasks are completed.';
-    }
+    $message = count($createdTasks) . ' task(s) saved successfully! You can now trigger the first task manually.';
     
     return response()->json([
         'success' => true,
@@ -1366,28 +1341,177 @@ private function assignStagingTaskToBoard($stagingTask, $workspace = null)
 public function StagingTaskUpdate(Request $request, $id)
 {
     $stagingTask = StagingTask::findOrFail($id);
+    
+    \Log::info('StagingTaskUpdate called', [
+        'task_id' => $id,
+        'request_data' => $request->all()
+    ]);
+    
+    // Validate all fields
     $request->validate([
-        'status' => 'required|in:' . implode(',', Stage::where('workspace_id', getActiveWorkSpace())->pluck('name')->toArray()),
+        'group' => 'nullable|string|max:255',
+        'task' => 'required|string|max:255',
+        'assignor_id' => 'nullable|exists:users,id',
+        'assignee_id' => 'nullable|exists:users,id',
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date|after_or_equal:start_date',
+        'status' => 'nullable|in:' . implode(',', array_merge(Stage::where('workspace_id', getActiveWorkSpace())->pluck('name')->toArray(), ['pending', 'Done'])),
+        'priority' => 'nullable|in:normal,urgent,Take your time',
+        'task_note' => 'nullable|string',
+        'eta_time' => 'nullable|integer|min:0',
+        'l1' => 'nullable|string|max:255',
+        'l2' => 'nullable|string|max:255',
+        'l3' => 'nullable|string|max:255',
+        'l4' => 'nullable|string|max:255',
+        'l5' => 'nullable|string|max:255',
+        'l6' => 'nullable|string|max:255',
+        'l7' => 'nullable|string|max:255',
     ]);
 
     $oldStatus = $stagingTask->status;
-    $stagingTask->update(['status' => $request->status]);
+    
+    // Update all fields - always update all fields from request
+    // The form sends all fields, so we update all of them
+    $updateData = [];
+    
+    // Always update these fields if they exist in the request
+    $fieldsToUpdate = [
+        'group', 'task', 'assignor_id', 'assignee_id', 'start_date', 'end_date',
+        'priority', 'task_note', 'eta_time', 'status',
+        'l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7'
+    ];
+    
+    foreach ($fieldsToUpdate as $field) {
+        // Check if field exists in request (even if empty)
+        if ($request->exists($field)) {
+            $value = $request->input($field);
+            // Convert empty string to null for nullable fields (except 'task' which is required)
+            if ($value === '' && $field !== 'task') {
+                $updateData[$field] = null;
+            } else {
+                // Always update the field with the value from request
+                $updateData[$field] = $value;
+            }
+        }
+    }
+    
+    \Log::info('Update data prepared:', $updateData);
+    \Log::info('Request all data:', $request->all());
+    \Log::info('Request keys:', array_keys($request->all()));
+    
+    if (!empty($updateData)) {
+        $stagingTask->update($updateData);
+        
+        // Refresh the model to get updated values
+        $stagingTask->refresh();
+        
+        \Log::info('Staging task updated successfully', [
+            'task_id' => $stagingTask->id,
+            'updated_fields' => array_keys($updateData),
+            'updated_values' => $updateData,
+            'staging_task_after_update' => $stagingTask->toArray()
+        ]);
+    } else {
+        \Log::warning('No fields to update for staging task ' . $id);
+    }
 
-    // Update the corresponding Task status if it exists
+    // Update the corresponding Task if it exists on the board
     $task = Task::where('is_data_from', 'staging_task_' . $id)->first();
     if ($task) {
-        $task->update(['status' => $request->status]);
-        \Log::info('Updated Task ' . $task->id . ' status to ' . $request->status);
+        $oldTask = clone $task; // Clone before update for event
+        
+        $taskUpdateData = [
+            'title' => $stagingTask->task,
+            'group' => $stagingTask->group,
+            'description' => $stagingTask->task_note,
+            'start_date' => $stagingTask->start_date,
+            'due_date' => $stagingTask->end_date,
+            'priority' => $stagingTask->priority,
+            'eta_time' => $stagingTask->eta_time ?? 0,
+            'link1' => $stagingTask->l1,
+            'link2' => $stagingTask->l2,
+            'link3' => $stagingTask->l3,
+            'link4' => $stagingTask->l4,
+            'link5' => $stagingTask->l5,
+            'link6' => $stagingTask->l6,
+            'link7' => $stagingTask->l7,
+        ];
+        
+        // Update assignee if changed
+        if ($stagingTask->assignee_id) {
+            $assignee = User::find($stagingTask->assignee_id);
+            if ($assignee) {
+                $taskUpdateData['assign_to'] = $assignee->email;
+            }
+        }
+        
+        // Update assignor if changed
+        if ($stagingTask->assignor_id) {
+            $assignor = User::find($stagingTask->assignor_id);
+            if ($assignor) {
+                $taskUpdateData['assignor'] = $assignor->email;
+            }
+        }
+        
+        // Update status if provided
+        if ($request->has('status')) {
+            $taskUpdateData['status'] = $request->input('status');
+        }
+        
+        $task->update($taskUpdateData);
+        
+        // Log task update activity (same as taskUpdate method)
+        $this->logTaskEdit($task->title, 'Task updated - Assigned to: ' . ($taskUpdateData['assign_to'] ?? ''));
+        
+        // Handle custom fields if module is active (same as taskUpdate method)
+        if (module_is_active('CustomField')) {
+            \Workdo\CustomField\Entities\CustomField::saveData($task, $request->customField);
+        }
+        
+        // Fire UpdateTask event (same as taskUpdate method)
+        event(new UpdateTask($request, $task));
+        
+        \Log::info('Updated Task ' . $task->id . ' with new data from staging task');
     }
 
     // If status changed to completed, assign the next task
-    if ($oldStatus !== 'completed' && $request->status === 'completed') {
+    if ($request->has('status') && $oldStatus !== 'completed' && $request->input('status') === 'completed') {
         $this->assignNextStagingTask($stagingTask);
     }
 
     return response()->json([
         'success' => true,
         'message' => 'Task updated successfully!',
+    ]);
+}
+
+public function StagingTaskDestroy(Request $request, $id)
+{
+    $stagingTask = StagingTask::findOrFail($id);
+    
+    // Delete the corresponding Task if it exists on the board
+    $task = Task::where('is_data_from', 'staging_task_' . $id)->first();
+    if ($task) {
+        // Delete associated data
+        Comment::where('task_id', '=', $task->id)->delete();
+        SubTask::where('task_id', '=', $task->id)->delete();
+        $TaskFiles = TaskFile::where('task_id', '=', $task->id)->get();
+        foreach ($TaskFiles as $TaskFile) {
+            delete_file($TaskFile->file);
+            $TaskFile->delete();
+        }
+        $task->delete();
+        \Log::info('Deleted Task ' . $task->id . ' associated with staging task ' . $id);
+    }
+    
+    // Delete the staging task
+    $stagingTask->delete();
+    
+    \Log::info('Deleted staging task: ' . $id);
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Task deleted successfully!',
     ]);
 }
 
@@ -1465,6 +1589,56 @@ public function StagingGetTasks($eventId)
     \Log::info('Found ' . count($tasks) . ' tasks for event ' . $eventId);
     
     return response()->json($tasks);
+}
+
+public function StagingTaskTriggerEvent($eventId)
+{
+    \Log::info('StagingTaskTriggerEvent called for event_id: ' . $eventId);
+    
+    $currentWorkspace = getActiveWorkSpace();
+    $firstStage = Stage::where('workspace_id', '=', $currentWorkspace)->orderBy('order')->first();
+    $firstStageName = $firstStage ? $firstStage->name : 'pending';
+    
+    // Check if there are any active tasks already assigned to the board for this event
+    $hasActiveTasks = StagingTask::where('event_id', $eventId)
+        ->where('status', '!=', 'pending')
+        ->where('status', '!=', 'Done')
+        ->exists();
+    
+    if ($hasActiveTasks) {
+        \Log::warning('Cannot trigger first task - there are already active tasks for event ' . $eventId);
+        return response()->json([
+            'success' => false,
+            'message' => 'Cannot trigger first task. There are already active tasks for this event.',
+        ], 400);
+    }
+    
+    // Find the first pending task ordered by start_date
+    $firstTask = StagingTask::where('event_id', $eventId)
+        ->where('status', 'pending')
+        ->orderBy('start_date')
+        ->first();
+    
+    if (!$firstTask) {
+        \Log::warning('No pending tasks found for event ' . $eventId);
+        return response()->json([
+            'success' => false,
+            'message' => 'No pending tasks found for this event.',
+        ], 404);
+    }
+    
+    // Update the task status to the first stage
+    $firstTask->update(['status' => $firstStageName]);
+    
+    // Assign the task to the board
+    $this->assignStagingTaskToBoard($firstTask, $currentWorkspace);
+    
+    \Log::info('First task ' . $firstTask->id . ' triggered and assigned to board with status: ' . $firstStageName);
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'First task triggered and assigned to task board successfully!',
+    ]);
 }
 
     public function taskShow($taskID)

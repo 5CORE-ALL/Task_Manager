@@ -605,6 +605,27 @@
             box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
         }
 
+        .edit-task-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+        }
+
+        .edit-task-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
         .link-btn {
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
@@ -978,12 +999,12 @@
                     <table class="tasks-table">
                         <thead>
                             <tr>
-                                <th style="width: 20%;">Group</th>
-                                <th style="width: 30%;">Task</th>
-                                <th>Assignor</th>
-                                <th>Assignee</th>
-                                <th>Links</th>
-                                <th>Action</th>
+                                <th style="width: 15%;">Group</th>
+                                <th style="width: 25%;">Task</th>
+                                <th style="width: 12%;">Assignor</th>
+                                <th style="width: 12%;">Assignee</th>
+                                <th style="width: 12%;">Status</th>
+                                <th style="width: 12%;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="tasksTableBody">
@@ -996,6 +1017,136 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Trigger First Task Button -->
+                <div id="triggerTaskSection" style="display: none; margin-top: 20px; text-align: center; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                    <p style="margin-bottom: 15px; color: #666; font-size: 14px;">
+                        Tasks have been saved. Click the button below to trigger the first task and add it to the task board.
+                    </p>
+                    <button type="button" class="btn btn-trigger" onclick="triggerFirstTask()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 30px; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s ease;">
+                        <span>▶</span>
+                        <span style="margin-left: 8px;">Trigger First Task</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div class="modal-overlay" id="editTaskModal">
+        <div class="task-modal" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <span>✏️</span>
+                    <span>Edit Task</span>
+                </h2>
+                <button class="close-modal" onclick="closeEditTaskModal()">✕</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="editTaskForm">
+                    <input type="hidden" id="editTaskId" name="task_id">
+                    <input type="hidden" id="editTaskIndex" name="task_index">
+                    
+                    <div class="task-form-grid">
+                        <div class="form-field">
+                            <label>Group</label>
+                            <input type="text" id="editGroup" name="group" class="form-control" placeholder="Task Group">
+                        </div>
+                        <div class="form-field">
+                            <label>Task <span style="color: red;">*</span></label>
+                            <input type="text" id="editTask" name="task" class="form-control" placeholder="Task Name" required>
+                        </div>
+                        <div class="form-field">
+                            <label>Assignor <span style="color: red;">*</span></label>
+                            <select id="editAssignor" name="assignor_id" class="form-control" required>
+                                <option value="">Select Assignor</option>
+                                @foreach($user as $obj)
+                                <option value="{{$obj->id}}">{{ formatUserName($obj->name) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label>Assignee <span style="color: red;">*</span></label>
+                            <select id="editAssignee" name="assignee_id" class="form-control" required>
+                                <option value="">Select Assignee</option>
+                                @foreach($user as $obj)
+                                <option value="{{$obj->id}}">{{ formatUserName($obj->name) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label>Status</label>
+                            <select id="editStatus" name="status" class="form-control">
+                                <option value="">Select Status</option>
+                                @foreach($stages as $stage)
+                                <option value="{{ $stage->name }}">{{ $stage->name }}</option>
+                                @endforeach
+                                <option value="pending">pending</option>
+                                <option value="Done">Done</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label>Priority</label>
+                            <select id="editPriority" name="priority" class="form-control">
+                                <option value="">Select Priority</option>
+                                <option value="normal">{{ __('normal')}}</option>
+                                <option value="urgent">{{ __('urgent')}}</option>
+                                <option value="Take your time">{{ __('Take your time')}}</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label>Duration</label>
+                            <div class='input-group'>
+                                <input type='text' class="form-control form-control-light" id="editDuration" name="duration" placeholder="Select date range" autocomplete="off">
+                                <input type="hidden" id="editStartDate" name="start_date">
+                                <input type="hidden" id="editEndDate" name="end_date">
+                                <span class="input-group-text" style="cursor: pointer;"><i class="feather icon-calendar"></i></span>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label>ETC (Minutes)</label>
+                            <input type="number" id="editEtaTime" name="eta_time" class="form-control" placeholder="Enter ETC in minutes" min="1">
+                        </div>
+                        <div class="form-field">
+                            <label>Task Note</label>
+                            <textarea id="editTaskNote" name="task_note" class="form-control" rows="3" placeholder="Enter task notes"></textarea>
+                        </div>
+                        <div class="form-field">
+                            <label>L1</label>
+                            <input type="text" id="editL1" name="l1" class="form-control" placeholder="Enter L1">
+                        </div>
+                        <div class="form-field">
+                            <label>L2</label>
+                            <input type="text" id="editL2" name="l2" class="form-control" placeholder="Enter L2">
+                        </div>
+                        <div class="form-field">
+                            <label>Training Link (L3)</label>
+                            <input type="text" id="editL3" name="l3" class="form-control" placeholder="Enter training link">
+                        </div>
+                        <div class="form-field">
+                            <label>Video Link (L4)</label>
+                            <input type="text" id="editL4" name="l4" class="form-control" placeholder="Enter video link">
+                        </div>
+                        <div class="form-field">
+                            <label>Form Link (L5)</label>
+                            <input type="text" id="editL5" name="l5" class="form-control" placeholder="Enter form link">
+                        </div>
+                        <div class="form-field">
+                            <label>Checklist Link (L6)</label>
+                            <input type="text" id="editL6" name="l6" class="form-control" placeholder="Enter checklist link">
+                        </div>
+                        <div class="form-field">
+                            <label>Form Report Link (L7)</label>
+                            <input type="text" id="editL7" name="l7" class="form-control" placeholder="Enter form report link">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions" style="margin-top: 20px; text-align: right;">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditTaskModal()" style="margin-right: 10px;">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Task</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1005,6 +1156,19 @@
 <script>
     let taskRows = [];
     let currentEventId = null;
+    // User data for dropdowns
+    const usersData = [
+        @foreach($user as $obj)
+        {id: {{$obj->id}}, name: "{{ formatUserName($obj->name) }}"}{{ !$loop->last ? ',' : '' }}
+        @endforeach
+    ];
+    
+    // Stages data for status dropdown
+    const stagesData = [
+        @foreach($stages as $stage)
+        {name: "{{ $stage->name }}"}{{ !$loop->last ? ',' : '' }}
+        @endforeach
+    ];
 
     function AddEvent() {
         $.confirm({
@@ -1054,24 +1218,8 @@
                                 event_note: event_note
                             },
                             success: function (response) {
-                                $.alert({
-                                    title: '✅ Success',
-                                    content: response.message,
-                                    boxWidth: '30%',
-                                    useBootstrap: false,
-                                    backgroundDismiss: true,
-                                    containerFluid: true,
-                                    onOpenBefore: function () {
-                                        $('.jconfirm-overlay').css({
-                                            'backdrop-filter': 'blur(5px)',
-                                            '-webkit-backdrop-filter': 'blur(5px)',
-                                            'background-color': 'rgba(0,0,0,0.5)'
-                                        });
-                                    },
-                                    onDestroy: function () {
-                                        location.reload();
-                                    }
-                                });
+                                // Reload page directly without showing success alert
+                                location.reload();
                             },
                             error: function (xhr) {
                                 $.alert({
@@ -1125,6 +1273,8 @@
             success: function (response) {
                 taskRows = response; // Assuming response is array of tasks
                 renderTasksTable();
+                // Check and show trigger button if needed
+                checkAndShowTriggerButton();
                 // Initialize duration picker after modal is shown
                 setTimeout(function() {
                     initializeDurationPicker();
@@ -1333,6 +1483,7 @@
 
     function renderTasksTable() {
         const tbody = document.getElementById('tasksTableBody');
+        const triggerSection = document.getElementById('triggerTaskSection');
         
         if (taskRows.length === 0) {
             tbody.innerHTML = `
@@ -1343,42 +1494,58 @@
                     </td>
                 </tr>
             `;
+            // Hide trigger button if no tasks
+            if (triggerSection) {
+                triggerSection.style.display = 'none';
+            }
             return;
         }
         
-        tbody.innerHTML = taskRows.map((task, index) => `
+        tbody.innerHTML = taskRows.map((task, index) => {
+            // Get status display with color coding
+            const status = task.status || 'pending';
+            let statusBadge = '';
+            if (status === 'pending') {
+                statusBadge = '<span style="background: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">pending</span>';
+            } else if (status === 'Done') {
+                statusBadge = '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Done</span>';
+            } else {
+                statusBadge = '<span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">' + status + '</span>';
+            }
+            
+            return `
             <tr>
-                <td style="width: 20%;"><input type="text" class="task-row-input" value="${task.group}" data-index="${index}" data-field="group" ${task.id ? 'disabled' : ''}></td>
-                <td style="width: 30%;"><input type="text" class="task-row-input" value="${task.task}" data-index="${index}" data-field="task" ${task.id ? 'disabled' : ''}></td>
-                <td>${task.assignor}</td>
-                <td>${task.assignee}</td>
+                <td>${task.group || ''}</td>
+                <td>${task.task || ''}</td>
+                <td>${task.assignor || ''}</td>
+                <td>${task.assignee || ''}</td>
+                <td>${statusBadge}</td>
                 <td>
-  <button class="link-btn" onclick="addLink(${index})" title="Add Links" ${task.id ? 'disabled' : ''}>🔗</button>
-  <div style="text-align:center;font-size:12px;margin-top:3px;display:none">
-    ${
-      [task.l1, task.l2, task.l3, task.l4, task.l5, task.l6, task.l7]
-        .filter(l => l)
-        .map(l => `<a href="${l}" target="_blank" style="margin:0 2px;">🔗</a>`)
-        .join('') || '—'
-    }
-  </div>
-</td>
-
-                <td><button class="delete-row-btn" onclick="deleteTaskRow(${index})" title="Delete" ${task.id ? 'disabled' : ''}>✕</button></td>
+                    ${task.id ? `<button class="edit-task-btn" onclick="openEditTaskModal(${index})" title="Edit">✏️</button>` : ''}
+                    <button class="delete-row-btn" onclick="deleteTaskRow(${index})" title="Delete">✕</button>
+                </td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
         
-        // Add event listeners for inline editing
-        document.querySelectorAll('.task-row-input:not([disabled])').forEach(input => {
-            input.addEventListener('change', function() {
-                const index = parseInt(this.dataset.index);
-                const field = this.dataset.field;
-                taskRows[index][field] = this.value;
-            });
-        });
+        // Check if there are pending tasks (tasks with status 'pending' that have an id)
+        const hasPendingTasks = taskRows.some(task => task.id && task.status === 'pending');
+        const hasActiveTasks = taskRows.some(task => task.id && task.status !== 'pending' && task.status !== 'Done');
+        
+        // Show trigger button only if there are pending tasks and no active tasks
+        if (triggerSection) {
+            if (hasPendingTasks && !hasActiveTasks) {
+                triggerSection.style.display = 'block';
+            } else {
+                triggerSection.style.display = 'none';
+            }
+        }
     }
 
     function deleteTaskRow(index) {
+        const task = taskRows[index];
+        const isSavedTask = task && task.id;
+        
         $.confirm({
             title: '⚠️ Confirm Delete',
             content: 'Are you sure you want to delete this task?',
@@ -1388,8 +1555,345 @@
                     text: 'Yes, Delete',
                     btnClass: 'btn-danger',
                     action: function() {
-                        taskRows.splice(index, 1);
-                        renderTasksTable();
+                        if (isSavedTask) {
+                            // Delete from database
+                            $.ajax({
+                                url: '/tasks/staging/delete-task/' + task.id,
+                                type: 'POST',
+                                data: {
+                                    _token: '{{ csrf_token() }}'
+                                },
+                                success: function(response) {
+                                    // Remove from local array
+                                    taskRows.splice(index, 1);
+                                    renderTasksTable();
+                                    checkAndShowTriggerButton();
+                                    toastrs('{{ __('Success') }}', 'Task deleted successfully!', 'success');
+                                },
+                                error: function(xhr) {
+                                    console.error('Error deleting task:', xhr);
+                                    toastrs('{{ __('Error') }}', 'Failed to delete task. Please try again.', 'error');
+                                }
+                            });
+                        } else {
+                            // Just remove from local array (not saved yet)
+                            taskRows.splice(index, 1);
+                            renderTasksTable();
+                        }
+                    }
+                },
+                cancel: {
+                    text: 'Cancel'
+                }
+            },
+            boxWidth: '30%',
+            useBootstrap: false
+        });
+    }
+
+    function checkAndShowTriggerButton() {
+        const triggerSection = document.getElementById('triggerTaskSection');
+        if (!triggerSection || !currentEventId) {
+            return;
+        }
+        
+        // Check if there are pending tasks (tasks with status 'pending' that have an id)
+        const hasPendingTasks = taskRows.some(task => task.id && task.status === 'pending');
+        const hasActiveTasks = taskRows.some(task => task.id && task.status !== 'pending' && task.status !== 'Done');
+        
+        // Show trigger button only if there are pending tasks and no active tasks
+        if (hasPendingTasks && !hasActiveTasks) {
+            triggerSection.style.display = 'block';
+        } else {
+            triggerSection.style.display = 'none';
+        }
+    }
+
+    function openEditTaskModal(index) {
+        const task = taskRows[index];
+        if (!task || !task.id) {
+            toastrs('{{ __('Error') }}', 'Cannot edit unsaved task.', 'error');
+            return;
+        }
+        
+        // Populate form fields
+        document.getElementById('editTaskId').value = task.id;
+        document.getElementById('editTaskIndex').value = index;
+        document.getElementById('editGroup').value = task.group || '';
+        document.getElementById('editTask').value = task.task || '';
+        document.getElementById('editAssignor').value = task.assignor_id || '';
+        document.getElementById('editAssignee').value = task.assignee_id || '';
+        document.getElementById('editStatus').value = task.status || '';
+        document.getElementById('editPriority').value = task.priority || '';
+        document.getElementById('editEtaTime').value = task.eta_time || '';
+        document.getElementById('editTaskNote').value = task.task_note || '';
+        document.getElementById('editL1').value = task.l1 || '';
+        document.getElementById('editL2').value = task.l2 || '';
+        document.getElementById('editL3').value = task.l3 || '';
+        document.getElementById('editL4').value = task.l4 || '';
+        document.getElementById('editL5').value = task.l5 || '';
+        document.getElementById('editL6').value = task.l6 || '';
+        document.getElementById('editL7').value = task.l7 || '';
+        
+        // Handle dates
+        if (task.start_date && task.end_date) {
+            try {
+                const start = moment(task.start_date);
+                const end = moment(task.end_date);
+                document.getElementById('editStartDate').value = start.format('YYYY-MM-DD HH:mm:ss');
+                document.getElementById('editEndDate').value = end.format('YYYY-MM-DD HH:mm:ss');
+                $('#editDuration').val(start.format('MMM D, YY hh:mm A') + ' - ' + end.format('MMM D, YY hh:mm A'));
+                
+                // Initialize duration picker
+                setTimeout(function() {
+                    if ($('#editDuration').data('daterangepicker')) {
+                        $('#editDuration').data('daterangepicker').setStartDate(start);
+                        $('#editDuration').data('daterangepicker').setEndDate(end);
+                    } else {
+                        initializeEditDurationPicker();
+                    }
+                }, 100);
+            } catch (e) {
+                console.error('Error parsing dates:', e);
+            }
+        } else {
+            // Initialize duration picker with default dates if no dates exist
+            setTimeout(function() {
+                initializeEditDurationPicker();
+            }, 100);
+        }
+        
+        // Show modal using the same class structure as main modal
+        document.getElementById('editTaskModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeEditTaskModal() {
+        document.getElementById('editTaskModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+        document.getElementById('editTaskForm').reset();
+    }
+
+    function initializeEditDurationPicker() {
+        const $durationField = $('#editDuration');
+        
+        if ($durationField.length === 0) return;
+        
+        // Destroy existing picker if any
+        if ($durationField.data('daterangepicker')) {
+            $durationField.data('daterangepicker').remove();
+        }
+        
+        var start = moment();
+        var end = moment(start).add(4, 'days');
+
+        function cb(start, end) {
+            if (start && end && start.isValid() && end.isValid()) {
+                $durationField.val(start.format('MMM D, YY hh:mm A') + ' - ' + end.format('MMM D, YY hh:mm A'));
+                $('#editStartDate').val(start.format('YYYY-MM-DD HH:mm:ss'));
+                $('#editEndDate').val(end.format('YYYY-MM-DD HH:mm:ss'));
+            }
+        }
+
+        $durationField.daterangepicker({
+            autoApply: true,
+            timePicker: true,
+            timePicker24Hour: false,
+            timePickerIncrement: 15,
+            locale: {
+                format: 'MMM D, YY hh:mm A'
+            },
+            startDate: start,
+            endDate: end,
+            opens: 'left'
+        }, cb);
+
+        cb(start, end);
+        
+        // Ensure dates are updated when picker changes
+        $durationField.on('apply.daterangepicker', function(ev, picker) {
+            $('#editStartDate').val(picker.startDate.format('YYYY-MM-DD HH:mm:ss'));
+            $('#editEndDate').val(picker.endDate.format('YYYY-MM-DD HH:mm:ss'));
+        });
+    }
+
+    // Handle edit form submission
+    $(document).on('submit', '#editTaskForm', function(e) {
+        e.preventDefault();
+        
+        const taskId = document.getElementById('editTaskId').value;
+        const taskIndex = parseInt(document.getElementById('editTaskIndex').value);
+        
+        if (!taskId) {
+            toastrs('{{ __('Error') }}', 'Invalid task ID.', 'error');
+            return;
+        }
+        
+        // Get form data - ensure all fields are captured
+        // Get values directly to preserve actual values (including empty strings and null)
+        const formData = {
+            _token: '{{ csrf_token() }}',
+            group: $('#editGroup').val() || null,
+            task: $('#editTask').val() || '',
+            assignor_id: $('#editAssignor').val() || null,
+            assignee_id: $('#editAssignee').val() || null,
+            status: $('#editStatus').val() || null,
+            priority: $('#editPriority').val() || null,
+            start_date: $('#editStartDate').val() || null,
+            end_date: $('#editEndDate').val() || null,
+            eta_time: $('#editEtaTime').val() || null,
+            task_note: $('#editTaskNote').val() || null,
+            l1: $('#editL1').val() || null,
+            l2: $('#editL2').val() || null,
+            l3: $('#editL3').val() || null,
+            l4: $('#editL4').val() || null,
+            l5: $('#editL5').val() || null,
+            l6: $('#editL6').val() || null,
+            l7: $('#editL7').val() || null,
+        };
+        
+        // Log to verify all fields are being captured
+        console.log('Form data being sent:', formData);
+        console.log('Field values check:', {
+            group: $('#editGroup').val(),
+            task: $('#editTask').val(),
+            priority: $('#editPriority').val(),
+            start_date: $('#editStartDate').val(),
+            end_date: $('#editEndDate').val(),
+            assignor_id: $('#editAssignor').val(),
+            assignee_id: $('#editAssignee').val()
+        });
+        
+        // Show loading
+        const submitBtn = $(this).find('button[type="submit"]');
+        const originalText = submitBtn.text();
+        submitBtn.prop('disabled', true).text('Updating...');
+        
+        $.ajax({
+            url: '/tasks/staging/update-task/' + taskId,
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                toastrs('{{ __('Success') }}', 'Task updated successfully!', 'success');
+                closeEditTaskModal();
+                
+                // Reload tasks to reflect changes
+                if (currentEventId) {
+                    $.ajax({
+                        url: '/tasks/staging/get-tasks/' + currentEventId,
+                        type: "GET",
+                        success: function (response) {
+                            console.log('Tasks reloaded:', response);
+                            if (Array.isArray(response)) {
+                                taskRows = response;
+                                renderTasksTable();
+                                checkAndShowTriggerButton();
+                            } else {
+                                console.error('Invalid response format:', response);
+                                toastrs('{{ __('Error') }}', 'Invalid response format. Refreshing page...', 'error');
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 1000);
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error('Error reloading tasks:', xhr);
+                            toastrs('{{ __('Error') }}', 'Failed to reload tasks. Refreshing page...', 'error');
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1000);
+                        }
+                    });
+                } else {
+                    location.reload();
+                }
+            },
+            error: function(xhr) {
+                console.error('Error updating task:', xhr);
+                let errorMessage = 'Failed to update task. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                toastrs('{{ __('Error') }}', errorMessage, 'error');
+                submitBtn.prop('disabled', false).text(originalText);
+            }
+        });
+    });
+
+    function triggerFirstTask() {
+        if (!currentEventId) {
+            $.alert({
+                title: '⚠️ Error',
+                content: 'No event selected.',
+                boxWidth: '30%',
+                useBootstrap: false
+            });
+            return;
+        }
+
+        $.confirm({
+            title: '▶️ Trigger First Task',
+            content: 'Are you sure you want to trigger the first task? This will add it to the task board.',
+            type: 'blue',
+            buttons: {
+                confirm: {
+                    text: 'Yes, Trigger',
+                    btnClass: 'btn-primary',
+                    action: function() {
+                        // Show loading state
+                        const triggerBtn = document.querySelector('.btn-trigger');
+                        if (triggerBtn) {
+                            triggerBtn.disabled = true;
+                            triggerBtn.innerHTML = '<span>⏳</span><span style="margin-left: 8px;">Triggering...</span>';
+                        }
+
+                        $.ajax({
+                            url: '/tasks/staging/play/' + currentEventId,
+                            type: 'GET',
+                            success: function(response) {
+                                $.alert({
+                                    title: '✅ Success',
+                                    content: response.message || 'First task triggered successfully!',
+                                    boxWidth: '30%',
+                                    useBootstrap: false,
+                                    onDestroy: function() {
+                                        // Reload tasks to reflect the change
+                                        $.ajax({
+                                            url: '/tasks/staging/get-tasks/' + currentEventId,
+                                            type: "GET",
+                                            success: function (response) {
+                                                taskRows = response;
+                                                renderTasksTable();
+                                                checkAndShowTriggerButton();
+                                            },
+                                            error: function (xhr) {
+                                                console.error('Error reloading tasks:', xhr);
+                                                location.reload();
+                                            }
+                                        });
+                                    }
+                                });
+                            },
+                            error: function(xhr) {
+                                let errorMessage = 'Failed to trigger first task.';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                
+                                $.alert({
+                                    title: '⚠️ Error',
+                                    content: errorMessage,
+                                    boxWidth: '30%',
+                                    useBootstrap: false
+                                });
+                                
+                                // Reset button state
+                                if (triggerBtn) {
+                                    triggerBtn.disabled = false;
+                                    triggerBtn.innerHTML = '<span>▶</span><span style="margin-left: 8px;">Trigger First Task</span>';
+                                }
+                            }
+                        });
                     }
                 },
                 cancel: {
@@ -1602,8 +2106,25 @@
                     boxWidth: '30%',
                     useBootstrap: false,
                     onDestroy: function () {
-                        closeTaskModal();
-                        location.reload();
+                        // Reload tasks for the current event instead of reloading the page
+                        if (currentEventId) {
+                            $.ajax({
+                                url: '/tasks/staging/get-tasks/' + currentEventId,
+                                type: "GET",
+                                success: function (response) {
+                                    taskRows = response;
+                                    renderTasksTable();
+                                    checkAndShowTriggerButton();
+                                },
+                                error: function (xhr) {
+                                    console.error('Error reloading tasks:', xhr);
+                                    // Fallback to page reload if AJAX fails
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            location.reload();
+                        }
                     }
                 });
             },
