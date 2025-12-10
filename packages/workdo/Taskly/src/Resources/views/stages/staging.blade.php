@@ -2216,16 +2216,8 @@
                 id: eventId
             },
             success: function (response) {
-                $.alert({
-                    title: '✅ Success',
-                    content: response.message,
-                    boxWidth: '30%',
-                    useBootstrap: false,
-                    backgroundDismiss: true,
-                    onDestroy: function () {
-                        location.reload();
-                    }
-                });
+                // Reload page directly without showing success alert
+                location.reload();
             },
             error: function (xhr) {
                 $.alert({

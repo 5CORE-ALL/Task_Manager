@@ -4267,7 +4267,10 @@ public function bulkUpdatePriority(Request $request)
                 $taskBaseQuery->whereMonth('tasks.completion_date', $prevMonth->month)
                              ->whereYear('tasks.completion_date', $prevMonth->year);
             } elseif ($dateFilter === 'last_30_days') {
-                $taskBaseQuery->whereBetween('tasks.completion_date', [$carbon->copy()->subDays(30)->toDateString(), $carbon->toDateString()]);
+                $taskBaseQuery->whereNotNull('tasks.completion_date')
+                    ->where('tasks.completion_date', '!=', '0000-00-00')
+                    ->where('tasks.completion_date', '!=', '0000-00-00 00:00:00')
+                    ->whereBetween('tasks.completion_date', [$carbon->copy()->subDays(30)->startOfDay()->format('Y-m-d H:i:s'), $carbon->copy()->endOfDay()->format('Y-m-d H:i:s')]);
             } elseif ($dateFilter === 'custom') {
                 // Handle custom date range
                 $startDate = request()->input('start_date');
