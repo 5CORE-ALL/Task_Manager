@@ -39,10 +39,7 @@
             @endphp
             
             @if($isProduction)
-                <div class="alert alert-info mb-3 text-center">
-                    <i class="ti ti-info-circle me-2"></i>
-                    {{ __('For security reasons, only Google login is available in production.') }}
-                </div>
+            
             @endif
             
             @if(!$isProduction)
