@@ -32,7 +32,19 @@ class ProjectDoneTaskDatatable extends DataTable
             ->editColumn('status', function (Task $task) {
                 $stage = $task->stage;
                 $html = '';
-                $html .= '<div> <span class="editable" data-id="' . $task->id . '" colspan="4" data-column="status" style="padding: 5px 10px;border-radius: 5px;color:white;cursor:pointer;background-color:' . $stage->color . '"> ' . $task->stage_name . '</div>';
+                
+                // Replace status text values
+                $displayStatus = $task->stage_name;
+                if ($displayStatus === 'Need Help') {
+                    $displayStatus = 'Help';
+                } elseif ($displayStatus === 'Need Approval') {
+                    $displayStatus = 'Need App';
+                } elseif ($displayStatus === 'Not Applicable') {
+                    $displayStatus = 'Inapplicable';
+                }
+                
+                // Fixed width badge to keep consistent length
+                $html .= '<div> <span class="editable" data-id="' . $task->id . '" colspan="4" data-column="status" style="padding: 5px 10px;border-radius: 5px;color:white;cursor:pointer;background-color:' . $stage->color . ';display:inline-block;min-width:100px;text-align:center;"> ' . $displayStatus . '</span></div>';
                 return $html;
             })
 
@@ -140,18 +152,19 @@ class ProjectDoneTaskDatatable extends DataTable
             // })
 
             ->addColumn('assigner_name', function (Task $task) {
-                $user = $task->assignorUser();
                 $html = '';
 
-                if (check_file($user?->avatar) == false) {
-                    $path = asset('uploads/user-avatar/avatar.png');
-                } else {
-                    $path = get_file($user?->avatar);
+                foreach ($task->assignorUsers() as $user) {
+                    if (check_file($user->avatar) == false) {
+                        $path = asset('uploads/user-avatar/avatar.png');
+                    } else {
+                        $path = get_file($user->avatar);
+                    }
+                    $html .= '<div class="d-flex align-items-center gap-2">';
+                    $html .= '<img src="' . $path . '" data-bs-toggle="tooltip" title="' . $user->name . '" data-bs-placement="top" class="rounded-circle" width="40" height="40">';
+                    $html .= '<span>' . formatUserName($user->name) . '</span>';
+                    $html .= '</div>';
                 }
-                $html .= '<div class="d-flex align-items-center gap-2">';
-                $html .= '<img src="' . $path . '" data-bs-toggle="tooltip" title="' . $user?->name . '" data-bs-placement="top" class="rounded-circle" width="25" height="25">';
-                $html .= '<span>' . (explode(' ', $user?->name ?? '-')[0] ?? '-') . '</span>';
-                $html .= '</div>';
 
                 return $html;
             })
@@ -195,8 +208,8 @@ class ProjectDoneTaskDatatable extends DataTable
                         $path = get_file($user->avatar);
                     }
                     $html .= '<div class="d-flex align-items-center gap-2">';
-                    $html .= '<img src="' . $path . '" data-bs-toggle="tooltip" title="' . $user->name . '" data-bs-placement="top" class="rounded-circle" width="25" height="25">';
-                    $html .= '<span>' . explode(' ', $user->name)[0] . '</span>';
+                    $html .= '<img src="' . $path . '" data-bs-toggle="tooltip" title="' . $user->name . '" data-bs-placement="top" class="rounded-circle" width="40" height="40">';
+                    $html .= '<span>' . formatUserName($user->name) . '</span>';
                     $html .= '</div>';
                 }
                 return $html;

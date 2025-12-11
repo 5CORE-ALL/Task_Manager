@@ -420,19 +420,19 @@
 
         @permission('task create')
             <a class="btn btn-sm btn-primary me-2" data-ajax-popup="true" data-size="lg" data-title="{{ __('Create Single Task') }}"
-                data-url="{{ route('tasks.create') }}" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Single Task') }}"><i
+                data-url="{{ route('tasks.create') }}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Create a single task') }}"><i
                     class="ti ti-file-plus"></i></a>
             <a class="btn btn-sm btn-primary me-2" data-ajax-popup="true" data-size="xl" data-title="{{ __('Create Multiple Tasks') }}"
-                data-url="{{ route('tasks.create.multiple') }}" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Multiple Tasks') }}"><i
+                data-url="{{ route('tasks.create.multiple') }}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Create multiple tasks at once') }}"><i
                     class="ti ti-files"></i></a>
-            <a href="{{ route('project.staging') }}" target="_blank" class="btn btn-sm btn-primary me-2" data-bs-toggle="tooltip"
-                data-bs-original-title="{{ __('Staging') }}"><i class="fa fa-sitemap"></i></a>
+            <a href="{{ route('project.staging') }}" target="_blank" class="btn btn-sm btn-primary me-2" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                data-bs-original-title="{{ __('Open staging area for advanced task workflows and planning') }}"><i class="fa fa-sitemap"></i></a>
                     
-            <a class="btn btn-sm btn-primary me-2" href="{{ route('reviews.index') }}" target="_blank" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Reviews') }}">
+            <a class="btn btn-sm btn-primary me-2" href="{{ route('reviews.index') }}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('View and manage task reviews and ratings') }}">
                 <i class="ti ti-star"></i>
             </a>        
              <a class="btn btn-sm btn-primary me-2" data-ajax-popup="true" data-size="lg" data-title="{{ __('Import Task') }}"
-                data-url="{{ route('tasks.import') }}" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Import') }}"><i
+                data-url="{{ route('tasks.import') }}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Import tasks from a CSV or Excel file') }}"><i
                     class="fa fa-upload"></i></a>
                   
         @endpermission
@@ -696,7 +696,7 @@
                                 <i class="bi bi-columns-gap fs-4"></i>
                             </div>
                             <h5>{{ __('Multiple Tasks') }}</h5>
-                            <p>{{ __('Create multiple tasks at once with batch options.') }}</p>
+                            <p>{{ __('Create multiple tasks at once.') }}</p>
                         </div>
                     </div>
                     <div class="col-md-4">

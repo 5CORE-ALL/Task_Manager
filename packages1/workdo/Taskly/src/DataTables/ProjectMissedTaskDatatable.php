@@ -51,7 +51,18 @@ class ProjectMissedTaskDatatable extends DataTable
 
                 $html = '';
 
-                $html .= '<div> <span class="editable" data-id="' . $task->id . '" data-column="status" style="padding: 5px 10px;border-radius: 5px;color:white;cursor:pointer;background-color:' . $stage->color . '"> ' . $task->stage_name . '</div>';
+                // Replace status text values
+                $displayStatus = $task->stage_name;
+                if ($displayStatus === 'Need Help') {
+                    $displayStatus = 'Help';
+                } elseif ($displayStatus === 'Need Approval') {
+                    $displayStatus = 'Need App';
+                } elseif ($displayStatus === 'Not Applicable') {
+                    $displayStatus = 'Inapplicable';
+                }
+
+                // Fixed width badge to keep consistent length
+                $html .= '<div> <span class="editable" data-id="' . $task->id . '" data-column="status" style="padding: 5px 10px;border-radius: 5px;color:white;cursor:pointer;background-color:' . $stage->color . ';display:inline-block;min-width:100px;text-align:center;"> ' . $displayStatus . '</span></div>';
 
                 return $html;
 
@@ -308,7 +319,7 @@ class ProjectMissedTaskDatatable extends DataTable
 
                     $html .= '<img src="' . $path . '" data-bs-toggle="tooltip" title="' . $user->name . '" data-bs-placement="top" class="rounded-circle" width="40" height="40">';
 
-                    $html .= '<span>' . $user->name . '</span>';
+                    $html .= '<span>' . formatUserName($user->name) . '</span>';
 
                     $html .= '</div>';
 
@@ -537,7 +548,7 @@ class ProjectMissedTaskDatatable extends DataTable
 
                     $html .= '<img src="' . $path . '" data-bs-toggle="tooltip" title="' . $user->name . '" data-bs-placement="top" class="rounded-circle" width="40" height="40">';
 
-                    $html .= '<span>' . $user->name . '</span>';
+                    $html .= '<span>' . formatUserName($user->name) . '</span>';
 
                     $html .= '</div>';
 

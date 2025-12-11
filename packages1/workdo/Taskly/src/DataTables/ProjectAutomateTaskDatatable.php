@@ -28,7 +28,19 @@ class ProjectAutomateTaskDatatable extends DataTable
         ->editColumn('status',function(AutomateTask $automateTask){
             $stage = $automateTask->stage;
             $html ='';
-            $html .= '<div> <span style="padding: 5px 10px;border-radius: 5px;color:white;background-color:'.$stage->color.'"> '.$automateTask->stage_name.'</div>';
+            
+            // Replace status text values
+            $displayStatus = $automateTask->stage_name;
+            if ($displayStatus === 'Need Help') {
+                $displayStatus = 'Help';
+            } elseif ($displayStatus === 'Need Approval') {
+                $displayStatus = 'Need App';
+            } elseif ($displayStatus === 'Not Applicable') {
+                $displayStatus = 'Inapplicable';
+            }
+            
+            // Fixed width badge to keep consistent length
+            $html .= '<div> <span style="padding: 5px 10px;border-radius: 5px;color:white;background-color:'.$stage->color.';display:inline-block;min-width:100px;text-align:center;"> '.$displayStatus.'</span></div>';
             return $html;
         })
         ->editColumn('title', function (AutomateTask $task) {
@@ -73,18 +85,19 @@ class ProjectAutomateTaskDatatable extends DataTable
         // })
         
         ->addColumn('assigner_name', function (AutomateTask $automateTask) {
-            $user = $automateTask->assignorUser();
             $html = '';
         
-            if (check_file($user?->avatar) == false) {
-                $path = asset('uploads/user-avatar/avatar.png');
-            } else {
-                $path = get_file($user?->avatar);
+            foreach ($automateTask->assignorUsers() as $user) {
+                if (check_file($user->avatar) == false) {
+                    $path = asset('uploads/user-avatar/avatar.png');
+                } else {
+                    $path = get_file($user->avatar);
+                }
+                $html .= '<div class="d-flex align-items-center gap-2">';
+                $html .= '<img src="' . $path . '" data-bs-toggle="tooltip" title="' . $user->name . '" data-bs-placement="top" class="rounded-circle" width="40" height="40">';
+                $html .= '<span>' . formatUserName($user->name) . '</span>';
+                $html .= '</div>';
             }
-            $html .= '<div class="d-flex align-items-center gap-2">';
-            $html .= '<img src="' . $path . '" data-bs-toggle="tooltip" title="' . $user?->name . '" data-bs-placement="top" class="rounded-circle" width="40" height="40">';
-            $html .= '<span>' . ($user?->name ?? '-') . '</span>';
-            $html .= '</div>';
         
             return $html;
         })
@@ -190,7 +203,7 @@ class ProjectAutomateTaskDatatable extends DataTable
                 }
                  $html .= '<div class="d-flex align-items-center gap-2">';
                     $html .= '<img src="' . $path . '" data-bs-toggle="tooltip" title="' . $user->name . '" data-bs-placement="top" class="rounded-circle" width="40" height="40">';
-                    $html .= '<span>' . $user->name . '</span>';
+                    $html .= '<span>' . formatUserName($user->name) . '</span>';
                     $html .= '</div>';
             }
             return $html;

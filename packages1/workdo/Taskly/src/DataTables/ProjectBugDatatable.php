@@ -26,10 +26,45 @@ class ProjectBugDatatable extends DataTable
         $rowcolumn = ['title','priority','status','assign_to'];
         $dataTable = (new EloquentDataTable($query))
         ->editColumn('status',function(BugReport $bug){
-            return $bug->stage_name;
+            $stage = $bug->stage;
+            $html = '';
+            
+            // Replace status text values
+            $displayStatus = $bug->stage_name;
+            if ($displayStatus === 'Need Help') {
+                $displayStatus = 'Help';
+            } elseif ($displayStatus === 'Need Approval') {
+                $displayStatus = 'Need App';
+            } elseif ($displayStatus === 'Not Applicable') {
+                $displayStatus = 'Inapplicable';
+            }
+            
+            // Fixed width badge to keep consistent length
+            if ($stage) {
+                $html .= '<div> <span style="padding: 5px 10px;border-radius: 5px;color:white;background-color:'.$stage->color.';display:inline-block;min-width:100px;text-align:center;"> '.$displayStatus.'</span></div>';
+            } else {
+                $html .= '<div> <span style="padding: 5px 10px;border-radius: 5px;color:white;background-color:#6c757d;display:inline-block;min-width:100px;text-align:center;"> '.$displayStatus.'</span></div>';
+            }
+            
+            return $html;
         })
         ->editColumn('assign_to',function(BugReport $bug){
-            return $bug->user_name;
+            $user = $bug->user;
+            $html = '';
+            
+            if ($user) {
+                if (check_file($user->avatar) == false) {
+                    $path = asset('uploads/user-avatar/avatar.png');
+                } else {
+                    $path = get_file($user->avatar);
+                }
+                $html .= '<div class="d-flex align-items-center gap-2">';
+                $html .= '<img src="' . $path . '" data-bs-toggle="tooltip" title="' . $user->name . '" data-bs-placement="top" class="rounded-circle" width="40" height="40">';
+                $html .= '<span>' . formatUserName($user->name) . '</span>';
+                $html .= '</div>';
+            }
+            
+            return $html;
         });
         if (\Laratrust::hasPermission('bug show') || \Laratrust::hasPermission('bug edit') || \Laratrust::hasPermission('bug delete')) {
             $dataTable->addColumn('action', function (BugReport $bug) {

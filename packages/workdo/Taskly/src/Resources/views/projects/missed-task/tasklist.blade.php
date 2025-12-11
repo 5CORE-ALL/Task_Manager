@@ -236,7 +236,8 @@
                             </div>
                             <div class="flex-grow-2">
                                  <label class="form-label">{{ __('Priority')}}</label>
-                                <select class="form-control form-control-light" name="priority" id="priority" required>
+                                <select class="form-control form-control-light" name="priority" id="priority">
+                                    <option value="">{{ __('All Priority')}}</option>
                                     <option value="normal">{{ __('normal')}}</option>
                                     <option value="urgent">{{ __('urgent')}}</option>
                                     <option value="Take your time">{{ __('Take your time')}}</option>
