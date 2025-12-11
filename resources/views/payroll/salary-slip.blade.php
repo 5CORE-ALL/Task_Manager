@@ -203,6 +203,14 @@
                                     <div class="detail-value">₹{{ number_format($payroll->salary_current ?? 0, 0) }}</div>
                                 </div>
                                 <div class="detail-item">
+                                    <div class="detail-label">Productive Hours</div>
+                                    <div class="detail-value">{{ round($payroll->productive_hrs ?? 0) }} hrs</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Approved Hours</div>
+                                    <div class="detail-value">{{ round($payroll->approved_hrs ?? 0) }} hrs</div>
+                                </div>
+                                <div class="detail-item">
                                     <div class="detail-label">Incentive</div>
                                     <div class="detail-value">₹{{ number_format($payroll->incentive ?? 0, 0) }}</div>
                                 </div>

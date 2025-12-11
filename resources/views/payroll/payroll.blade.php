@@ -1912,8 +1912,11 @@ function calculatePayable() {
     
     function calculateTotalPayable() {
         const payable = parseFloat($('#payable').val()) || 0;
+        const incentive = parseFloat($('#incentive').val()) || 0;
         const advance = parseFloat($('#advance').val()) || 0;
-        const totalPayable = payable - advance;
+        const extra = parseFloat($('#extra').val()) || 0;
+        // Total Payable = Payable + Incentive - Advance + Extra
+        const totalPayable = payable + incentive - advance + extra;
         $('#totalPayable').val(totalPayable);
     }
     
@@ -2495,13 +2498,15 @@ function calculatePayable() {
             const effectiveHours = approvedHrs > 0 ? approvedHrs : productiveHrs;
             
             if (effectiveHours > 0 && salaryCurrent > 0) {
-                payable = (salaryCurrent * effectiveHours / 200) + incentive;
+                // Payable = (Salary × Hours / 200) - incentive is NOT included
+                payable = (salaryCurrent * effectiveHours / 200);
                 // Get advance from input field instead of text display
                 const advanceInput = row.find('.advance-input').val() || 0;
                 const advance = parseFloat(advanceInput) || 0;
                 const extraText = row.find('.extra-input').val() || 0;
                 const extra = parseFloat(extraText) || 0;
-                totalPayable = payable - advance + extra;
+                // Total Payable = Payable + Incentive - Advance + Extra
+                totalPayable = payable + incentive - advance + extra;
             }
         }
         

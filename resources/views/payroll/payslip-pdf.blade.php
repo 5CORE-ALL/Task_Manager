@@ -145,11 +145,20 @@
     <div class="header">
         <div class="logo-row">
             <div class="header-left">
-                
-                    <img src="{{asset('images/WhatsApp Image 2025-08-10 at 05.13.57_627fe9be.jpg')}}" alt="Logo">
-                
-                   
-              
+                @php
+                    $logoPath = public_path('images/WhatsApp Image 2025-08-10 at 05.13.57_627fe9be.jpg');
+                    $logoExists = file_exists($logoPath);
+                    $logoBase64 = '';
+                    if ($logoExists) {
+                        $imageData = file_get_contents($logoPath);
+                        $logoBase64 = 'data:image/jpeg;base64,' . base64_encode($imageData);
+                    }
+                @endphp
+                @if($logoExists && $logoBase64)
+                    <img src="{{ $logoBase64 }}" alt="Logo" style="max-width: 140px; max-height: 60px;">
+                @else
+                    <span style="font-size: 14px; font-weight: bold;">5CORE INC</span>
+                @endif
             </div>
             <div class="header-right">
                 <h1>SALARY SLIP</h1>
@@ -192,11 +201,11 @@
         </tr>
         <tr>
             <td>Productive Hrs</td>
-            <td>{{ round($productive_hrs) ?? '0' }} hr</td>
+            <td>{{ round($productive_hrs ?? $payroll->productive_hrs ?? 0) }} hr</td>
         </tr>
         <tr>
             <td>Approved Hrs</td>
-            <td>{{ round($approved_hrs) ?? '0' }} hr</td>
+            <td>{{ round($approved_hrs ?? $payroll->approved_hrs ?? 0) }} hr</td>
         </tr>
         <tr>
             <td>Incentive</td>

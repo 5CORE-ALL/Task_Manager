@@ -132,8 +132,10 @@ public function index(Request $request)
                 $totalPayable = 0;
                 
                 if ($approvalStatus === 'approved' && $approvedHrs > 0 && $currentMonthPayroll->salary_current) {
-                    $payable = ($currentMonthPayroll->salary_current * $approvedHrs / 200) + ($currentMonthPayroll->incentive ?? 0);
-                    $totalPayable = $payable - ($currentMonthPayroll->advance ?? 0) + ($currentMonthPayroll->extra ?? 0);
+                    // Payable = (Salary × Hours / 200) - incentive is NOT included
+                    $payable = ($currentMonthPayroll->salary_current * $approvedHrs / 200);
+                    // Total Payable = Payable + Incentive - Advance + Extra
+                    $totalPayable = $payable + ($currentMonthPayroll->incentive ?? 0) - ($currentMonthPayroll->advance ?? 0) + ($currentMonthPayroll->extra ?? 0);
                 }
                 
                 // Use stored sal_previous from database - do NOT dynamically calculate from other months
@@ -451,9 +453,10 @@ public function index(Request $request)
             $approvedHrs = $request->approved_hrs ?? $productiveHrs; // Use actual productive hours if not provided
             $approvalStatus = $request->approval_status ?? 'pending'; // Use provided status or default to pending
             
-            // Calculate payable: (Current Salary * Approved Hours / 200) + Incentive
-            $payable = ($salaryCurrent * $approvedHrs / 200) + $incentive;
-            $totalPayable = $payable - $advance;
+            // Calculate payable: (Current Salary * Approved Hours / 200) - incentive is NOT included
+            $payable = ($salaryCurrent * $approvedHrs / 200);
+            // Total Payable = Payable + Incentive - Advance + Extra
+            $totalPayable = $payable + $incentive - $advance;
             
             // Get ETC and ATC data for the employee
             $etcAtcData = $this->getEmployeeETCAndATC($request->email_address, $request->month);
@@ -662,13 +665,15 @@ public function index(Request $request)
             }
             
             // Calculate payable based on approval status and approved hours
+            // Payable = (Salary × Hours / 200) - incentive is NOT included in payable
             $payable = 0;
             if ($approvalStatus === 'approved' && $approvedHrs > 0 && $salaryCurrent > 0) {
-                $payable = ($salaryCurrent * $approvedHrs / 200) + $incentive;
+                $payable = ($salaryCurrent * $approvedHrs / 200);
             }
             
             $extra = $request->extra ?? $payroll->extra ?? 0;
-            $totalPayable = $payable - $advance + $extra;
+            // Total Payable = Payable + Incentive - Advance + Extra
+            $totalPayable = $payable + $incentive - $advance + $extra;
             
             // IMPORTANT: Only update TeamLogger data if explicitly requested
             // This preserves existing ETC/ATC data when just updating salary/increment
@@ -1394,10 +1399,12 @@ public function index(Request $request)
     }
     public function generatePDF($id)
     {
+        // Clear any output buffers to ensure clean PDF generation
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         try {
-            $productiveHrs = null;
-            $approvedHrs = null;
-            
             $workspaceId = session('workspace_id') ?? Auth::user()->workspace_id ?? 1;
             
             // Get payroll record with employee details
@@ -1413,35 +1420,125 @@ public function index(Request $request)
                     'departments.name as department'
                 )
                 ->first();
-                
-                $monthString = $payroll->month ?? null;
-                
-                 if ($employee && $employee->email_address && $monthString) {
-        $teamLog = \App\Models\Payroleteamlogger::where('email_address', $employee->email_address)
-                    ->where('month', $monthString)
-                    ->first();
-
-        if ($teamLog) {
-            $productiveHrs = $teamLog->productive_hrs;
-            $approvedHrs = $teamLog->approved_hrs;
-        }
-    }
             
-            // Prepare data for PDF
+            // Get productive and approved hours from payroll model
+            // Fallback to Payroleteamlogger if not available in payroll
+            $productiveHrs = $payroll->productive_hrs ?? 0;
+            $approvedHrs = $payroll->approved_hrs ?? 0;
+            
+            // If hours are not in payroll, try to get from Payroleteamlogger
+            if (($productiveHrs == 0 || $approvedHrs == 0) && $payroll->email_address && $payroll->month) {
+                $teamLog = \App\Models\Payroleteamlogger::where('email_address', $payroll->email_address)
+                    ->where('month', $payroll->month)
+                    ->first();
+                
+                if ($teamLog) {
+                    $productiveHrs = $productiveHrs == 0 ? ($teamLog->productive_hrs ?? 0) : $productiveHrs;
+                    $approvedHrs = $approvedHrs == 0 ? ($teamLog->approved_hrs ?? 0) : $approvedHrs;
+                }
+            }
+            
+            // Verify and recalculate payable amounts if needed
+            $calculatedPayable = 0;
+            $calculatedTotalPayable = 0;
+            
+            if ($payroll->approval_status === 'approved' && $approvedHrs > 0 && $payroll->salary_current > 0) {
+                // Formula: Payable = (Current Salary * Approved Hours / 200) - incentive is NOT included
+                $calculatedPayable = ($payroll->salary_current * $approvedHrs / 200);
+                // Total Payable = Payable + Incentive - Advance + Extra
+                $calculatedTotalPayable = $calculatedPayable + ($payroll->incentive ?? 0) - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
+            } else if ($payroll->incentive > 0) {
+                // If not approved but has incentive, payable is 0, incentive goes to total payable
+                $calculatedPayable = 0;
+                $calculatedTotalPayable = ($payroll->incentive ?? 0) - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
+            }
+            
+            // Use calculated values if they differ significantly from stored values
+            if (abs($calculatedPayable - ($payroll->payable ?? 0)) > 1) {
+                $payroll->payable = round($calculatedPayable);
+            }
+            
+            if (abs($calculatedTotalPayable - ($payroll->total_payable ?? 0)) > 1) {
+                $payroll->total_payable = round($calculatedTotalPayable);
+            }
+            
+            // Prepare data for the blade template
             $data = [
                 'payroll' => $payroll,
                 'employee' => $employee,
-                'company_name' => 'Score Logo', // You can make this dynamic
-                'motivational_text' => 'Your hard work is valued — this is just the start of greater things! 🌟 Keep Growing 🚀',
-                'generated_date' => now()->format('d/m/Y H:i:s'),
                 'productive_hrs' => $productiveHrs,
-                'approved_hrs' => $approvedHrs,
+                'approved_hrs' => $approvedHrs
             ];
             
-            // Return HTML view with print styles (user can print to PDF)
-            return view('payroll.payslip-pdf', $data);
+            // Generate PDF and save temporarily, then return for download
+            // This ensures the PDF is valid before sending
+            $tempPath = storage_path('app/temp/');
+            if (!file_exists($tempPath)) {
+                mkdir($tempPath, 0755, true);
+            }
+            
+            // Generate unique filename
+            $timestamp = now()->format('Y_m_d_H_i_s');
+            $tempFilename = "salary_slip_{$payroll->id}_{$timestamp}.pdf";
+            $tempFilepath = $tempPath . $tempFilename;
+            
+            try {
+                // Generate PDF
+                $pdf = Pdf::loadView('payroll.payslip-pdf', $data);
+                
+                // Set PDF options for better rendering
+                $pdf->setPaper('A4', 'portrait');
+                $pdf->setOption('isHtml5ParserEnabled', true);
+                $pdf->setOption('isRemoteEnabled', true);
+                $pdf->setOption('defaultFont', 'Arial');
+                $pdf->setOption('enable-local-file-access', true);
+                
+                // Save PDF to temporary file first
+                $pdf->save($tempFilepath);
+                
+                // Verify file was created and has content
+                if (!file_exists($tempFilepath) || filesize($tempFilepath) == 0) {
+                    throw new \Exception('PDF file was not created or is empty');
+                }
+                
+                // Generate download filename
+                $downloadFilename = "salary_slip_{$payroll->name}_{$payroll->month}.pdf";
+                $downloadFilename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $downloadFilename);
+                
+                // Return the file for download and delete after sending
+                return response()->download($tempFilepath, $downloadFilename, [
+                    'Content-Type' => 'application/pdf',
+                ])->deleteFileAfterSend(true);
+                
+            } catch (\Exception $pdfException) {
+                // Clean up temp file if it exists
+                if (file_exists($tempFilepath)) {
+                    @unlink($tempFilepath);
+                }
+                
+                Log::error('PDF generation exception: ' . $pdfException->getMessage(), [
+                    'exception_type' => get_class($pdfException),
+                    'file' => $pdfException->getFile(),
+                    'line' => $pdfException->getLine(),
+                    'trace' => $pdfException->getTraceAsString()
+                ]);
+                
+                throw $pdfException;
+            }
             
         } catch (\Exception $e) {
+            // Clear output buffer on error too
+            if (ob_get_level()) {
+                ob_end_clean();
+            }
+            
+            Log::error('Generate PDF error: ' . $e->getMessage(), [
+                'exception_type' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Error generating PDF: ' . $e->getMessage()
@@ -1719,10 +1816,59 @@ public function index(Request $request)
                 'email_address' => $payroll->email_address ?? 'N/A'
             ];
             
+            // Get productive and approved hours from payroll model
+            // Fallback to Payroleteamlogger if not available in payroll
+            $productiveHrs = $payroll->productive_hrs ?? 0;
+            $approvedHrs = $payroll->approved_hrs ?? 0;
+            
+            // If hours are not in payroll, try to get from Payroleteamlogger
+            if (($productiveHrs == 0 || $approvedHrs == 0) && $payroll->email_address && $payroll->month) {
+                $teamLog = \App\Models\Payroleteamlogger::where('email_address', $payroll->email_address)
+                    ->where('month', $payroll->month)
+                    ->first();
+                
+                if ($teamLog) {
+                    $productiveHrs = $productiveHrs == 0 ? ($teamLog->productive_hrs ?? 0) : $productiveHrs;
+                    $approvedHrs = $approvedHrs == 0 ? ($teamLog->approved_hrs ?? 0) : $approvedHrs;
+                }
+            }
+            
+            // Verify and recalculate payable amounts if needed
+            // This ensures calculations are always correct in the PDF
+            $calculatedPayable = 0;
+            $calculatedTotalPayable = 0;
+            
+            if ($payroll->approval_status === 'approved' && $approvedHrs > 0 && $payroll->salary_current > 0) {
+                // Formula: Payable = (Current Salary * Approved Hours / 200) - incentive is NOT included
+                $calculatedPayable = ($payroll->salary_current * $approvedHrs / 200);
+                // Total Payable = Payable + Incentive - Advance + Extra
+                $calculatedTotalPayable = $calculatedPayable + ($payroll->incentive ?? 0) - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
+            } else if ($payroll->incentive > 0) {
+                // If not approved but has incentive, payable is 0, incentive goes to total payable
+                $calculatedPayable = 0;
+                $calculatedTotalPayable = ($payroll->incentive ?? 0) - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
+            }
+            
+            // Use calculated values if they differ significantly from stored values (more than 1 rupee difference)
+            // This helps catch calculation errors
+            if (abs($calculatedPayable - ($payroll->payable ?? 0)) > 1) {
+                Log::warning("Payroll calculation mismatch for payroll ID {$payroll->id}: Stored payable = {$payroll->payable}, Calculated = {$calculatedPayable}");
+                // Use calculated value for PDF
+                $payroll->payable = round($calculatedPayable);
+            }
+            
+            if (abs($calculatedTotalPayable - ($payroll->total_payable ?? 0)) > 1) {
+                Log::warning("Payroll total calculation mismatch for payroll ID {$payroll->id}: Stored total = {$payroll->total_payable}, Calculated = {$calculatedTotalPayable}");
+                // Use calculated value for PDF
+                $payroll->total_payable = round($calculatedTotalPayable);
+            }
+            
             // Prepare data for the blade template
             $data = [
                 'payroll' => $payroll,
-                'employee' => $employee
+                'employee' => $employee,
+                'productive_hrs' => $productiveHrs,
+                'approved_hrs' => $approvedHrs
             ];
             
             // Generate PDF using the existing payslip-pdf blade template
@@ -2496,8 +2642,10 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
                     $effectiveHours = $payroll->approved_hrs ?? $teamLoggerData['hours'];
                     
                     if ($effectiveHours > 0) {
-                        $payable = ($payroll->salary_current * $effectiveHours / 200) + ($payroll->incentive ?? 0);
-                        $totalPayable = $payable - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
+                        // Payable = (Salary × Hours / 200) - incentive is NOT included
+                        $payable = ($payroll->salary_current * $effectiveHours / 200);
+                        // Total Payable = Payable + Incentive - Advance + Extra
+                        $totalPayable = $payable + ($payroll->incentive ?? 0) - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
                     }
                 }
             }
@@ -2553,8 +2701,10 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
                     $effectiveHours = $payroll->approved_hrs ?? $teamLoggerData['hours'];
                     
                     if ($effectiveHours > 0) {
-                        $payable = ($payroll->salary_current * $effectiveHours / 200) + ($payroll->incentive ?? 0);
-                        $totalPayable = $payable - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
+                        // Payable = (Salary × Hours / 200) - incentive is NOT included
+                        $payable = ($payroll->salary_current * $effectiveHours / 200);
+                        // Total Payable = Payable + Incentive - Advance + Extra
+                        $totalPayable = $payable + ($payroll->incentive ?? 0) - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
                     }
                 }
             }
@@ -2617,9 +2767,11 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
                     
                     // Recalculate payable if approved
                     if ($payroll->approval_status === 'approved' && $payroll->approved_hrs > 0) {
-                        $payable = ($payroll->salary_current * $payroll->approved_hrs / 200) + ($payroll->incentive ?? 0);
+                        // Payable = (Salary × Hours / 200) - incentive is NOT included
+                        $payable = ($payroll->salary_current * $payroll->approved_hrs / 200);
                         $payroll->payable = round($payable);
-                        $payroll->total_payable = $payroll->payable - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
+                        // Total Payable = Payable + Incentive - Advance + Extra
+                        $payroll->total_payable = $payroll->payable + ($payroll->incentive ?? 0) - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
                     }
                     
                     $payroll->save();
@@ -2690,8 +2842,8 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
 
             $payroll->extra = floatval($extraAmount);
             
-            // Recalculate total payable: payable - advance + extra
-            $totalPayable = ($payroll->payable ?? 0) - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
+            // Recalculate total payable: payable + incentive - advance + extra
+            $totalPayable = ($payroll->payable ?? 0) + ($payroll->incentive ?? 0) - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
             $payroll->total_payable = round($totalPayable);
             $payroll->save();
 
@@ -2732,15 +2884,16 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
             $salaryCurrent = $payroll->salary_current ?? 0;
             
             if ($approvalStatus === 'approved' && $approvedHrs > 0 && $salaryCurrent > 0) {
-                $payroll->payable = ($salaryCurrent * $approvedHrs / 200) + $payroll->incentive;
+                // Payable = (Salary × Hours / 200) - incentive is NOT included
+                $payroll->payable = ($salaryCurrent * $approvedHrs / 200);
             } else {
                 $payroll->payable = 0;
             }
             
-            // Recalculate total payable: payable - advance + extra
+            // Recalculate total payable: payable + incentive - advance + extra
             $advance = $payroll->advance ?? 0;
             $extra = $payroll->extra ?? 0;
-            $payroll->total_payable = $payroll->payable - $advance + $extra;
+            $payroll->total_payable = $payroll->payable + $payroll->incentive - $advance + $extra;
             
             $payroll->save();
 
@@ -2779,7 +2932,8 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
             // Recalculate total payable: payable - advance + extra
             $payable = $payroll->payable ?? 0;
             $extra = $payroll->extra ?? 0;
-            $payroll->total_payable = $payable - $payroll->advance + $extra;
+            // Total Payable = Payable + Incentive - Advance + Extra
+            $payroll->total_payable = $payable + ($payroll->incentive ?? 0) - $payroll->advance + $extra;
             
             $payroll->save();
 
@@ -3002,15 +3156,16 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
             $approvedHrs = $payroll->approved_hrs ?? 0;
             
             if ($approvalStatus === 'approved' && $approvedHrs > 0 && $payroll->salary_current > 0) {
-                $payroll->payable = ($payroll->salary_current * $approvedHrs / 200) + ($payroll->incentive ?? 0);
+                // Payable = (Salary × Hours / 200) - incentive is NOT included
+                $payroll->payable = ($payroll->salary_current * $approvedHrs / 200);
             } else {
                 $payroll->payable = 0;
             }
             
-            // Recalculate total payable: payable - advance + extra
+            // Recalculate total payable: payable + incentive - advance + extra
             $advance = $payroll->advance ?? 0;
             $extra = $payroll->extra ?? 0;
-            $payroll->total_payable = $payroll->payable - $advance + $extra;
+            $payroll->total_payable = $payroll->payable + ($payroll->incentive ?? 0) - $advance + $extra;
             
             $payroll->save();
 
@@ -3067,10 +3222,12 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
             $approvedHrs = $payroll->approved_hrs ?? $teamLoggerData['hours'];
             
             if ($approvalStatus === 'approved' && $approvedHrs > 0 && $payroll->salary_current > 0) {
-                $payable = ($payroll->salary_current * $approvedHrs / 200) + ($payroll->incentive ?? 0);
+                // Payable = (Salary × Hours / 200) - incentive is NOT included
+                $payable = ($payroll->salary_current * $approvedHrs / 200);
                 $advance = $payroll->advance ?? 0;
                 $extra = $payroll->extra ?? 0;
-                $totalPayable = $payable - $advance + $extra;
+                // Total Payable = Payable + Incentive - Advance + Extra
+                $totalPayable = $payable + ($payroll->incentive ?? 0) - $advance + $extra;
                 
                 $payroll->update([
                     'payable' => $payable,
@@ -3141,10 +3298,12 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
             
             // Recalculate payable if status is approved but payable is 0
             if ($payroll->approval_status === 'approved' && $payroll->approved_hrs > 0 && $payroll->salary_current > 0) {
-                $payable = ($payroll->salary_current * $payroll->approved_hrs / 200) + ($payroll->incentive ?? 0);
+                // Payable = (Salary × Hours / 200) - incentive is NOT included
+                $payable = ($payroll->salary_current * $payroll->approved_hrs / 200);
                 $advance = $payroll->advance ?? 0;
                 $extra = $payroll->extra ?? 0;
-                $totalPayable = $payable - $advance + $extra;
+                // Total Payable = Payable + Incentive - Advance + Extra
+                $totalPayable = $payable + ($payroll->incentive ?? 0) - $advance + $extra;
                 
                 $payroll->payable = $payable;
                 $payroll->total_payable = $totalPayable;
@@ -3410,8 +3569,10 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
                 $totalPayable = 0;
                 
                 if ($approvalStatus === 'approved' && $approvedHrs > 0 && $currentMonthPayroll->salary_current) {
-                    $payable = ($currentMonthPayroll->salary_current * $approvedHrs / 200) + ($currentMonthPayroll->incentive ?? 0);
-                    $totalPayable = $payable - ($currentMonthPayroll->advance ?? 0) + ($currentMonthPayroll->extra ?? 0);
+                    // Payable = (Salary × Hours / 200) - incentive is NOT included
+                    $payable = ($currentMonthPayroll->salary_current * $approvedHrs / 200);
+                    // Total Payable = Payable + Incentive - Advance + Extra
+                    $totalPayable = $payable + ($currentMonthPayroll->incentive ?? 0) - ($currentMonthPayroll->advance ?? 0) + ($currentMonthPayroll->extra ?? 0);
                 }
                 
                 // Use stored sal_previous from database - do NOT dynamically calculate from other months
