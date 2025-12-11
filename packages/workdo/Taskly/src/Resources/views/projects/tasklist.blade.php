@@ -742,7 +742,7 @@
 <!-- Hidden Task Creation Links -->
 <a id="hidden-create-task-link" class="d-none" data-ajax-popup="true" data-size="lg" data-title="{{ __('Create New Task') }}" 
    data-url="{{ route('tasks.create') }}" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Create') }}"></a>
-<a id="hidden-create-multiple-tasks-link" class="d-none" data-ajax-popup="true" data-size="xl" data-title="{{ __('Create Multiple Tasks') }}" 
+            <a id="hidden-create-multiple-tasks-link" class="d-none" data-ajax-popup="true" data-size="lg" data-title="{{ __('Create Multiple Tasks') }}"
    data-url="{{ route('tasks.create.multiple') }}" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Create Multiple') }}"></a>
 
 <script>

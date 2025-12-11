@@ -1040,99 +1040,161 @@ public function taskStore(Request $request)
 public function multipleTaskSave(Request $request)
 {
     $request->validate([
-    'title' => 'required|array',
-    'title.*' => 'required|string',
-    'assign_to' => 'required|array',
-    'assign_to.*' => 'required',
-    'assign_by' => 'required|array',
-    'priority' => 'required|array',
-    'priority.*' => 'required|string',
-    'duration' => 'required|array',
-    'duration.*' => 'required|string',
-]);
+        'title' => 'required|array',
+        'title.*' => 'required|string',
+        'assign_to' => 'required|array',
+        'assign_to.*' => 'required',
+        'assign_by' => 'required|array',
+        'priority' => 'required|array',
+        'priority.*' => 'required|string',
+        'duration' => 'required|array',
+        'duration.*' => 'required|string',
+        'eta_time' => 'required|array',
+        'eta_time.*' => 'required|integer|min:1',
+    ]);
 
-$currentWorkspace = getActiveWorkSpace();
-$objUser = Auth::user();
+    $currentWorkspace = getActiveWorkSpace();
+    $objUser = Auth::user();
 
-$titles        = $request->title;
-$assign_tos    = $request->assign_to;
-$assign_bys    = $request->assign_by;
-$groups        = $request->group ?? [];
-$priorities    = $request->priority;
-$durations     = $request->duration;
-$descriptions  = $request->description ?? [];
-$eta_times     = $request->eta_time ?? [];
-$stage_ids     = $request->stage_id ?? [];
-$links_data    = $request->links_data ?? [];
+    $titles        = $request->title;
+    $assign_tos    = $request->assign_to;
+    $assign_bys    = $request->assign_by;
+    $groups        = $request->group ?? [];
+    $priorities    = $request->priority;
+    $durations     = $request->duration;
+    $descriptions  = $request->description ?? [];
+        $eta_times     = $request->eta_time ?? [];
+        $stage_ids     = $request->stage_id ?? [];
+        $link1s        = $request->link1 ?? [];
+        $link2s        = $request->link2 ?? [];
+        $link3s        = $request->link3 ?? [];
+        $link4s        = $request->link4 ?? [];
+        $link5s        = $request->link5 ?? [];
+        $link6s        = $request->link6 ?? [];
+        $link7s        = $request->link7 ?? [];
+        $link8s        = $request->link8 ?? [];
+        $link9s        = $request->link9 ?? [];
 
-// Loop through each task index
-foreach ($titles as $index => $title) {
-
-    $assign_to = $assign_tos[$index] ?? null;
-    $assign_by = $assign_bys[$index] ?? $objUser->id;
-    $group     = $groups[$index] ?? null;
-    $priority  = $priorities[$index] ?? 'normal';
-    $duration  = $durations[$index] ?? null;
-    $description = $descriptions[$index] ?? null;
-    $eta_time  = $eta_times[$index] ?? 0;
-    $stageName = $stage_ids[$index] ?? 'todo';
-    $links     = $links_data[$index] ?? null;
-
-    // Find the stage (default to first if not found)
-    $stage = Stage::where('workspace_id', $currentWorkspace)
-        ->where('name', $stageName)
-        ->orderBy('order')
-        ->first() ?? Stage::where('workspace_id', $currentWorkspace)->orderBy('order')->first();
-
-    if (!$stage) {
+    // Get default stage
+    $defaultStage = Stage::where('workspace_id', $currentWorkspace)->orderBy('order')->first();
+    
+    if (!$defaultStage) {
         return back()->with('error', __('Please add stages first.'));
     }
 
-    // Handle duration (split start_date & due_date)
-    [$start_date, $due_date] = explode(' to ', $duration);
+    $createdTasks = [];
 
-    $taskData = [
-        'title'        => $title,
-        'assign_to'    => $assign_to,
-        'assignor'     => $assign_by,
-        'group'        => $group,
-        'priority'     => $priority,
-        'status'       => $stage->name,
-        'start_date'   => trim($start_date),
-        'due_date'     => trim($due_date),
-        'description'  => $description,
-        'workspace'    => $currentWorkspace,
-        'eta_time'     => $eta_time,
-        'link1'        => $links,
-        'created_by'   => $objUser->id,
-    ];
+    // Loop through each task index
+    foreach ($titles as $index => $title) {
+        $assign_to_raw = $assign_tos[$index] ?? null;
+        $assign_by_raw = $assign_bys[$index] ?? null;
+        
+        // Handle assign_by - can be array or single value
+        if (is_array($assign_by_raw)) {
+            $assign_by = implode(',', $assign_by_raw);
+        } else {
+            $assign_by = $assign_by_raw ?? $objUser->email;
+        }
+        
+        // Handle All Members selection
+        $assign_to = $assign_to_raw;
+        if ($assign_to_raw === 'all_members') {
+            $allUsers = \App\Models\User::where('workspace_id', getActiveWorkSpace())
+                ->whereNotIn('email', ['company@example.com', 'president@5core.com', 'superadmin@example.com'])
+                ->pluck('email')
+                ->toArray();
+            $assign_to = implode(',', $allUsers);
+        }
+        
+        // Handle All Managers selection
+        if ($assign_to_raw === 'all_managers') {
+            $managerEmails = ['tech-support@5core.com', 'support@5core.com', 'mgr-advertisement@5core.com', 'mgr-content@5core.com', 'hr@5core.com','inventory@5core.com'];
+            $assign_to = implode(',', $managerEmails);
+        }
+        $group     = $groups[$index] ?? null;
+        $priority  = $priorities[$index] ?? 'normal';
+        $duration  = $durations[$index] ?? null;
+        $description = $descriptions[$index] ?? null;
+        $eta_time  = $eta_times[$index] ?? 0;
+        $stageName = $stage_ids[$index] ?? null;
 
-    $task = Task::create($taskData);
-// dd($task);
-    // Optional: file handling
-    if ($request->hasFile('file')) {
-        $file = $request->file('file');
-        $fileName = time() . "_" . $file->getClientOriginalName();
-        $upload = upload_file($request, 'file', $fileName, 'tasks', []);
+        // Get link values directly from arrays
+        $link1 = $link1s[$index] ?? null;
+        $link2 = $link2s[$index] ?? null;
+        $link3 = $link3s[$index] ?? null;
+        $link4 = $link4s[$index] ?? null;
+        $link5 = $link5s[$index] ?? null;
+        $link6 = $link6s[$index] ?? null;
+        $link7 = $link7s[$index] ?? null;
+        $link8 = $link8s[$index] ?? null;
+        $link9 = $link9s[$index] ?? null;
 
-        TaskFile::create([
-            'task_id'    => $task->id,
-            'file'       => $upload['url'],
-            'name'       => $file->getClientOriginalName(),
-            'extension'  => $file->getClientOriginalExtension(),
-            'file_size'  => $file->getSize(),
-            'created_by' => $objUser->id,
-            'user_type'  => 'User',
-        ]);
+        // Find the stage
+        if (!empty($stageName)) {
+            $stage = Stage::where('workspace_id', $currentWorkspace)
+                ->where('name', $stageName)
+                ->orderBy('order')
+                ->first() ?? $defaultStage;
+        } else {
+            $stage = $defaultStage;
+        }
+
+        // Handle duration (split start_date & due_date)
+        $start_date = null;
+        $due_date = null;
+        
+        // Check if start_date and due_date are provided directly
+        if (isset($request->start_date[$index]) && isset($request->due_date[$index])) {
+            $start_date = $request->start_date[$index];
+            $due_date = $request->due_date[$index];
+        } elseif ($duration) {
+            // Parse duration string format: "YYYY-MM-DD HH:mm:ss to YYYY-MM-DD HH:mm:ss"
+            if (strpos($duration, ' to ') !== false) {
+                [$start_date, $due_date] = explode(' to ', $duration, 2);
+                $start_date = trim($start_date);
+                $due_date = trim($due_date);
+            } else {
+                // If no "to" separator, use the same date for both
+                $start_date = trim($duration);
+                $due_date = trim($duration);
+            }
+        }
+
+        // Prepare task data (same structure as single task creation)
+        $taskData = [
+            'title'        => $title,
+            'assign_to'    => $assign_to,
+            'assignor'     => $assign_by,
+            'group'        => $group,
+            'priority'     => $priority,
+            'status'       => $stage->name,
+            'start_date'   => $start_date,
+            'due_date'     => $due_date,
+            'description'  => $description,
+            'workspace'    => $currentWorkspace,
+            'eta_time'     => $eta_time,
+            'link1'        => $link1,
+            'link2'        => $link2,
+            'link3'        => $link3,
+            'link4'        => $link4,
+            'link5'        => $link5,
+            'link6'        => $link6,
+            'link7'        => $link7,
+            'link8'        => $link8,
+            'link9'        => $link9,
+        ];
+
+        $task = Task::create($taskData);
+        $createdTasks[] = $task;
+
+        // Log task creation activity (same as single task)
+        $this->logTaskCreation($task->title, 'Task created and assigned to: ' . $assign_to);
+        $this->sendSms($task);
     }
 
-    // Logging, notification, etc.
-    $this->logTaskCreation($task->title, 'Task created and assigned to: ' . $assign_to);
-    $this->sendSms($task);
-}
-
-return redirect()->route('projecttask.list', ['is_add_enable' => 'true'])
-    ->with('success', __('All tasks created successfully.'));
+    $taskCount = count($createdTasks);
+    return redirect()->route('projecttask.list', ['is_add_enable' => 'true'])
+        ->with('success', __(':count task(s) created successfully.', ['count' => $taskCount]));
 }
 // staging event create
 public function StagingCreateEvent(Request $request)

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Multi-Task Assignment Form</title>
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -19,7 +20,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8fafc;
             min-height: 100vh;
             padding: 20px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -27,18 +28,19 @@
 
         .form-container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 1200px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            max-width: 900px;
             margin: 0 auto;
             overflow: hidden;
         }
 
         .form-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            padding: 30px;
-            color: white;
+            background: #fff;
+            padding: 20px 30px;
+            color: #1e293b;
             text-align: center;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .form-header h2 {
@@ -58,8 +60,8 @@
         }
 
         .form-body {
-            padding: 30px;
-            background: var(--light-bg);
+            padding: 25px;
+            background: #fff;
         }
 
         .assignor-section {
@@ -72,72 +74,69 @@
         }
 
         .section-title {
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 600;
             color: #1e293b;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            margin-bottom: 15px;
+            margin-top: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
         }
 
         .section-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
+            display: none; /* Hide icons for cleaner look */
         }
 
         .task-container {
             background: white;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             overflow: hidden;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
         }
 
         .task-container:hover {
-            border-color: var(--primary);
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .task-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px 25px;
+            background: #f8fafc;
+            padding: 15px 20px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
             transition: all 0.3s ease;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .task-header:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            background: #f1f5f9;
         }
 
         .task-title {
-            color: white;
+            color: #1e293b;
             font-weight: 600;
-            font-size: 18px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
         .task-number {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 700;
-            backdrop-filter: blur(10px);
+            background: #6366f1;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
         }
 
         .collapse-icon {
@@ -150,9 +149,9 @@
         }
 
         .task-content {
-            padding: 30px;
+            padding: 20px;
             display: block;
-            background: linear-gradient(to bottom, #f8fafc, white);
+            background: white;
         }
 
         .task-container.collapsed .task-content {
@@ -166,17 +165,108 @@
             font-size: 14px;
         }
 
-        .form-control, .form-select {
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 15px;
-            transition: all 0.3s ease;
+        /* Match single task form styling - consistent width */
+        .form-control-light, .form-control.form-control-light, 
+        .form-control.form-control-light input,
+        .form-control.form-control-light select,
+        .form-control.form-control-light textarea {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            background-color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-control-light:focus, .form-control.form-control-light:focus,
+        .form-control.form-control-light input:focus,
+        .form-control.form-control-light select:focus,
+        .form-control.form-control-light textarea:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+        
+        /* Ensure all form groups have consistent width */
+        .form-group {
+            width: 100%;
+        }
+        
+        .form-group .form-control,
+        .form-group .form-control-light,
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+        }
+
+        /* Choices.js styling - match single task form exactly */
+        .multi-select.choices {
+            margin-bottom: 0;
+            width: 100%;
+        }
+
+        .choices__inner {
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            min-height: 38px;
+            width: 100%;
+            box-sizing: border-box;
             font-size: 14px;
         }
 
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        .choices__input {
+            background-color: transparent;
+            margin-bottom: 0;
+            font-size: 14px;
+            width: 100%;
+            border: none;
+            padding: 0;
+        }
+
+        .choices__list--dropdown {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .choices__item--selectable {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .choices__item--selectable.is-highlighted {
+            background-color: #f1f5f9;
+        }
+        
+        .choices__item--choice {
+            padding: 8px 12px;
+        }
+        
+        .choices__button {
+            border: none;
+            background: transparent;
+            padding: 0 4px;
+        }
+        
+        /* Match form-control-light styling for choices */
+        .choices.is-focused .choices__inner {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        /* Input group styling for duration field */
+        .input-group {
+            width: 100%;
+        }
+        
+        .input-group .form-control {
+            width: 100%;
         }
 
         .input-group-text {
@@ -273,13 +363,14 @@
         }
 
         .task-counter {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            padding: 10px 20px;
-            border-radius: 10px;
+            background: #f0fdf4;
+            color: #059669;
+            padding: 10px 15px;
+            border-radius: 6px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-weight: 600;
+            border: 1px solid #bbf7d0;
         }
 
         .link-item {
@@ -320,12 +411,11 @@
         }
 
         .bulk-actions {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 6px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border-left: 4px solid var(--info);
+            border: 1px solid #e2e8f0;
         }
 
         .bulk-actions-title {
@@ -427,19 +517,75 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--primary-dark);
         }
+        
+        /* Status dropdown styling - match single task form */
+        .status-select option {
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: 4px;
+        }
+        
+        .status-select option:hover {
+            opacity: 0.8;
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+        
+        .status-select option {
+            color: #000 !important;
+        }
+        
+        /* Specific colors for common statuses */
+        .status-select option[value="Todo"] {
+            background-color:rgb(106, 193, 255) !important;
+        }
+        .status-select option[value="In Progress"] {
+            background-color:rgb(248, 193, 14) !important;
+        }
+        .status-select option[value="Done"] {
+            background-color:rgb(23, 252, 42) !important;
+        }
+        .status-select option[value="Need Help"] {
+            background-color:rgb(255, 65, 255) !important;
+        }
+        .status-select option[value="Urgent"] {
+            background-color:rgb(219, 0, 22) !important;
+        }
+        .status-select option[value="Review"] {
+            background-color: #e1f5fe !important;
+        }
+        .status-select option[value="Hold"] {
+            background-color: #f3e5f5 !important;
+        }
+        .status-select option[value="Need Approval"] {
+            background-color:rgb(179, 255, 0) !important;
+        }
+        .status-select option[value="Not Started"] {
+            background-color:rgb(251, 255, 0) !important;
+        }
+        .status-select option[value="Working"] {
+            background-color:rgb(184, 4, 255) !important;
+        }
+        .status-select option[value="Monitor"] {
+            background-color:rgb(118, 87, 255) !important;
+        }
+        .status-select option[value="Dependent"] {
+            background-color:rgb(255, 133, 133) !important;
+        }
+        .status-select option[value="Approved"] {
+            background-color:rgb(255, 230, 0) !important;
+        }
+        .status-select option[value="Rework"] {
+            background-color:rgb(134, 34, 143) !important;
+        }
+        .status-select option[value="Q-Task"] {
+            background-color:rgb(226, 131, 144) !important;
+        }
     </style>
 </head>
 
 <body>
     <div class="form-container">
-        <div class="form-header">
-            <h2>
-                <span>📋</span>
-                Multi-Task Assignment Form
-            </h2>
-            <p>Assign multiple tasks efficiently with enhanced management</p>
-        </div>
-
         <form class="needs-validation" method="post" action="{{ route('tasks.save.multiple') }}" enctype="multipart/form-data">
             @csrf
             <div class="form-body">                
@@ -455,15 +601,29 @@
                         <span>⚡</span>
                         Quick Actions
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Apply Same Values to All Tasks:</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="quick-action-btn btn-outline-primary" id="sameAssignorBtn">
+                                📋 Same Assignor
+                            </button>
+                            <button type="button" class="quick-action-btn btn-outline-success" id="sameAssigneeBtn">
+                                👤 Same Assignee
+                            </button>
+                            <button type="button" class="quick-action-btn btn-outline-info" id="sameGroupBtn">
+                                📁 Same Group
+                            </button>
+                            <button type="button" class="quick-action-btn btn-outline-warning" id="samePriorityBtn">
+                                ⚡ Same Priority
+                            </button>
+                            <button type="button" class="quick-action-btn btn-outline-secondary" id="sameStatusBtn">
+                                📊 Same Status
+                            </button>
                     <button type="button" class="quick-action-btn btn-outline-danger" id="clearLinksBtn">
-                        Clear All Links
+                        🗑️ {{ __('Clear All Links') }}
                     </button>
-                    <button type="button" class="quick-action-btn btn-outline-primary" id="sameAssignorBtn">
-                        All Assignor Same
-                    </button>
-                    <button type="button" class="quick-action-btn btn-outline-success" id="sameAssigneeBtn">
-                        All Assignee Same
-                    </button>                   
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Tasks Container -->
@@ -487,136 +647,131 @@
                         </div>
                         <div class="task-content">
                             <!-- Assignment Details in Each Task -->
-                            <div class="section-title mb-3">
-                                <span class="section-icon">👤</span>
+                            <div class="section-title">
                                 Assignment Details
                             </div>
                             <div class="row mb-3">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Assignor<span class="text-danger">*</span></label>
-                                    <select class="form-control form-select assignor-select" name="assign_by[]" required>
-                                        <option value="">Select Assignor</option>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">{{ __('Assignor')}}<x-required></x-required></label>
+                                    <select class="multi-select choices assignor-select" id="assignor_task_1" name="assign_by[]" multiple="multiple" data-placeholder="{{ __('Select Users ...') }}" required>
                                         @foreach($users as $u)
-                                             <option value="{{$u->email}}" @if($u->email==auth()->user()->email) selected @endif>{{$u->name}}</option>
-                                              <!--<option value="{{$u->email}}" @if($u->email==auth()->user()->email) selected @endif>{{$u->name}} - {{$u->email}} - {{$u->mobile_no}}</option>-->
-                                         @endforeach
+                                            <option value="{{$u->email}}" @if($u->email==auth()->user()->email) selected @endif>{{ formatUserName($u->name) }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Assign To<span class="text-danger">*</span></label>
-                                    <select class="form-control form-select assignee-select" name="assign_to[]" required>
-                                        <option value="">Select Assignee</option>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">{{ __('Assign To')}}<x-required></x-required></label>
+                                    <select class="multi-select choices assignee-select" id="assign_to_task_1" name="assign_to[]" multiple="multiple" data-placeholder="{{ __('Select Users ...') }}" required>
+                                        <option value="all_members">{{ __('All Members') }}</option>
+                                        <option value="all_managers">{{ __('All Managers') }}</option>
                                         @foreach($users as $u)
-                                             <option value="{{$u->email}}" @if($u->email==auth()->user()->email) selected @endif>{{$u->name}}</option>
-                                              <!--<option value="{{$u->email}}" @if($u->email==auth()->user()->email) selected @endif>{{$u->name}} - {{$u->email}} - {{$u->mobile_no}}</option>-->
-                                         @endforeach
+                                            <option value="{{$u->email}}">{{ formatUserName($u->name) }}</option>
+                                        @endforeach
                                     </select>
+                                    <p class="text-danger d-none user-validation">{{__('Assign To field is required.')}}</p>
                                 </div>
                             </div>
 
                             <!-- Basic Info -->
-                            <div class="section-title mb-3">
-                                <span class="section-icon">ℹ️</span>
+                            <div class="section-title">
                                 Basic Information
                             </div>
                             <div class="row mb-3">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Group<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="group[]" required placeholder="Enter group name">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">{{ __('Group')}}</label>
+                                    <input type="text" class="form-control form-control-light" name="group[]" id="task-group" placeholder="{{ __('Enter Group')}}" maxlength="25">
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Title<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="title[]" required placeholder="Enter task title">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">{{ __('Task')}}<x-required></x-required></label>
+                                    <input type="text" class="form-control form-control-light" name="title[]" placeholder="{{ __('Enter Task')}}" required>
                                 </div>
                             </div>
 
                             <!-- Task Details -->
-                            <div class="section-title mb-3">
-                                <span class="section-icon">⚙️</span>
+                            <div class="section-title">
                                 Task Configuration
                             </div>
                             <div class="row mb-3">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">ETC (Minutes)<span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control etc-field" name="eta_time[]" required min="1" placeholder="e.g., 120" oninput="updateStatistics()">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Status</label>
-                                    <select name="stage_id[]" class="form-control form-select">
-                                        <option value="">Select Status</option>
-                                        <option value="todo">To Do</option>
-                                        <option value="in_progress">In Progress</option>
-                                        <option value="review">Review</option>
-                                        <option value="completed">Completed</option>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">{{ __('Priority')}}</label>
+                                    <select class="form-control form-control-light priority-select" name="priority[]" required>
+                                        <option value="normal">{{ __('normal')}}</option>
+                                        <option value="urgent">{{ __('urgent')}}</option>
+                                        <option value="Take your time">{{ __('Take your time')}}</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Priority<span class="text-danger">*</span></label>
-                                    <select class="form-control form-select priority-select" name="priority[]" required>
-                                        <option value="normal">🟢 Normal</option>
-                                        <option value="low">🔵 Low</option>
-                                        <option value="high">🟠 High</option>
-                                        <option value="urgent">🔴 Urgent</option>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">{{ __('Status')}}</label>
+                                    <select class="form-control form-control-light status-select" name="stage_id[]" id="task-stage">
+                                        <option value="">{{__('Select Status')}}</option>
+                                        @foreach($stages as $stage)
+                                            <option value="{{$stage->name}}" data-color="{{ $stage->color }}">{{$stage->name}}</option>
+                                        @endforeach
                                     </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">{{ __('ETC (Min)')}}<x-required></x-required></label>
+                                    <input type="number" class="form-control form-control-light etc-field" name="eta_time[]" 
+                                           placeholder="{{ __('Enter ETA Time')}}" required 
+                                           min="1" oninput="this.value = Math.abs(this.value.replace(/[^0-9]/g, '').slice(0, 4));">
                                 </div>
                             </div>
 
                             <div class="row mb-3">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Duration<span class="text-danger">*</span></label>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">{{ __('Duration')}}<x-required></x-required></label>
                                     <div class='input-group'>
-                                        <input type='text' class="form-control date duration-field" placeholder="Select Date Range" name="duration[]" required/>
-                                        <span class="input-group-text">📅</span>
+                                        <input type='text' class="form-control form-control-light task-duration" id="duration_task_1" name="duration[]" required autocomplete="off" placeholder="Select date range" />
+                                        <input type="hidden" class="task-start-date" name="start_date[]">
+                                        <input type="hidden" class="task-due-date" name="due_date[]">
+                                        <span class="input-group-text"><i class="feather icon-calendar"></i></span>
                                     </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Description</label>
-                                    <textarea class="form-control" name="description[]" rows="2" placeholder="Enter task description"></textarea>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">{{ __('Description')}}</label>
+                                    <textarea class="form-control form-control-light" name="description[]" rows="1" placeholder="Enter Description"></textarea>
                                 </div>
                             </div>
 
-                            <!-- Links Section -->
-                            <div class="section-title mb-3">
-                                <span class="section-icon">🔗</span>
-                                Resource Links
-                            </div>
-                            <div class="links-container-wrapper" data-task-id="1">
-                                <div class="link-item mb-3">
-                                    <div class="row align-items-end">
-                                        <div class="col-md-5">
-                                            <label class="form-label">Link Type</label>
-                                            <select class="form-control form-select link-type-select">
-                                                <option value="L1">L1</option>
-                                                <option value="L2">L2</option>
-                                                <option value="Training">Training Link</option>
-                                                <option value="Video">Video Link</option>
-                                                <option value="Form">Form Link</option>
-                                                <option value="Report">Form Report Link</option>
-                                                <option value="Checklist">Checklist Link</option>
-                                                <option value="PL">PL</option>
-                                                <option value="Process">PROCESS</option>
-                                                <option value="Custom">Custom</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">URL</label>
-                                            <input type="text" class="form-control link-url-input" placeholder="Enter URL">
-                                            <div class="link-preview"></div>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <button type="button" class="btn btn-danger btn-sm w-100 remove-link-btn" style="display:none;" title="Remove Link">
-                                                ✕
-                                            </button>
-                                        </div>
-                                    </div>
+                            <!-- Links Section - Match single task form structure -->
+                            <div class="row mb-3">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">{{ __('L1')}}</label>
+                                    <input type="text" class="form-control form-control-light link1-field" name="link1[]" placeholder="{{ __('Enter L1')}}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">{{ __('L2')}}</label>
+                                    <input type="text" class="form-control form-control-light link2-field" name="link2[]" placeholder="{{ __('Enter L2')}}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">{{ __('Training Link')}}</label>
+                                    <input type="text" class="form-control form-control-light link3-field" name="link3[]" placeholder="{{ __('Enter training Note')}}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">{{ __('Video Link')}}</label>
+                                    <input type="text" class="form-control form-control-light link4-field" name="link4[]" placeholder="{{ __('Enter video Note')}}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">{{ __('Form Link')}}</label>
+                                    <input type="text" class="form-control form-control-light link5-field" name="link5[]" placeholder="{{ __('Enter form Note')}}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">{{ __('Form Report Link')}}</label>
+                                    <input type="text" class="form-control form-control-light link7-field" name="link7[]" placeholder="{{ __('Enter form Note')}}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">{{ __('Checklist Link')}}</label>
+                                    <input type="text" class="form-control form-control-light link6-field" name="link6[]" placeholder="{{ __('Enter checklist link')}}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">{{ __('PL')}}</label>
+                                    <input type="text" class="form-control form-control-light link9-field" name="link9[]" placeholder="{{ __('Enter PL link')}}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">{{ __('PROCESS')}}</label>
+                                    <input type="text" class="form-control form-control-light link8-field" name="link8[]" placeholder="{{ __('Enter form Note')}}">
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-success add-link-btn w-100">
-                                <span style="font-size: 16px;">+</span> Add Another Link
-                            </button>
-                            
-                            <!-- Hidden inputs for form submission -->
-                            <input type="hidden" class="links-data-input" name="links_data[]" value="">
                         </div>
                     </div>
                 </div>
@@ -639,8 +794,9 @@
         </form>
     </div>
 
-    <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
-    <!--<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>-->
+    <link rel="stylesheet" href="{{ asset('packages/workdo/Taskly/src/Resources/assets/libs/bootstrap-daterangepicker/daterangepicker.css')}} ">
+    <script src="{{ asset('packages/workdo/Taskly/src/Resources/assets/libs/moment/min/moment.min.js')}}"></script>
+    <script src="{{ asset('packages/workdo/Taskly/src/Resources/assets/libs/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
     
     <script>
 let taskCounter = 0;
@@ -649,19 +805,233 @@ let taskCounter = 0;
 function q(sel, ctx=document){ return ctx.querySelector(sel); }
 function qAll(sel, ctx=document){ return Array.from(ctx.querySelectorAll(sel)); }
 
-// Init
-document.addEventListener('DOMContentLoaded', () => {
+// Init - Use both DOMContentLoaded and jQuery ready for compatibility
+function initializeForm() {
   taskCounter = qAll('.task-container').length || 1;
-  initializeDatePickers();
-  qAll('.link-url-input').forEach(inp => {
-    inp.addEventListener('input', (e) => {
-      updateLinkPreview(inp);
+  
+  // Wait for jQuery and moment to be loaded
+  function initWhenReady() {
+    if (typeof jQuery !== 'undefined' && typeof moment !== 'undefined' && jQuery.fn.daterangepicker) {
+      initAllDatePickers();
+      initializeMultiSelects();
+      initializeStatusColors();
       updateStatistics();
+      console.log('Form initialized.');
+    } else {
+      setTimeout(initWhenReady, 100);
+    }
+  }
+  
+  initWhenReady();
+}
+
+// Initialize Choices.js for multi-select fields - use same pattern as single task form
+function initializeMultiSelects(context = document) {
+  // Use the same initialization pattern as single task form (via common_bind or direct)
+  if (typeof Choices === 'undefined') {
+    setTimeout(() => initializeMultiSelects(context), 100);
+    return;
+  }
+  
+  // Find all choices selects that need initialization
+  const choicesSelects = context.querySelectorAll('.multi-select.choices:not([data-choices-initialized])');
+  
+  choicesSelects.forEach(select => {
+    // Skip if no ID (required for Choices.js in this app)
+    if (!select.id) return;
+    
+    // Destroy existing Choices instance if any
+    if (select.choices) {
+      try {
+        select.choices.destroy();
+      } catch (e) {
+        console.warn('Error destroying Choices:', e);
+      }
+    }
+    
+    // Remove any Choices.js generated elements
+    const choicesContainer = select.parentElement.querySelector('.choices');
+    if (choicesContainer && choicesContainer !== select && !choicesContainer.classList.contains('choices__inner')) {
+      choicesContainer.remove();
+    }
+    
+    select.setAttribute('data-choices-initialized', 'true');
+    
+    try {
+      // Use same configuration as single task form
+      new Choices('#' + select.id, {
+        removeItemButton: true,
+        searchEnabled: true,
+        placeholder: true,
+        placeholderValue: select.getAttribute('data-placeholder') || 'Please Select',
+        loadingText: 'Loading...',
+      });
+    } catch (error) {
+      console.error('Error initializing Choices:', error);
+      select.removeAttribute('data-choices-initialized');
+    }
+  });
+}
+
+// Initialize status dropdown colors
+function initializeStatusColors(context = document) {
+  const statusSelects = context.querySelectorAll('.status-select');
+  statusSelects.forEach(select => {
+    Array.from(select.options).forEach(option => {
+      if (option.dataset.color) {
+        option.style.backgroundColor = option.dataset.color;
+        const bgColor = option.dataset.color;
+        const r = parseInt(bgColor.substr(1,2), 16);
+        const g = parseInt(bgColor.substr(3,2), 16);
+        const b = parseInt(bgColor.substr(5,2), 16);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        option.style.color = brightness > 128 ? '#000' : '#fff';
+      }
     });
   });
-  qAll('.links-container-wrapper').forEach(wrapper => updateRemoveButtons(wrapper));
+}
+
+// Initialize datepickers - fresh approach matching single task form exactly
+function initAllDatePickers() {
+  if (typeof jQuery === 'undefined' || typeof moment === 'undefined' || !jQuery.fn.daterangepicker) {
+    setTimeout(initAllDatePickers, 100);
+    return;
+  }
+  
+  jQuery('.task-duration:not(.initialized)').each(function() {
+    var $durationField = jQuery(this);
+    var fieldId = $durationField.attr('id');
+    
+    if (!$fieldId) {
+      // Generate unique ID if not present
+      var taskNum = $durationField.closest('.task-container').attr('data-task-number') || '1';
+      fieldId = 'duration_task_' + taskNum;
+      $durationField.attr('id', fieldId);
+    }
+    
+    $durationField.addClass('initialized');
+    
+    // Destroy existing daterangepicker if any
+    if ($durationField.data('daterangepicker')) {
+      $durationField.data('daterangepicker').remove();
+    }
+    
+    var start = moment('{{ date('Y-m-d') }}', 'YYYY-MM-DD HH:mm:ss');
+    var end = moment(start).add(4, 'days');
+    
+    var $taskContainer = $durationField.closest('.task-container');
+    var $startDateField = $taskContainer.find('.task-start-date');
+    var $dueDateField = $taskContainer.find('.task-due-date');
+    
+    function cb(start, end) {
+      $durationField.val(start.format('MMM D, YY hh:mm A') + ' - ' + end.format('MMM D, YY hh:mm A'));
+      if ($startDateField.length) $startDateField.val(start.format('YYYY-MM-DD HH:mm:ss'));
+      if ($dueDateField.length) $dueDateField.val(end.format('YYYY-MM-DD HH:mm:ss'));
+    }
+    
+    // Initialize daterangepicker exactly like single task form
+    $durationField.daterangepicker({
+      autoApply: true,
+      timePicker: true,
+      autoUpdateInput: false,
+      startDate: start,
+      endDate: end,
+      locale: {
+        format: 'MMMM D, YYYY hh:mm A',
+        applyLabel: "{{__('Apply')}}",
+        cancelLabel: "{{__('Cancel')}}",
+        fromLabel: "{{__('From')}}",
+        toLabel: "{{__('To')}}",
+        daysOfWeek: [
+          "{{__('Sun')}}",
+          "{{__('Mon')}}",
+          "{{__('Tue')}}",
+          "{{__('Wed')}}",
+          "{{__('Thu')}}",
+          "{{__('Fri')}}",
+          "{{__('Sat')}}"
+        ],
+        monthNames: [
+          "{{__('January')}}",
+          "{{__('February')}}",
+          "{{__('March')}}",
+          "{{__('April')}}",
+          "{{__('May')}}",
+          "{{__('June')}}",
+          "{{__('July')}}",
+          "{{__('August')}}",
+          "{{__('September')}}",
+          "{{__('October')}}",
+          "{{__('November')}}",
+          "{{__('December')}}"
+        ],
+      }
+    }, cb);
+    
+    cb(start, end);
+  });
+}
+
+// Function to refresh CSRF token
+function refreshCsrfToken() {
+  // Try to get token from parent window (if loaded in modal)
+  let csrfToken = null;
+  try {
+    if (window.parent && window.parent !== window) {
+      const parentMeta = window.parent.document.querySelector('meta[name="csrf-token"]');
+      if (parentMeta) {
+        csrfToken = parentMeta.getAttribute('content');
+      }
+    }
+  } catch (e) {
+    // Cross-origin or other error, ignore
+  }
+  
+  // Fallback to current document
+  if (!csrfToken) {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    if (meta) {
+      csrfToken = meta.getAttribute('content');
+    }
+  }
+  
+  // Update token in form
+  if (csrfToken) {
+    const tokenInput = document.querySelector('input[name="_token"]');
+    if (tokenInput) {
+      tokenInput.value = csrfToken;
+    }
+  }
+}
+
+// Initialize on DOM ready - use jQuery ready exactly like single task form
+jQuery(function() {
+  // Refresh CSRF token first
+  refreshCsrfToken();
+  
+  // Initialize datepickers
+  initAllDatePickers();
+  
+  // Initialize Choices.js dropdowns
+  initializeMultiSelects();
+  
+  // Initialize status colors
+  initializeStatusColors();
+  
+  // Update statistics
   updateStatistics();
-  console.log('Form initialized.');
+  
+  // Also initialize when modal is shown (for AJAX-loaded modals)
+  jQuery(document).on('shown.bs.modal', '.modal', function() {
+    // Refresh CSRF token when modal is shown
+    refreshCsrfToken();
+    
+    setTimeout(function() {
+      initAllDatePickers();
+      initializeMultiSelects();
+      initializeStatusColors();
+    }, 300);
+  });
 });
 
 // Bulk Actions for Assignor/Assignee
@@ -670,19 +1040,39 @@ document.getElementById('sameAssignorBtn')?.addEventListener('click', function()
   if (!firstTask) return;
   
   const firstAssignor = firstTask.querySelector('.assignor-select');
-  if (!firstAssignor || !firstAssignor.value) {
+  if (!firstAssignor) {
     alert('Please select an Assignor in the first task first!');
     return;
   }
   
-  const selectedValue = firstAssignor.value;
-  const allAssignors = document.querySelectorAll('.assignor-select');
+  // Get selected values from Choices.js instance or native select
+  let selectedValues = [];
+  if (firstAssignor.choices) {
+    selectedValues = firstAssignor.choices.getValue(true);
+  } else {
+    Array.from(firstAssignor.selectedOptions).forEach(opt => selectedValues.push(opt.value));
+  }
   
+  if (selectedValues.length === 0) {
+    alert('Please select an Assignor in the first task first!');
+    return;
+  }
+  
+  // Set values for all assignor selects
+  const allAssignors = document.querySelectorAll('.assignor-select');
   allAssignors.forEach(select => {
-    select.value = selectedValue;
+    if (select.choices) {
+      // Use Choices.js API
+      select.choices.setValue(selectedValues);
+    } else {
+      // Native select
+      Array.from(select.options).forEach(opt => {
+        opt.selected = selectedValues.includes(opt.value);
+      });
+    }
   });
   
-  alert('All Assignors set to: ' + firstAssignor.options[firstAssignor.selectedIndex].text);
+  alert('All Assignors set successfully!');
 });
 
 document.getElementById('sameAssigneeBtn')?.addEventListener('click', function() {
@@ -690,96 +1080,120 @@ document.getElementById('sameAssigneeBtn')?.addEventListener('click', function()
   if (!firstTask) return;
   
   const firstAssignee = firstTask.querySelector('.assignee-select');
-  if (!firstAssignee || !firstAssignee.value) {
+  if (!firstAssignee) {
     alert('Please select an Assignee in the first task first!');
     return;
   }
   
-  const selectedValue = firstAssignee.value;
-  const allAssignees = document.querySelectorAll('.assignee-select');
+  // Get selected values from Choices.js instance or native select
+  let selectedValues = [];
+  if (firstAssignee.choices) {
+    selectedValues = firstAssignee.choices.getValue(true);
+  } else {
+    Array.from(firstAssignee.selectedOptions).forEach(opt => selectedValues.push(opt.value));
+  }
   
+  if (selectedValues.length === 0) {
+    alert('Please select an Assignee in the first task first!');
+    return;
+  }
+  
+  // Set values for all assignee selects
+  const allAssignees = document.querySelectorAll('.assignee-select');
   allAssignees.forEach(select => {
+    if (select.choices) {
+      // Use Choices.js API
+      select.choices.setValue(selectedValues);
+    } else {
+      // Native select
+      Array.from(select.options).forEach(opt => {
+        opt.selected = selectedValues.includes(opt.value);
+      });
+    }
+  });
+  
+  alert('All Assignees set successfully!');
+});
+
+document.getElementById('sameGroupBtn')?.addEventListener('click', function() {
+  const firstTask = document.querySelector('.task-container');
+  if (!firstTask) return;
+  
+  const firstGroup = firstTask.querySelector('input[name="group[]"]');
+  if (!firstGroup || !firstGroup.value.trim()) {
+    alert('Please enter a Group in the first task first!');
+    return;
+  }
+  
+  const selectedValue = firstGroup.value;
+  const allGroups = document.querySelectorAll('input[name="group[]"]');
+  
+  allGroups.forEach(input => {
+    input.value = selectedValue;
+  });
+  
+  alert('All Groups set to: ' + selectedValue);
+});
+
+document.getElementById('samePriorityBtn')?.addEventListener('click', function() {
+  const firstTask = document.querySelector('.task-container');
+  if (!firstTask) return;
+  
+  const firstPriority = firstTask.querySelector('.priority-select');
+  if (!firstPriority || !firstPriority.value) {
+    alert('Please select a Priority in the first task first!');
+    return;
+  }
+  
+  const selectedValue = firstPriority.value;
+  const allPriorities = document.querySelectorAll('.priority-select');
+  
+  allPriorities.forEach(select => {
     select.value = selectedValue;
   });
   
-  alert('All Assignees set to: ' + firstAssignee.options[firstAssignee.selectedIndex].text);
+  alert('All Priorities set to: ' + firstPriority.options[firstPriority.selectedIndex].text);
+});
+
+document.getElementById('sameStatusBtn')?.addEventListener('click', function() {
+  const firstTask = document.querySelector('.task-container');
+  if (!firstTask) return;
+  
+  const firstStatus = firstTask.querySelector('.status-select');
+  if (!firstStatus || !firstStatus.value) {
+    alert('Please select a Status in the first task first!');
+    return;
+  }
+  
+  const selectedValue = firstStatus.value;
+  const allStatuses = document.querySelectorAll('.status-select');
+  
+  allStatuses.forEach(select => {
+    select.value = selectedValue;
+  });
+  
+  alert('All Statuses set to: ' + firstStatus.options[firstStatus.selectedIndex].text);
 });
 
 // Clear All Links
 document.getElementById('clearLinksBtn')?.addEventListener('click', function() {
   if (!confirm('Are you sure you want to clear all links from all tasks?')) return;
   
-  document.querySelectorAll('.link-url-input').forEach(input => {
+  document.querySelectorAll('.link1-field, .link2-field, .link3-field, .link4-field, .link5-field, .link6-field, .link7-field, .link8-field, .link9-field').forEach(input => {
     input.value = '';
-    updateLinkPreview(input);
   });
   
   updateStatistics();
   alert('All links cleared successfully!');
 });
 
-// DatePickers
+// DatePickers - simplified function for dynamically added tasks
 function initializeDatePickers(context = document) {
-  const els = context.querySelectorAll('.duration-field');
-  if (!els.length) return;
-  flatpickr(els, {
-    mode: 'range',
-    dateFormat: 'Y-m-d',
-    minDate: 'today'
-  });
+  initAllDatePickers();
 }
 
 // Event Delegation
 document.addEventListener('click', function(e){
-  // Add Link
-  const addLinkBtn = e.target.closest('.add-link-btn');
-  if (addLinkBtn) {
-    e.preventDefault();
-    const linksWrapper = addLinkBtn.previousElementSibling;
-    if (!linksWrapper || !linksWrapper.classList.contains('links-container-wrapper')) return;
-
-    const firstLink = linksWrapper.querySelector('.link-item');
-    if (!firstLink) return;
-
-    const newLink = firstLink.cloneNode(true);
-    const urlInput = newLink.querySelector('.link-url-input');
-    if (urlInput) urlInput.value = '';
-    const typeSelect = newLink.querySelector('.link-type-select');
-    if (typeSelect) typeSelect.selectedIndex = 0;
-    const preview = newLink.querySelector('.link-preview');
-    if (preview) preview.textContent = '';
-    const removeBtn = newLink.querySelector('.remove-link-btn');
-    if (removeBtn) removeBtn.style.display = 'block';
-
-    linksWrapper.appendChild(newLink);
-
-    if (urlInput) {
-      urlInput.addEventListener('input', () => {
-        updateLinkPreview(urlInput);
-        updateStatistics();
-      });
-    }
-
-    updateRemoveButtons(linksWrapper);
-    updateStatistics();
-    newLink.scrollIntoView({behavior:'smooth', block:'nearest'});
-    return;
-  }
-
-  // Remove Link
-  const remBtn = e.target.closest('.remove-link-btn');
-  if (remBtn && remBtn.closest('.link-item')) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!confirm('Remove this link?')) return;
-    const linkItem = remBtn.closest('.link-item');
-    const wrapper = remBtn.closest('.links-container-wrapper');
-    if (linkItem) linkItem.remove();
-    if (wrapper) updateRemoveButtons(wrapper);
-    updateStatistics();
-    return;
-  }
-
   // Duplicate Task
   const dupBtn = e.target.closest('.duplicate-task-btn');
   if (dupBtn) {
@@ -796,9 +1210,15 @@ document.addEventListener('click', function(e){
 
     const taskNumberSpan = clone.querySelector('.task-number');
     if (taskNumberSpan) taskNumberSpan.textContent = 'Task ' + taskCounter;
-
-    const linksWrapper = clone.querySelector('.links-container-wrapper');
-    if (linksWrapper) linksWrapper.setAttribute('data-task-id', taskCounter);
+    
+    // Update IDs for cloned elements
+    const assignorSelect = clone.querySelector('.assignor-select');
+    const assigneeSelect = clone.querySelector('.assignee-select');
+    const durationField = clone.querySelector('.task-duration');
+    
+    if (assignorSelect) assignorSelect.id = 'assignor_task_' + taskCounter;
+    if (assigneeSelect) assigneeSelect.id = 'assign_to_task_' + taskCounter;
+    if (durationField) durationField.id = 'duration_task_' + taskCounter;
 
     const removeTaskBtn = clone.querySelector('.remove-task-btn');
     if (removeTaskBtn) removeTaskBtn.style.display = 'flex';
@@ -826,22 +1246,15 @@ document.addEventListener('click', function(e){
     newTask.setAttribute('data-task-number', taskCounter);
 
     clearInputsInTask(newTask);
-
-    const linksWrapper = newTask.querySelector('.links-container-wrapper');
-    if (linksWrapper) {
-      const linkItems = linksWrapper.querySelectorAll('.link-item');
-      linkItems.forEach((item, idx) => { if (idx>0) item.remove(); });
-      const firstLink = linksWrapper.querySelector('.link-item');
-      if (firstLink) {
-        const urlInput = firstLink.querySelector('.link-url-input');
-        if (urlInput) urlInput.value = '';
-        const preview = firstLink.querySelector('.link-preview');
-        if (preview) preview.textContent = '';
-        const removeBtn = firstLink.querySelector('.remove-link-btn');
-        if (removeBtn) removeBtn.style.display = 'none';
-      }
-      linksWrapper.setAttribute('data-task-id', taskCounter);
-    }
+    
+    // Update IDs for cloned elements
+    const assignorSelect = newTask.querySelector('.assignor-select');
+    const assigneeSelect = newTask.querySelector('.assignee-select');
+    const durationField = newTask.querySelector('.task-duration');
+    
+    if (assignorSelect) assignorSelect.id = 'assignor_task_' + taskCounter;
+    if (assigneeSelect) assigneeSelect.id = 'assign_to_task_' + taskCounter;
+    if (durationField) durationField.id = 'duration_task_' + taskCounter;
 
     const removeBtnTask = newTask.querySelector('.remove-task-btn');
     if (removeBtnTask) removeBtnTask.style.display = 'flex';
@@ -869,7 +1282,7 @@ document.addEventListener('click', function(e){
 
   // Remove Task
   const removeTaskBtn = e.target.closest('.remove-task-btn');
-  if (removeTaskBtn && !removeTaskBtn.closest('.link-item')) {
+  if (removeTaskBtn) {
     e.stopPropagation();
     const taskToRemove = removeTaskBtn.closest('.task-container');
     if (!taskToRemove) return;
@@ -883,18 +1296,32 @@ document.addEventListener('click', function(e){
   }
 });
 
-// Input delegation for link preview
-document.addEventListener('input', function(e){
-  const input = e.target;
-  if (input && input.matches('.link-url-input')) {
-    updateLinkPreview(input);
-    updateStatistics();
+// Status change handler for urgent priority (like single task form)
+document.addEventListener('change', function(e){
+  if (e.target && e.target.matches('.status-select')) {
+    if (e.target.value === 'Urgent') {
+      const taskContainer = e.target.closest('.task-container');
+      const durationField = taskContainer ? taskContainer.querySelector('.task-duration') : null;
+      if (durationField && jQuery(durationField).data('daterangepicker')) {
+        const urgentStart = moment();
+        const urgentEnd = moment().add(1, 'days');
+        const picker = jQuery(durationField).data('daterangepicker');
+        picker.setStartDate(urgentStart);
+        picker.setEndDate(urgentEnd);
+        
+        const startDateField = taskContainer.querySelector('.task-start-date');
+        const dueDateField = taskContainer.querySelector('.task-due-date');
+        if (startDateField) jQuery(startDateField).val(urgentStart.format('YYYY-MM-DD HH:mm:ss'));
+        if (dueDateField) jQuery(dueDateField).val(urgentEnd.format('YYYY-MM-DD HH:mm:ss'));
+        jQuery(durationField).val(urgentStart.format('MMM D, YY hh:mm A') + ' - ' + urgentEnd.format('MMM D, YY hh:mm A'));
+      }
+    }
   }
 });
 
 // Helper: clear inputs inside a task
 function clearInputsInTask(task) {
-  const inputs = task.querySelectorAll('input:not(.links-data-input), textarea');
+  const inputs = task.querySelectorAll('input:not([type="hidden"]), textarea');
   inputs.forEach(input => {
     if (input.type === 'text' || input.type === 'number' || input.tagName === 'TEXTAREA') {
       input.value = '';
@@ -902,55 +1329,86 @@ function clearInputsInTask(task) {
       input.checked = false;
     }
   });
-  const selects = task.querySelectorAll('select');
-  selects.forEach(sel => { sel.selectedIndex = 0; });
-}
-
-// updateLinkPreview
-function updateLinkPreview(input) {
-  const preview = input.closest('.link-item')?.querySelector('.link-preview');
-  if (!preview) return;
-  if (!input.value.trim()) {
-    preview.textContent = '';
-    preview.style.color = '';
-    return;
-  }
-  try {
-    const url = new URL(input.value.trim());
-    preview.textContent = `🔗 ${url.hostname}`;
-    preview.style.color = '#10b981';
-  } catch (err) {
-    preview.textContent = '⚠️ Invalid URL format';
-    preview.style.color = '#ef4444';
-  }
-}
-
-// updateRemoveButtons
-function updateRemoveButtons(linksWrapper) {
-  const items = linksWrapper.querySelectorAll('.link-item');
-  items.forEach(it => {
-    const btn = it.querySelector('.remove-link-btn');
-    if (!btn) return;
-    btn.style.display = (items.length === 1) ? 'none' : 'block';
+  
+  // Clear multi-select fields (Choices.js) - destroy and recreate
+  const multiSelects = task.querySelectorAll('.multi-select');
+  multiSelects.forEach(sel => {
+    // Destroy existing Choices instance
+    if (sel.choices) {
+      sel.choices.destroy();
+    }
+    
+    // Remove Choices.js generated elements
+    const choicesContainer = sel.parentElement.querySelector('.choices');
+    if (choicesContainer && choicesContainer !== sel) {
+      choicesContainer.remove();
+    }
+    
+    // Clear selections
+    Array.from(sel.options).forEach(opt => opt.selected = false);
+    
+    // Remove initialization flag so it can be reinitialized
+    sel.removeAttribute('data-choices-initialized');
+  });
+  
+  // Clear regular selects
+  const selects = task.querySelectorAll('select:not(.multi-select)');
+  selects.forEach(sel => { 
+    sel.selectedIndex = 0;
+    // Trigger change event for status to reset colors
+    if (sel.classList.contains('status-select')) {
+      sel.dispatchEvent(new Event('change'));
+    }
   });
 }
+
+// Link preview functions removed - using individual input fields now
 
 // initialize new task after append
 function initializeNewTaskAfterAppend(newTask) {
   if (!newTask) return;
-  initializeDatePickers(newTask);
-
-  const linkInputs = newTask.querySelectorAll('.link-url-input');
-  linkInputs.forEach(inp => {
-    inp.removeEventListener('input', null);
-    inp.addEventListener('input', () => {
-      updateLinkPreview(inp);
-      updateStatistics();
-    });
+  
+  // Clear any initialized class from duration fields
+  const durationFields = newTask.querySelectorAll('.task-duration');
+  durationFields.forEach(field => field.classList.remove('initialized'));
+  
+  // Destroy any existing Choices instances and remove generated elements
+  const multiSelects = newTask.querySelectorAll('.multi-select');
+  multiSelects.forEach(select => {
+    // Destroy existing Choices instance
+    if (select.choices) {
+      try {
+        select.choices.destroy();
+      } catch (e) {
+        console.warn('Error destroying Choices:', e);
+      }
+    }
+    
+    // Remove Choices.js generated elements
+    const choicesContainer = select.parentElement.querySelector('.choices');
+    if (choicesContainer && choicesContainer !== select && !choicesContainer.classList.contains('choices__inner')) {
+      choicesContainer.remove();
+    }
+    
+    // Remove initialization flag
+    select.removeAttribute('data-choices-initialized');
   });
-
-  const linksWrapper = newTask.querySelector('.links-container-wrapper');
-  if (linksWrapper) updateRemoveButtons(linksWrapper);
+  
+  // Wait for jQuery, moment, and Choices to be ready, then initialize
+  function initNewTask() {
+    if (typeof jQuery !== 'undefined' && typeof moment !== 'undefined' && jQuery.fn.daterangepicker && typeof Choices !== 'undefined') {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        initAllDatePickers();
+        initializeMultiSelects(newTask);
+        initializeStatusColors(newTask);
+      }, 200);
+    } else {
+      setTimeout(initNewTask, 100);
+    }
+  }
+  
+  initNewTask();
 }
 
 // renumber tasks
@@ -960,6 +1418,25 @@ function renumberTasks() {
     const num = index + 1;
     task.id = 'task' + num;
     task.setAttribute('data-task-number', num);
+    
+    // Update IDs for all elements in this task
+    const assignorSelect = task.querySelector('.assignor-select');
+    const assigneeSelect = task.querySelector('.assignee-select');
+    const durationField = task.querySelector('.task-duration');
+    
+    if (assignorSelect) assignorSelect.id = 'assignor_task_' + num;
+    if (assigneeSelect) assigneeSelect.id = 'assign_to_task_' + num;
+    if (durationField) {
+      durationField.id = 'duration_task_' + num;
+      // Reinitialize datepicker if it was already initialized
+      if (durationField.classList.contains('initialized') && typeof jQuery !== 'undefined' && jQuery.fn.daterangepicker) {
+        if (jQuery(durationField).data('daterangepicker')) {
+          jQuery(durationField).data('daterangepicker').remove();
+        }
+        durationField.classList.remove('initialized');
+      }
+    }
+    
     const tn = task.querySelector('.task-number');
     if (tn) tn.textContent = 'Task ' + num;
     const removeBtn = task.querySelector('.remove-task-btn');
@@ -971,6 +1448,13 @@ function renumberTasks() {
   taskCounter = tasks.length;
   const taskCountEl = document.getElementById('taskCount');
   if (taskCountEl) taskCountEl.textContent = taskCounter;
+  
+  // Reinitialize datepickers after renumbering
+  if (typeof jQuery !== 'undefined' && typeof moment !== 'undefined' && jQuery.fn.daterangepicker) {
+    setTimeout(() => {
+      initAllDatePickers();
+    }, 100);
+  }
 }
 
 // Statistics
@@ -980,28 +1464,15 @@ function updateStatistics() {
   if (taskCountEl) taskCountEl.textContent = totalTasks;
 
   let totalLinks = 0;
-  qAll('.link-url-input').forEach(inp => { if (inp.value.trim()) totalLinks++; });
+  qAll('.link1-field, .link2-field, .link3-field, .link4-field, .link5-field, .link6-field, .link7-field, .link8-field, .link9-field').forEach(inp => { 
+    if (inp.value.trim()) totalLinks++; 
+  });
   
   let totalETC = 0;
   qAll('.etc-field').forEach(inp => { totalETC += parseInt(inp.value || 0, 10); });
 }
 
-// Collect links data before submit
-function collectLinksData() {
-  qAll('.task-container').forEach(task => {
-    const linksWrapper = task.querySelector('.links-container-wrapper');
-    if (!linksWrapper) return;
-    const arr = [];
-    const linkItems = linksWrapper.querySelectorAll('.link-item');
-    linkItems.forEach(item => {
-      const type = item.querySelector('.link-type-select')?.value || '';
-      const url = item.querySelector('.link-url-input')?.value.trim() || '';
-      if (url) arr.push({type, url});
-    });
-    const hidden = task.querySelector('.links-data-input');
-    if (hidden) hidden.value = JSON.stringify(arr);
-  });
-}
+// Links are now handled as individual fields, no need to collect
 
 // Toggle task function (called from onclick)
 function toggleTask(taskId) {
@@ -1012,13 +1483,27 @@ function toggleTask(taskId) {
 // Reset form
 function resetForm() {
   if (!confirm('Are you sure you want to reset the entire form? All data will be lost.')) return;
-  document.getElementById('multiTaskForm').reset();
+  
+  const form = document.querySelector('form.needs-validation');
+  if (form) form.reset();
   
   // Keep only first task
   const tasks = qAll('.task-container');
   tasks.forEach((task, index) => {
     if (index > 0) task.remove();
   });
+  
+  // Clear all inputs in first task
+  const firstTask = document.querySelector('.task-container');
+  if (firstTask) {
+    clearInputsInTask(firstTask);
+    // Reinitialize date picker for first task
+    const durationField = firstTask.querySelector('.task-duration');
+    if (durationField) {
+      durationField.classList.remove('initialized');
+      initializeDatePickers(firstTask);
+    }
+  }
   
   taskCounter = 1;
   renumberTasks();
@@ -1027,30 +1512,130 @@ function resetForm() {
 }
 
 // Form submit validation
-document.getElementById('multiTaskForm')?.addEventListener('submit', function(e){
+document.querySelector('form.needs-validation')?.addEventListener('submit', function(e){
   e.preventDefault();
-  collectLinksData();
-  if (this.checkValidity()) {
-    const formData = new FormData(this);
-    let taskDetails = `Form submitted successfully!\n\nTotal tasks: ${qAll('.task-container').length}\n\n`;
-    const linksArr = formData.getAll('links_data[]');
-    linksArr.forEach((ld, idx) => {
-      if (ld) {
-        try {
-          const parsed = JSON.parse(ld);
-          taskDetails += `Task ${idx+1}: ${parsed.length} link(s)\n`;
-        } catch { taskDetails += `Task ${idx+1}: 0 link(s)\n`; }
+  
+        // Validate all required fields
+  const tasks = qAll('.task-container');
+  let isValid = true;
+  let errorMessage = '';
+  
+  tasks.forEach((task, index) => {
+    const title = task.querySelector('input[name="title[]"]');
+    const assignTo = task.querySelector('select[name="assign_to[]"]');
+    const assignBy = task.querySelector('select[name="assign_by[]"]');
+    const group = task.querySelector('input[name="group[]"]');
+    const priority = task.querySelector('select[name="priority[]"]');
+    const duration = task.querySelector('.task-duration');
+    const etaTime = task.querySelector('input[name="eta_time[]"]');
+    
+    if (!title || !title.value.trim()) {
+      isValid = false;
+      errorMessage = `Task ${index + 1}: Title is required`;
+      return;
+    }
+    
+    // Check assignTo (Choices.js or native)
+    let assignToSelected = false;
+    if (assignTo) {
+      if (assignTo.choices) {
+        assignToSelected = assignTo.choices.getValue(true).length > 0;
       } else {
-        taskDetails += `Task ${idx+1}: 0 link(s)\n`;
+        assignToSelected = assignTo.selectedOptions.length > 0;
       }
-    });
-    alert(taskDetails);
-    // this.submit(); // Enable when backend ready
-  } else {
+    }
+    if (!assignToSelected) {
+      isValid = false;
+      errorMessage = `Task ${index + 1}: Assign To is required`;
+      return;
+    }
+    
+    // Check assignBy (Choices.js or native)
+    let assignBySelected = false;
+    if (assignBy) {
+      if (assignBy.choices) {
+        assignBySelected = assignBy.choices.getValue(true).length > 0;
+      } else {
+        assignBySelected = assignBy.selectedOptions.length > 0;
+      }
+    }
+    if (!assignBySelected) {
+      isValid = false;
+      errorMessage = `Task ${index + 1}: Assignor is required`;
+      return;
+    }
+    
+    if (!group || !group.value.trim()) {
+      isValid = false;
+      errorMessage = `Task ${index + 1}: Group is required`;
+      return;
+    }
+    if (!priority || !priority.value) {
+      isValid = false;
+      errorMessage = `Task ${index + 1}: Priority is required`;
+      return;
+    }
+    if (!duration || !duration.value.trim()) {
+      isValid = false;
+      errorMessage = `Task ${index + 1}: Duration is required`;
+      return;
+    }
+    if (!etaTime || !etaTime.value || parseInt(etaTime.value) < 1) {
+      isValid = false;
+      errorMessage = `Task ${index + 1}: ETC (Min) must be at least 1`;
+      return;
+    }
+  });
+  
+  if (!isValid) {
+    alert(errorMessage);
     this.classList.add('was-validated');
-    alert('Please fill all required fields!');
+    return;
   }
+  
+  // Format duration fields properly
+  formatDurationFields();
+  
+  // Ensure CSRF token is up to date
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                    document.querySelector('input[name="_token"]')?.value;
+  if (csrfToken) {
+    const tokenInput = this.querySelector('input[name="_token"]');
+    if (tokenInput) {
+      tokenInput.value = csrfToken;
+    } else {
+      // Add token if missing
+      const hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = '_token';
+      hiddenInput.value = csrfToken;
+      this.appendChild(hiddenInput);
+    }
+  }
+  
+  // Submit the form
+  this.submit();
 });
+
+// Format duration fields to "start to end" format for backend
+function formatDurationFields() {
+  qAll('.task-container').forEach(taskContainer => {
+    const durationField = taskContainer.querySelector('.task-duration');
+    const startDateField = taskContainer.querySelector('.task-start-date');
+    const dueDateField = taskContainer.querySelector('.task-due-date');
+    
+    if (durationField && startDateField && dueDateField) {
+      // Get values from hidden fields (already set by daterangepicker callback)
+      const startValue = jQuery(startDateField).val();
+      const dueValue = jQuery(dueDateField).val();
+      
+      if (startValue && dueValue) {
+        // Format for backend: "YYYY-MM-DD HH:mm:ss to YYYY-MM-DD HH:mm:ss"
+        durationField.value = startValue + ' to ' + dueValue;
+      }
+    }
+  });
+}
     </script>
 </body>
 </html>
