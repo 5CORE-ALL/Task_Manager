@@ -53,7 +53,8 @@ class ProjectTaskDatatable extends DataTable
 
                 $html = '';
 
-                $html .= '<div> <span class="editable" data-id="' . $task->id . '" data-column="status" style="padding: 5px 10px;border-radius: 5px;color:white;cursor:pointer;background-color:' . $stage->color . '"> ' . $task->stage_name . '</div>';
+                $color = $stage ? $stage->color : '#6c757d';
+                $html .= '<div> <span class="editable" data-id="' . $task->id . '" data-column="status" style="padding: 5px 10px;border-radius: 5px;color:white;cursor:pointer;background-color:' . $color . '"> ' . $task->stage_name . '</div>';
 
                 return $html;
 

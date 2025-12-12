@@ -50,6 +50,14 @@ class AutomateTask extends Model
     {
         return User::where('email',$this->assignor)->first();
     }
+    
+    public function assignorUsers()
+    {
+        if (empty($this->assignor)) {
+            return collect([]);
+        }
+        return User::whereIn('email',explode(',',$this->assignor))->get();
+    }
 
     public function comments()
     {

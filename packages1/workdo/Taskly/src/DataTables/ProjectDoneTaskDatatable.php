@@ -44,7 +44,8 @@ class ProjectDoneTaskDatatable extends DataTable
                 }
                 
                 // Fixed width badge to keep consistent length
-                $html .= '<div> <span class="editable" data-id="' . $task->id . '" colspan="4" data-column="status" style="padding: 5px 10px;border-radius: 5px;color:white;cursor:pointer;background-color:' . $stage->color . ';display:inline-block;min-width:100px;text-align:center;"> ' . $displayStatus . '</span></div>';
+                $color = $stage ? $stage->color : '#6c757d';
+                $html .= '<div> <span class="editable" data-id="' . $task->id . '" colspan="4" data-column="status" style="padding: 5px 10px;border-radius: 5px;color:white;cursor:pointer;background-color:' . $color . ';display:inline-block;min-width:100px;text-align:center;"> ' . $displayStatus . '</span></div>';
                 return $html;
             })
 
