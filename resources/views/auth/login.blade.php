@@ -42,7 +42,7 @@
             
             @endif
             
-            @if(!$isProduction)
+            <!-- @if(!$isProduction) -->
                 <form method="POST" action="{{ route('login') }}" class="needs-validation" novalidate="" id="form_data">
                     @csrf
                     <div>
@@ -83,7 +83,7 @@
                         </div>
                     </div>
                 </form>
-            @endif
+            <!-- @endif -->
 
             <!-- Google Login Button -->
             <div class="d-grid {{ !$isProduction ? 'mt-3' : '' }}">
