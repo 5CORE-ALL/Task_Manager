@@ -55,13 +55,6 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Block form-based login in production - only allow Google login
-        if (app()->environment('production')) {
-            return redirect()->route('login')->withErrors([
-                'email' => __('Form-based login is disabled in production. Please use Google login.')
-            ]);
-        }
-        
         $validation = [];
         $redirect = false;
         if (module_is_active('GoogleCaptcha') && admin_setting('google_recaptcha_is_on') == 'on') {
