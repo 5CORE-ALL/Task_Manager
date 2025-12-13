@@ -34,59 +34,49 @@
                 <h2 class="mb-3 f-w-600 text-center">{{ __('Task Manager Login') }}</h2>
             </div>
             
-            @php
-                $isProduction = app()->environment('production');
-            @endphp
-            
-            @if($isProduction)
-            
-            @endif
-            
-            <!-- @if(!$isProduction) -->
-                <form method="POST" action="{{ route('login') }}" class="needs-validation" novalidate="" id="form_data">
-                    @csrf
-                    <div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Email') }}</label>
-                            <input id="email" type="email" class="form-control  @error('email') is-invalid @enderror"
-                                name="email" value="{{ old('email') }}" placeholder="{{ __('E-Mail Address') }}" required
-                                autofocus>
-                            @error('email')
-                                <span class="error invalid-email text-danger" role="alert">
-                                    <small>{{ $message }}</small>
-                                </span>
-                            @enderror
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Password') }}</label>
-                            <input id="password" type="password" class="form-control  @error('password') is-invalid @enderror"
-                                name="password" placeholder="{{ __('Password') }}" required>
-                            @error('password')
-                                <span class="error invalid-password text-danger" role="alert">
-                                    <small>{{ $message }}</small>
-                                </span>
-                            @enderror
-                             @if (Route::has('password.request'))
-                                <div class="mt-2">
-                                    <a href="{{ route('password.request', $lang) }}"
-                                        class="small text-primary text-underline--dashed border-primar">{{ __('Forgot Your Password?') }}</a>
-                                </div>
-                            @endif
-                        </div>
-                        @stack('recaptcha_field')
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-block mt-2 login_button"
-                                tabindex="4">{{ __('Login') }}</button>
-
-                            @stack('SigninButton')
-                        </div>
+            <form method="POST" action="{{ route('login') }}" class="needs-validation" novalidate="" id="form_data">
+                @csrf
+                <div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">{{ __('Email') }}</label>
+                        <input id="email" type="email" class="form-control  @error('email') is-invalid @enderror"
+                            name="email" value="{{ old('email') }}" placeholder="{{ __('E-Mail Address') }}" required
+                            autofocus>
+                        @error('email')
+                            <span class="error invalid-email text-danger" role="alert">
+                                <small>{{ $message }}</small>
+                            </span>
+                        @enderror
                     </div>
-                </form>
-            <!-- @endif -->
+                    <div class="form-group mb-3">
+                        <label class="form-label">{{ __('Password') }}</label>
+                        <input id="password" type="password" class="form-control  @error('password') is-invalid @enderror"
+                            name="password" placeholder="{{ __('Password') }}" required>
+                        @error('password')
+                            <span class="error invalid-password text-danger" role="alert">
+                                <small>{{ $message }}</small>
+                            </span>
+                        @enderror
+                         @if (Route::has('password.request'))
+                            <div class="mt-2">
+                                <a href="{{ route('password.request', $lang) }}"
+                                    class="small text-primary text-underline--dashed border-primar">{{ __('Forgot Your Password?') }}</a>
+                            </div>
+                        @endif
+                    </div>
+                    @stack('recaptcha_field')
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-block mt-2 login_button"
+                            tabindex="4">{{ __('Login') }}</button>
+
+                        @stack('SigninButton')
+                    </div>
+                </div>
+            </form>
 
             <!-- Google Login Button -->
-            <div class="d-grid {{ !$isProduction ? 'mt-3' : '' }}">
+            <div class="d-grid mt-3">
                 <a href="{{ route('google.login') }}" class="btn btn-outline-danger btn-block">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="me-2">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -98,12 +88,10 @@
                 </a>
             </div>
             
-            @if(!$isProduction)
-                @if (empty($admin_settings['signup']) || (isset($admin_settings['signup']) ? $admin_settings['signup'] : 'off') == 'on')
-                    {{-- <p class="my-3 text-center">{{ __("Don't have an account?") }}
-                        <a href="{{ route('register', $lang) }}" class="my-4 text-primary">{{ __('Register') }}</a>
-                    </p> --}}
-                @endif
+            @if (empty($admin_settings['signup']) || (isset($admin_settings['signup']) ? $admin_settings['signup'] : 'off') == 'on')
+                {{-- <p class="my-3 text-center">{{ __("Don't have an account?") }}
+                    <a href="{{ route('register', $lang) }}" class="my-4 text-primary">{{ __('Register') }}</a>
+                </p> --}}
             @endif
         </div>
     </div>
@@ -111,14 +99,12 @@
 @push('script')
     <script>
         $(document).ready(function() {
-            @if(!app()->environment('production'))
             $("#form_data").submit(function(e) {
                 $(".login_button").attr("disabled", true);
                 setInterval(() => {
                     $(".login_button").attr("disabled", false);
                 }, 1500);
             });
-            @endif
         });
     </script>
 @endpush
