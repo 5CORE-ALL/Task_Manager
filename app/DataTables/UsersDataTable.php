@@ -51,7 +51,13 @@ class UsersDataTable extends DataTable
     public function query(User $model, Request $request): QueryBuilder
     {
         if (Auth::user()->type == 'super admin') {
-            $users = $model->where('type', 'company');
+            // Show all users except super admin
+            $users = $model->where('type', '!=', 'super admin');
+            
+            // Optional: Filter by type if requested
+            if ($request->type && !empty($request->type)) {
+                $users->where('type', $request->type);
+            }
         } else {
             if (Auth::user()->isAbleTo('workspace manage')) {
                 $users = $model->where('created_by', creatorId())->where('workspace_id', getActiveWorkSpace());

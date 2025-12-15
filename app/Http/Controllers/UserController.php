@@ -40,7 +40,28 @@ class UserController extends Controller
             if(Auth::user()->type == 'super admin')
             {
                 $roles =[];
-                $users = User::where('type','company')->paginate(11);
+                // Get all users except super admin for superadmin view
+                $users = User::where('type','!=','super admin');
+                
+                // Optional: Filter by type if requested
+                if($request->type && !empty($request->type))
+                {
+                    $users->where('type', $request->type);
+                }
+                
+                // Optional: Filter by name if requested
+                if($request->name)
+                {
+                    $users->where('name', 'like', '%' . $request->name . '%');
+                }
+                
+                // Optional: Filter by email if requested
+                if($request->email)
+                {
+                    $users->where('email', 'like', '%' . $request->email . '%');
+                }
+                
+                $users = $users->paginate(11);
             }
             else
             {
@@ -314,7 +335,24 @@ class UserController extends Controller
         if(Auth::user()->isAbleTo('user edit'))
         {
             $user = User::find($id);
-            $roles = Role::where('created_by',\Auth::user()->id)->pluck('name','id');
+            if(Auth::user()->type == 'super admin')
+            {
+                // Super admin can see all roles (system roles created_by=0 and user-specific roles)
+                $roles = Role::where(function($query) use ($user) {
+                    $query->where('created_by', 0)
+                          ->orWhere('created_by', $user->created_by);
+                })->pluck('name','id');
+                
+                // If no roles found, get all roles
+                if($roles->isEmpty())
+                {
+                    $roles = Role::all()->pluck('name','id');
+                }
+            }
+            else
+            {
+                $roles = Role::where('created_by',\Auth::user()->id)->pluck('name','id');
+            }
             return view('users.edit',compact('user','roles'));
         }
         else
@@ -362,10 +400,51 @@ class UserController extends Controller
             $user = User::find($id);
             if(!empty($user))
             {
+                // Handle role assignment for super admin
                 if(Auth::user()->type == 'super admin')
                 {
-                    $role = Role::where('name','company')->first();
+                    if($request->has('role') && !empty($request->role))
+                    {
+                        $newRole = Role::find($request->role);
+                        if($newRole)
+                        {
+                            // Remove all existing roles
+                            foreach($user->roles as $existingRole)
+                            {
+                                $user->removeRole($existingRole);
+                            }
+                            
+                            // Assign new role
+                            $user->addRole($newRole);
+                            $user->type = $newRole->name;
+                            
+                            // If assigning client role, ensure permissions are set
+                            if($newRole->name == 'client')
+                            {
+                                \Workdo\Taskly\Entities\TaskUtility::GivePermissionToRoles(null, 'client');
+                            }
+                            elseif($newRole->name == 'staff')
+                            {
+                                \Workdo\Taskly\Entities\TaskUtility::GivePermissionToRoles(null, 'staff');
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Default to company role if no role selected
+                        $role = Role::where('name','company')->first();
+                        if($role)
+                        {
+                            foreach($user->roles as $existingRole)
+                            {
+                                $user->removeRole($existingRole);
+                            }
+                            $user->addRole($role);
+                            $user->type = 'company';
+                        }
+                    }
                 }
+                
                 $user->name         = $request->name;
                 $user->email        = $request->email;
                 $user->mobile_no    = $request->mobile_no;

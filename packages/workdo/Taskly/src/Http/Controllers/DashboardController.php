@@ -30,7 +30,7 @@ class DashboardController extends Controller
 
   public function index(ProjectTaskDatatable $dataTable)
   {
-		if(Auth::user()->isAbleTo('taskly dashboard manage'))
+		if(Auth::user()->type == 'super admin' || Auth::user()->isAbleTo('taskly dashboard manage'))
 		{
 		  if(!empty($_GET['id']))
 		  {
@@ -207,7 +207,7 @@ class DashboardController extends Controller
 			 'totalTask', 'competeTask', 'pendingTask', 'overdueTask', 'totalPendingTask'));
 		    }
 		else { 
-			 return redirect()->back()->with('error', __('Permission Denied.'));
+			 return redirect()->route('dashboard')->with('error', __('Permission Denied.'));
 		}
 	}
 

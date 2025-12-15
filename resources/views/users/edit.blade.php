@@ -23,6 +23,21 @@
                     {{Form::email('email',null,array('class'=>'form-control','placeholder'=>__('Enter '.($name).' Email'),'required'=>'required'))}}
                 </div>
             </div>
+            @if(Auth::user()->type == 'super admin')
+                <div class="col-md-12">
+                    <div class="form-group">
+                        {{ Form::label('role', __('Role'),['class'=>'form-label']) }}<x-required></x-required>
+                        @php
+                            $currentRole = $user->roles->first();
+                            $currentRoleId = $currentRole ? $currentRole->id : null;
+                        @endphp
+                        {{ Form::select('role', $roles, $currentRoleId, ['class' => 'form-control','placeholder'=>'Select Role', 'id' => 'role_select','required'=>'required']) }}
+                        <div class="text-xs mt-1">
+                            <span class="text-muted">{{ __('Select the role for this user. The role determines what permissions the user has.') }}</span>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
     <div class="modal-footer">
