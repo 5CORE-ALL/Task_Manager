@@ -1421,22 +1421,17 @@ public function index(Request $request)
                 )
                 ->first();
             
-            // Get productive and approved hours from payroll model
-            // Fallback to Payroleteamlogger if not available in payroll
+            // Use the enrichPayrollForSalarySlip method to ensure data is correct
+            // This will fetch TeamLogger data if approved_hrs or productive_hrs is missing
+            $this->enrichPayrollForSalarySlip($payroll);
+            
+            // Get the enriched values (now properly set on the payroll object)
+            // Force refresh from the payroll object to ensure we have the updated values
             $productiveHrs = $payroll->productive_hrs ?? 0;
             $approvedHrs = $payroll->approved_hrs ?? 0;
             
-            // If hours are not in payroll, try to get from Payroleteamlogger
-            if (($productiveHrs == 0 || $approvedHrs == 0) && $payroll->email_address && $payroll->month) {
-                $teamLog = \App\Models\Payroleteamlogger::where('email_address', $payroll->email_address)
-                    ->where('month', $payroll->month)
-                    ->first();
-                
-                if ($teamLog) {
-                    $productiveHrs = $productiveHrs == 0 ? ($teamLog->productive_hrs ?? 0) : $productiveHrs;
-                    $approvedHrs = $approvedHrs == 0 ? ($teamLog->approved_hrs ?? 0) : $approvedHrs;
-                }
-            }
+            // Log for debugging (can be removed later)
+            \Log::info("PDF Generation - Employee: {$payroll->email_address}, Approved Hrs: {$approvedHrs}, Productive Hrs: {$productiveHrs}");
             
             // Verify and recalculate payable amounts if needed
             $calculatedPayable = 0;
@@ -1577,6 +1572,67 @@ public function index(Request $request)
         ]);
     }
 }
+    /**
+     * Enrich payroll data for salary slip view with TeamLogger fallback
+     * Recalculates payable/total_payable if approved_hrs was missing
+     */
+    private function enrichPayrollForSalarySlip($payroll)
+    {
+        try {
+            // Get employee email for TeamLogger lookup
+            $employeeEmail = $payroll->email_address;
+            if (!$employeeEmail) {
+                $employee = User::find($payroll->employee_id);
+                $employeeEmail = $employee ? $employee->email : null;
+            }
+            
+            if (!$employeeEmail || !$payroll->month) {
+                return; // Can't enrich without email or month
+            }
+            
+            // Check if approved_hrs or productive_hrs is missing (0 or null)
+            $approvedHrs = $payroll->approved_hrs ?? 0;
+            $productiveHrs = $payroll->productive_hrs ?? 0;
+            
+            // Fetch TeamLogger data once if needed
+            $teamLoggerData = null;
+            if ($approvedHrs == 0 || $productiveHrs == 0) {
+                $teamLoggerData = $this->getEmployeeTeamLoggerData($employeeEmail, $payroll->month);
+                $teamLoggerHours = $teamLoggerData['hours'] ?? 0;
+                
+                // Use TeamLogger hours as fallback for productive_hrs if missing
+                if ($productiveHrs == 0 && $teamLoggerHours > 0) {
+                    $payroll->setAttribute('productive_hrs', $teamLoggerHours);
+                    $productiveHrs = $teamLoggerHours;
+                }
+                
+                // Use productive hours as approved hours fallback if approved_hrs is missing
+                if ($approvedHrs == 0 && $teamLoggerHours > 0) {
+                    $payroll->setAttribute('approved_hrs', $teamLoggerHours);
+                    $approvedHrs = $teamLoggerHours;
+                    \Log::info("Enriched approved_hrs for {$employeeEmail} in {$payroll->month}: {$teamLoggerHours}");
+                }
+            }
+            
+            // Recalculate payable and total_payable if approval status is 'approved'
+            if ($payroll->approval_status === 'approved' && $payroll->salary_current > 0 && $approvedHrs > 0) {
+                // Payable = (Salary × Hours / 200) - incentive is NOT included
+                $payable = ($payroll->salary_current * $approvedHrs / 200);
+                // Total Payable = Payable + Incentive - Advance + Extra
+                $totalPayable = $payable + ($payroll->incentive ?? 0) - ($payroll->advance ?? 0) + ($payroll->extra ?? 0);
+                
+                // Update the payroll object (not saved to DB, just for display)
+                $payroll->payable = round($payable);
+                $payroll->total_payable = round($totalPayable);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error enriching payroll for salary slip: ' . $e->getMessage(), [
+                'payroll_id' => $payroll->id ?? null,
+                'employee_id' => $payroll->employee_id ?? null
+            ]);
+        }
+    }
+    
     public function salarySlip()
     {
         try {
@@ -1592,6 +1648,11 @@ public function index(Request $request)
                     ->where('payment_done', true)
                     ->orderBy('created_at', 'desc')
                     ->get();
+                
+                // Enrich payroll data with TeamLogger fallback for approved_hrs
+                foreach ($payrolls as $payroll) {
+                    $this->enrichPayrollForSalarySlip($payroll);
+                }
                 
                 // Group payrolls by employee for better display
                 $groupedPayrolls = $payrolls->groupBy('employee_id');
@@ -1623,6 +1684,11 @@ public function index(Request $request)
                     ->where('payment_done', true)
                     ->orderBy('created_at', 'desc')
                     ->get();
+                
+                // Enrich payroll data with TeamLogger fallback for approved_hrs
+                foreach ($payrolls as $payroll) {
+                    $this->enrichPayrollForSalarySlip($payroll);
+                }
                 
                 // Get current user's employee details
                 $employee = User::leftJoin('employees', 'users.id', '=', 'employees.user_id')
@@ -1816,22 +1882,13 @@ public function index(Request $request)
                 'email_address' => $payroll->email_address ?? 'N/A'
             ];
             
-            // Get productive and approved hours from payroll model
-            // Fallback to Payroleteamlogger if not available in payroll
+            // Use the enrichPayrollForSalarySlip method to ensure data is correct
+            // This will fetch TeamLogger data if approved_hrs or productive_hrs is missing
+            $this->enrichPayrollForSalarySlip($payroll);
+            
+            // Get the enriched values (now properly set on the payroll object)
             $productiveHrs = $payroll->productive_hrs ?? 0;
             $approvedHrs = $payroll->approved_hrs ?? 0;
-            
-            // If hours are not in payroll, try to get from Payroleteamlogger
-            if (($productiveHrs == 0 || $approvedHrs == 0) && $payroll->email_address && $payroll->month) {
-                $teamLog = \App\Models\Payroleteamlogger::where('email_address', $payroll->email_address)
-                    ->where('month', $payroll->month)
-                    ->first();
-                
-                if ($teamLog) {
-                    $productiveHrs = $productiveHrs == 0 ? ($teamLog->productive_hrs ?? 0) : $productiveHrs;
-                    $approvedHrs = $approvedHrs == 0 ? ($teamLog->approved_hrs ?? 0) : $approvedHrs;
-                }
-            }
             
             // Verify and recalculate payable amounts if needed
             // This ensures calculations are always correct in the PDF
@@ -1864,6 +1921,7 @@ public function index(Request $request)
             }
             
             // Prepare data for the blade template
+            // Pass both the enriched payroll object and explicit variables for redundancy
             $data = [
                 'payroll' => $payroll,
                 'employee' => $employee,
