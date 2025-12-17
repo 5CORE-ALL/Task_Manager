@@ -7,6 +7,55 @@
 @endsection
 @push('css')
     @include('layouts.includes.datatable-css')
+    <style>
+        /* Freeze Name Column - Make it sticky on horizontal scroll */
+        #employees-table_wrapper {
+            overflow-x: auto;
+        }
+        
+        #employees-table_wrapper .dataTables_scrollBody {
+            overflow-x: auto;
+        }
+        
+        /* Make Name column sticky using class - keeping same style as other columns */
+        #employees-table th.sticky-name-column,
+        #employees-table td.sticky-name-column {
+            position: sticky;
+            left: 0;
+            z-index: 100;
+            background-color: #fff; /* Default background for opaque column */
+        }
+        
+        /* Header styling for sticky name column - keep same as other headers */
+        #employees-table thead th.sticky-name-column {
+            z-index: 120;
+            position: sticky;
+            left: 0;
+        }
+        
+        /* Match striped row background for sticky column - using DataTables default colors */
+        #employees-table tbody tr:nth-of-type(odd) td.sticky-name-column,
+        table.dataTable.stripe tbody tr.odd td.sticky-name-column,
+        table.dataTable.display tbody tr.odd td.sticky-name-column {
+            background-color: #f9f9f9 !important; /* DataTables default odd row */
+        }
+        
+        #employees-table tbody tr:nth-of-type(even) td.sticky-name-column,
+        table.dataTable.stripe tbody tr.even td.sticky-name-column,
+        table.dataTable.display tbody tr.even td.sticky-name-column {
+            background-color: #fff !important; /* DataTables default even row */
+        }
+        
+        /* Match hover effect */
+        #employees-table tbody tr:hover td.sticky-name-column {
+            background-color: #f6f6f6 !important; /* DataTables hover effect */
+        }
+        
+        /* Ensure header background is opaque */
+        #employees-table thead th.sticky-name-column {
+            background-color: inherit !important;
+        }
+    </style>
 @endpush
 @section('page-action')
     <div class="d-flex">
@@ -53,6 +102,30 @@
         $(document).ready(function() {
             var table = $('#employees-table').DataTable();
             var detailsVisible = false; // Global state for details visibility
+            
+            // Function to add sticky column class to name column
+            function addStickyColumnClass() {
+                // Find the name column index
+                var nameColumnIndex = null;
+                table.columns().every(function(colIndex) {
+                    var headerText = $(this.header()).text().trim().toLowerCase();
+                    if (headerText === 'name') {
+                        nameColumnIndex = colIndex;
+                        return false; // break
+                    }
+                });
+                
+                if (nameColumnIndex !== null) {
+                    // Add class to header and all cells in that column
+                    var header = table.column(nameColumnIndex).header();
+                    $(header).addClass('sticky-name-column');
+                    
+                    table.cells(null, nameColumnIndex).nodes().to$().addClass('sticky-name-column');
+                }
+            }
+            
+            // Call on initial load and after each draw
+            addStickyColumnClass();
             
             // Function to get column indexes for email, phone, department, designation
             function getTargetColumnIndexes() {
@@ -161,6 +234,8 @@
                 updateColumnHeaders(targetColumnIndexes, detailsVisible);
                 toggleAllRowsDetails(detailsVisible, targetColumnIndexes);
                 updateAllToggleButtons(detailsVisible);
+                // Re-apply sticky column class after redraw
+                addStickyColumnClass();
             });
             
             // Handle toggle button clicks - affects all rows
