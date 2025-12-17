@@ -25,7 +25,7 @@ class EmployeeDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
-        $rowColumn = ['employee_id', 'name', 'email', 'phone', 'department_id', 'designation_id', 'company_doj', 'passport_country', 'country', 'state', 'city','zipcode'];
+        $rowColumn = ['employee_id', 'name', 'toggle', 'email', 'phone', 'department_id', 'designation_id', 'company_doj', 'passport', 'passport_country', 'country', 'state', 'city', 'zipcode', 'training', 'sop_guidelines', 'reports', 'kpi', 'checklist_rr', 'checklist_sr_rr', 'checklist_general'];
         $dataTable = (new EloquentDataTable($query))
             ->addIndexColumn()
             ->editColumn('employee_id', function (User $employees) {
@@ -69,6 +69,11 @@ class EmployeeDataTable extends DataTable
                 }
                 return $html;
             })
+            ->addColumn('toggle', function (User $employees) {
+                return '<button type="button" class="btn btn-sm btn-outline-primary toggle-details-btn" data-row-id="' . $employees->id . '" data-bs-toggle="tooltip" title="Show/Hide Details">
+                            <i class="ti ti-eye"></i>
+                        </button>';
+            })
             ->editColumn('email', function (User $employees) {
                 $email = $employees->email ?? '-';
                 if ($email !== '-') {
@@ -95,6 +100,19 @@ class EmployeeDataTable extends DataTable
             })
             ->editColumn('company_doj', function (User $employees) {
                 return $employees->company_doj ? company_date_formate($employees->company_doj ?? '-') : '-';
+            })
+            ->editColumn('passport', function (User $employees) {
+                if (!empty($employees->passport)) {
+                    // Always show link icon for any content
+                    $url = filter_var($employees->passport, FILTER_VALIDATE_URL) ? $employees->passport : '#';
+                    $tooltip = filter_var($employees->passport, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->passport);
+                    
+                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
+                                <i class="fas fa-link"></i>
+                            </a>';
+                } else {
+                    return '-';
+                }
             })
             ->editColumn('passport_country', function (User $employees) {
                 if (!empty($employees->passport_country)) {
@@ -153,6 +171,90 @@ class EmployeeDataTable extends DataTable
                     // Always show link icon for any content
                     $url = filter_var($employees->zipcode, FILTER_VALIDATE_URL) ? $employees->zipcode : '#';
                     $tooltip = filter_var($employees->zipcode, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->zipcode);
+                    
+                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
+                                <i class="fas fa-link"></i>
+                            </a>';
+                } else {
+                    return '-';
+                }
+            })
+            ->editColumn('training', function (User $employees) {
+                if (!empty($employees->training)) {
+                    $url = filter_var($employees->training, FILTER_VALIDATE_URL) ? $employees->training : '#';
+                    $tooltip = filter_var($employees->training, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->training);
+                    
+                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
+                                <i class="fas fa-link"></i>
+                            </a>';
+                } else {
+                    return '-';
+                }
+            })
+            ->editColumn('sop_guidelines', function (User $employees) {
+                if (!empty($employees->sop_guidelines)) {
+                    $url = filter_var($employees->sop_guidelines, FILTER_VALIDATE_URL) ? $employees->sop_guidelines : '#';
+                    $tooltip = filter_var($employees->sop_guidelines, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->sop_guidelines);
+                    
+                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
+                                <i class="fas fa-link"></i>
+                            </a>';
+                } else {
+                    return '-';
+                }
+            })
+            ->editColumn('reports', function (User $employees) {
+                if (!empty($employees->reports)) {
+                    $url = filter_var($employees->reports, FILTER_VALIDATE_URL) ? $employees->reports : '#';
+                    $tooltip = filter_var($employees->reports, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->reports);
+                    
+                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
+                                <i class="fas fa-link"></i>
+                            </a>';
+                } else {
+                    return '-';
+                }
+            })
+            ->editColumn('kpi', function (User $employees) {
+                if (!empty($employees->kpi)) {
+                    $url = filter_var($employees->kpi, FILTER_VALIDATE_URL) ? $employees->kpi : '#';
+                    $tooltip = filter_var($employees->kpi, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->kpi);
+                    
+                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
+                                <i class="fas fa-link"></i>
+                            </a>';
+                } else {
+                    return '-';
+                }
+            })
+            ->editColumn('checklist_rr', function (User $employees) {
+                if (!empty($employees->checklist_rr)) {
+                    $url = filter_var($employees->checklist_rr, FILTER_VALIDATE_URL) ? $employees->checklist_rr : '#';
+                    $tooltip = filter_var($employees->checklist_rr, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->checklist_rr);
+                    
+                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
+                                <i class="fas fa-link"></i>
+                            </a>';
+                } else {
+                    return '-';
+                }
+            })
+            ->editColumn('checklist_sr_rr', function (User $employees) {
+                if (!empty($employees->checklist_sr_rr)) {
+                    $url = filter_var($employees->checklist_sr_rr, FILTER_VALIDATE_URL) ? $employees->checklist_sr_rr : '#';
+                    $tooltip = filter_var($employees->checklist_sr_rr, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->checklist_sr_rr);
+                    
+                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
+                                <i class="fas fa-link"></i>
+                            </a>';
+                } else {
+                    return '-';
+                }
+            })
+            ->editColumn('checklist_general', function (User $employees) {
+                if (!empty($employees->checklist_general)) {
+                    $url = filter_var($employees->checklist_general, FILTER_VALIDATE_URL) ? $employees->checklist_general : '#';
+                    $tooltip = filter_var($employees->checklist_general, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->checklist_general);
                     
                     return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
                                 <i class="fas fa-link"></i>
@@ -419,6 +521,7 @@ if (\Laratrust::hasPermission('employee show') || \Laratrust::hasPermission('emp
             Column::make('No')->title(__('No'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false)->visible(false),
             Column::make('employee_id')->title(__('Employee ID'))->name('users.id')->searchable(true)->visible(false),
             Column::make('name')->title(__('Name'))->name('users.name')->searchable(true),
+            Column::make('toggle')->title(__('Details'))->searchable(false)->orderable(false)->exportable(false)->printable(false)->width(80),
             Column::make('email')->title(__('Email'))->name('users.email')->searchable(true),
             Column::make('phone')->title(__('phone'))->name('users.phone')->searchable(false),
             // Column::make('branch_id')->title(!empty($company_settings['hrm_branch_name']) ? $company_settings['hrm_branch_name'] : __('Branch'))->name('branches.name'),
@@ -430,6 +533,13 @@ if (\Laratrust::hasPermission('employee show') || \Laratrust::hasPermission('emp
             Column::make('state')->title(__('R&R'))->name('employees.state')->searchable(false),
             Column::make('city')->title(__('Incentive'))->name('employees.city')->searchable(false),
             Column::make('zipcode')->title(__('FFP/FFQ'))->name('employees.zipcode')->searchable(false),
+            Column::make('training')->title(__('Training'))->name('employees.training')->searchable(false),
+            Column::make('sop_guidelines')->title(__('SOP/Guidelines'))->name('employees.sop_guidelines')->searchable(false),
+            Column::make('reports')->title(__('Reports'))->name('employees.reports')->searchable(false),
+            Column::make('kpi')->title(__('KPI'))->name('employees.kpi')->searchable(false),
+            Column::make('checklist_rr')->title(__('Checklist: R&R'))->name('employees.checklist_rr')->searchable(false),
+            Column::make('checklist_sr_rr')->title(__('Checklist SR: R&R'))->name('employees.checklist_sr_rr')->searchable(false),
+            Column::make('checklist_general')->title(__('Checklist General'))->name('employees.checklist_general')->searchable(false),
             // Column::make('company_doj')->title(__('Date Of Joining'))->name('employees.company_doj'),
         ];
         if (

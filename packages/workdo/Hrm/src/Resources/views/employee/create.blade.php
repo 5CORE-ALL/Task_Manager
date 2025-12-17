@@ -109,9 +109,9 @@
                                             </div>
                                         </div>
                                         <div class="form-group col-md-6">
-                                            {{ Form::label('state', __('RR Link'), ['class' => 'form-label']) }}
+                                            {{ Form::label('state', __('R&R Link'), ['class' => 'form-label']) }}
                                             <div class="form-icon-user">
-                                                {{ Form::text('state', null, ['class' => 'form-control', 'placeholder' => __('Enter Training')]) }}
+                                                {{ Form::text('state', null, ['class' => 'form-control', 'placeholder' => __('Enter R&R Link')]) }}
                                             </div>
                                         </div>
                                         <div class="form-group col-md-6">
@@ -123,7 +123,49 @@
                                           <div class="form-group col-md-6">
                                             {{ Form::label('zipcode', __('FFP/FFQ Link'), ['class' => 'form-label']) }}
                                             <div class="form-icon-user">
-                                                {{ Form::text('zipcode', null, ['class' => 'form-control', 'placeholder' => __('Enter checklist form')]) }}
+                                                {{ Form::text('zipcode', null, ['class' => 'form-control', 'placeholder' => __('Enter FFP/FFQ Link')]) }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            {{ Form::label('training', __('Training Link'), ['class' => 'form-label']) }}
+                                            <div class="form-icon-user">
+                                                {{ Form::text('training', null, ['class' => 'form-control', 'placeholder' => __('Enter Training Link')]) }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            {{ Form::label('sop_guidelines', __('SOP/Guidelines Link'), ['class' => 'form-label']) }}
+                                            <div class="form-icon-user">
+                                                {{ Form::text('sop_guidelines', null, ['class' => 'form-control', 'placeholder' => __('Enter SOP/Guidelines Link')]) }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            {{ Form::label('reports', __('Reports Link'), ['class' => 'form-label']) }}
+                                            <div class="form-icon-user">
+                                                {{ Form::text('reports', null, ['class' => 'form-control', 'placeholder' => __('Enter Reports Link')]) }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            {{ Form::label('kpi', __('KPI Link'), ['class' => 'form-label']) }}
+                                            <div class="form-icon-user">
+                                                {{ Form::text('kpi', null, ['class' => 'form-control', 'placeholder' => __('Enter KPI Link')]) }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            {{ Form::label('checklist_rr', __('Checklist: R&R Link'), ['class' => 'form-label']) }}
+                                            <div class="form-icon-user">
+                                                {{ Form::text('checklist_rr', null, ['class' => 'form-control', 'placeholder' => __('Enter Checklist: R&R Link')]) }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            {{ Form::label('checklist_sr_rr', __('Checklist SR: R&R Link'), ['class' => 'form-label']) }}
+                                            <div class="form-icon-user">
+                                                {{ Form::text('checklist_sr_rr', null, ['class' => 'form-control', 'placeholder' => __('Enter Checklist SR: R&R Link')]) }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            {{ Form::label('checklist_general', __('Checklist General Link'), ['class' => 'form-label']) }}
+                                            <div class="form-icon-user">
+                                                {{ Form::text('checklist_general', null, ['class' => 'form-control', 'placeholder' => __('Enter Checklist General Link')]) }}
                                             </div>
                                         </div>
                                     </div>
