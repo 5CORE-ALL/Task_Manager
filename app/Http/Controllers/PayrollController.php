@@ -1296,10 +1296,10 @@ public function index(Request $request)
                         'salary_current' => $previousMonthPayroll->salary_current ?? 0,
                         'total_hours' => $teamLoggerData['total_hours'],
                         'idle_hours' => $teamLoggerData['idle_hours'],
-                        'productive_hrs' => $teamLoggerData['productive_hours'],
+                        'productive_hrs' => $teamLoggerData['hours'], // hours = totalHours - idleHours
                         'etc_hours' => $etcAtcData['etc'],
                         'atc_hours' => $etcAtcData['atc'],
-                        'approved_hrs' => $teamLoggerData['productive_hours'],
+                        'approved_hrs' => $teamLoggerData['hours'], // hours = totalHours - idleHours
                         'approval_status' => 'pending',
                         'incentive' => 0,
                         'advance' => 0,
@@ -1421,14 +1421,21 @@ public function index(Request $request)
                 )
                 ->first();
             
+            // Calculate productive hours from total_hours and idle_hours stored in payroll record
+            // Productive Hours = TTL HR (total_hours) - IDLE (idle_hours)
+            $totalHours = $payroll->total_hours ?? 0;
+            $idleHours = $payroll->idle_hours ?? 0;
+            $productiveHrs = max(0, $totalHours - $idleHours); // Ensure non-negative
+            
             // Use the enrichPayrollForSalarySlip method to ensure data is correct
-            // This will fetch TeamLogger data if approved_hrs or productive_hrs is missing
+            // This will fetch TeamLogger data if approved_hrs is missing
             $this->enrichPayrollForSalarySlip($payroll);
             
-            // Get the enriched values (now properly set on the payroll object)
-            // Force refresh from the payroll object to ensure we have the updated values
-            $productiveHrs = $payroll->productive_hrs ?? 0;
+            // Get approved hours (enriched if needed)
             $approvedHrs = $payroll->approved_hrs ?? 0;
+            
+            // Update productive_hrs on payroll object for display (calculated from total_hours - idle_hours)
+            $payroll->setAttribute('productive_hrs', $productiveHrs);
             
             // Log for debugging (can be removed later)
             \Log::info("PDF Generation - Employee: {$payroll->email_address}, Approved Hrs: {$approvedHrs}, Productive Hrs: {$productiveHrs}");
@@ -1649,8 +1656,12 @@ public function index(Request $request)
                     ->orderBy('created_at', 'desc')
                     ->get();
                 
-                // Enrich payroll data with TeamLogger fallback for approved_hrs
+                // Calculate productive hours from total_hours and idle_hours for each payroll
+                // Productive Hours = TTL HR (total_hours) - IDLE (idle_hours)
                 foreach ($payrolls as $payroll) {
+                    $totalHours = $payroll->total_hours ?? 0;
+                    $idleHours = $payroll->idle_hours ?? 0;
+                    $payroll->setAttribute('productive_hrs', max(0, $totalHours - $idleHours));
                     $this->enrichPayrollForSalarySlip($payroll);
                 }
                 
@@ -1685,8 +1696,12 @@ public function index(Request $request)
                     ->orderBy('created_at', 'desc')
                     ->get();
                 
-                // Enrich payroll data with TeamLogger fallback for approved_hrs
+                // Calculate productive hours from total_hours and idle_hours for each payroll
+                // Productive Hours = TTL HR (total_hours) - IDLE (idle_hours)
                 foreach ($payrolls as $payroll) {
+                    $totalHours = $payroll->total_hours ?? 0;
+                    $idleHours = $payroll->idle_hours ?? 0;
+                    $payroll->setAttribute('productive_hrs', max(0, $totalHours - $idleHours));
                     $this->enrichPayrollForSalarySlip($payroll);
                 }
                 
@@ -1882,13 +1897,21 @@ public function index(Request $request)
                 'email_address' => $payroll->email_address ?? 'N/A'
             ];
             
+            // Calculate productive hours from total_hours and idle_hours stored in payroll record
+            // Productive Hours = TTL HR (total_hours) - IDLE (idle_hours)
+            $totalHours = $payroll->total_hours ?? 0;
+            $idleHours = $payroll->idle_hours ?? 0;
+            $productiveHrs = max(0, $totalHours - $idleHours); // Ensure non-negative
+            
             // Use the enrichPayrollForSalarySlip method to ensure data is correct
-            // This will fetch TeamLogger data if approved_hrs or productive_hrs is missing
+            // This will fetch TeamLogger data if approved_hrs is missing
             $this->enrichPayrollForSalarySlip($payroll);
             
-            // Get the enriched values (now properly set on the payroll object)
-            $productiveHrs = $payroll->productive_hrs ?? 0;
+            // Get approved hours (enriched if needed)
             $approvedHrs = $payroll->approved_hrs ?? 0;
+            
+            // Update productive_hrs on payroll object for display (calculated from total_hours - idle_hours)
+            $payroll->setAttribute('productive_hrs', $productiveHrs);
             
             // Verify and recalculate payable amounts if needed
             // This ensures calculations are always correct in the PDF
