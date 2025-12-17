@@ -8,29 +8,51 @@
 @push('css')
     @include('layouts.includes.datatable-css')
     <style>
-        /* Freeze Name Column - Make it sticky on horizontal scroll */
-        #employees-table_wrapper {
+        /* Sticky/Frozen Columns and Header Styles - Replicating payroll page approach */
+        .table-responsive {
             overflow-x: auto;
+            position: relative;
+            max-height: 700px; /* Set max height for vertical scrolling */
+            overflow-y: auto;   /* Enable vertical scrolling */
         }
         
-        #employees-table_wrapper .dataTables_scrollBody {
-            overflow-x: auto;
+        #employees-table {
+            position: relative;
         }
         
-        /* Make Name column sticky using class - keeping same style as other columns */
+        /* Ensure all other cells have lower z-index */
+        #employees-table th,
+        #employees-table td {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Sticky Header Styles - Freeze header on vertical scroll */
+        #employees-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 110; /* Higher than other sticky elements */
+            background-color: #f8f9fd !important; /* Match DataTables default header background */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Make Name column sticky using class - Freeze on horizontal scroll */
         #employees-table th.sticky-name-column,
         #employees-table td.sticky-name-column {
             position: sticky;
             left: 0;
             z-index: 100;
             background-color: #fff; /* Default background for opaque column */
+            border-right: 2px solid #dee2e6;
         }
         
-        /* Header styling for sticky name column - keep same as other headers */
+        /* Header styling for sticky name column - intersection of sticky header and sticky column */
         #employees-table thead th.sticky-name-column {
-            z-index: 120;
-            position: sticky;
-            left: 0;
+            z-index: 120 !important; /* Higher than sticky header to stay on top */
+            position: sticky !important;
+            left: 0 !important;
+            top: 0 !important;
+            background-color: #f8f9fd !important; /* Match table header background */
         }
         
         /* Match striped row background for sticky column - using DataTables default colors */
@@ -51,9 +73,24 @@
             background-color: #f6f6f6 !important; /* DataTables hover effect */
         }
         
-        /* Ensure header background is opaque */
-        #employees-table thead th.sticky-name-column {
-            background-color: inherit !important;
+        /* Shadow effect for better visual separation */
+        #employees-table th.sticky-name-column::after,
+        #employees-table td.sticky-name-column::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -2px;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+            pointer-events: none;
+        }
+        
+        /* Ensure text doesn't wrap in sticky column */
+        #employees-table th.sticky-name-column,
+        #employees-table td.sticky-name-column {
+            white-space: nowrap;
+            min-width: fit-content;
         }
     </style>
 @endpush
