@@ -32,7 +32,6 @@
             <option value="">All Types</option>
             <option value="red">Red</option>
             <option value="green">Green</option>
-            <option value="other">Other</option>
         </select>
     </div>
 </div>
@@ -233,10 +232,7 @@ function filterTable() {
         if (teamMember && !teamMemberText.includes(teamMember)) {
             showRow = false;
         }
-        if (flagType && flagType !== 'other' && flagTypeText !== flagType) {
-            showRow = false;
-        }
-        if (flagType === 'other' && (flagTypeText === 'red' || flagTypeText === 'green')) {
+        if (flagType && flagTypeText !== flagType) {
             showRow = false;
         }
         if (showRow) {

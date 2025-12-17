@@ -952,9 +952,14 @@ public function taskStore(Request $request)
     
     if ($stage) {
         $split_tasks = $request->filled('split_tasks') ? 1 : 0;
+        $upload = null;
         if ($request->hasFile('file')) {
            $fileName =time() . "_" . $request->file->getClientOriginalName();
-            $upload = upload_file($request, 'file', $fileName, 'tasks', []); 
+            $upload = upload_file($request, 'file', $fileName, 'tasks', []);
+            // Check if upload failed
+            if (!isset($upload['flag']) || $upload['flag'] != 1 || !isset($upload['url'])) {
+                return redirect()->back()->withInput()->with('error', __('File upload failed: ') . ($upload['msg'] ?? __('Unknown error occurred')));
+            }
         }
         
         if($split_tasks) {
@@ -980,7 +985,7 @@ public function taskStore(Request $request)
                 // Log task creation activity
                 $this->logTaskCreation($task->title, 'Task created and assigned to: ' . $assign_to);
                 $this->sendSms($task);
-                        if ($request->hasFile('file')) {
+                        if ($request->hasFile('file') && $upload !== null) {
                             $postFile =[];
                             $postFile['task_id']   = $taskID;
                             $postFile['file']      = $upload['url'];
@@ -1014,7 +1019,7 @@ public function taskStore(Request $request)
             // Log task creation activity
             $this->logTaskCreation($task->title, 'Task created and assigned to: ' . $post['assign_to']);
             $this->sendSms($task);
-             if ($request->hasFile('file')) {
+             if ($request->hasFile('file') && $upload !== null) {
               $postFile =[];
                 $postFile['task_id']   = $taskID;
                 $postFile['file']      = $upload['url'];
