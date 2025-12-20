@@ -220,6 +220,19 @@ class CompanyMenuListener
                 'module' => $module,
                 'permission' => ''
             ]);
+            $menu->add([
+                'category' => 'Reports',
+                'title' => __('Performance Management'),
+                'icon' => 'ti ti-chart-line',
+                'name' => 'performance-management',
+                'parent' => null,
+                'order' => 1860,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => 'performance.index',
+                'module' => $module,
+                'permission' => ''
+            ]);
                 $menu->add([
             'category' => 'Reports',
             'title' => __('Activity'),

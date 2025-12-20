@@ -656,6 +656,32 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/dar/reports/data', [DarController::class, 'getReportData'])->name('dar.reports.data');
     Route::post('dar/reports/summary', [DarController::class, 'reportsSummary'])->name('dar.reports.summary');
 });
+
+// Performance Management routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/performance-management', [App\Http\Controllers\PerformanceManagementController::class, 'index'])->name('performance.index');
+    Route::post('/performance-management/generate', [App\Http\Controllers\PerformanceManagementController::class, 'generatePerformance'])->name('performance.generate');
+    Route::get('/performance-management/report/{id}', [App\Http\Controllers\PerformanceManagementController::class, 'showReport'])->name('performance.report');
+    Route::post('/performance-management/feedback', [App\Http\Controllers\PerformanceManagementController::class, 'storeFeedback'])->name('performance.feedback.store');
+    Route::get('/performance-management/chart-data/{id}', [App\Http\Controllers\PerformanceManagementController::class, 'getChartData'])->name('performance.chart.data');
+    
+    // Temporary route to clear menu cache
+    Route::get('/clear-menu-cache', function() {
+        if (Auth::check()) {
+            $userId = Auth::id();
+            \Illuminate\Support\Facades\Cache::forget('sidebar_menu_' . $userId);
+            // Also clear for company users
+            if (Auth::user()->type == 'company') {
+                $userIds = \App\Models\User::where('created_by', Auth::id())->pluck('id');
+                foreach ($userIds as $id) {
+                    \Illuminate\Support\Facades\Cache::forget('sidebar_menu_' . $id);
+                }
+            }
+            return redirect()->back()->with('success', 'Menu cache cleared! Please refresh the page.');
+        }
+        return redirect()->route('login');
+    })->name('clear.menu.cache');
+});
 Route::get('module/reset', [ModuleController::class, 'ModuleReset'])->name('module.reset');
 Route::post('guest/module/selection', [ModuleController::class, 'GuestModuleSelection'])->name('guest.module.selection');
 
