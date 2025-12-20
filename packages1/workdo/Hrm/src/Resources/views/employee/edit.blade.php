@@ -91,22 +91,6 @@
                                             </div>
                                         </div>
                                         <div class="form-group col-md-6">
-                                            {{ Form::label('passport_country', __('Accountability'), ['class' => 'form-label']) }}
-                                            <div class="form-icon-user">
-                                                {{ Form::text('passport_country', null, ['class' => 'form-control', 'placeholder' => __('Enter Accountability')]) }}
-                                            </div>
-                                            <p class="text-danger d-none" id="{{ 'passport_country_validation' }}">
-                                                {{ __('This field is required.') }}</p>
-                                        </div>
-                                        <div class="form-group col-md-6">
-                                            {{ Form::label('passport', __('Responsibility'), ['class' => 'form-label']) }}
-                                            <div class="form-icon-user">
-                                                {{ Form::text('passport', null, ['class' => 'form-control', 'placeholder' => __('Enter Responsibility')]) }}
-                                            </div>
-                                            <p class="text-danger d-none" id="{{ 'passport_validation' }}">
-                                                {{ __('This field is required.') }}</p>
-                                        </div>
-                                        <div class="form-group col-md-6">
                                             {{ Form::label('country', __('Tools Link'), ['class' => 'form-label']) }}
                                             <div class="form-icon-user">
                                                 {{ Form::text('country', null, ['class' => 'form-control', 'placeholder' => __('Enter Tools')]) }}
@@ -616,20 +600,6 @@
                 allFieldsFilled = false;
             } else {
                 $('#phone_validation').addClass('d-none');
-            }
-
-            if ($('#passport_country').val().trim() === '') {
-                $('#passport_country_validation').removeClass('d-none');
-                allFieldsFilled = false;
-            } else {
-                $('#passport_country_validation').addClass('d-none');
-            }
-
-            if ($('#passport').val().trim() === '') {
-                $('#passport_validation').removeClass('d-none');
-                allFieldsFilled = false;
-            } else {
-                $('#passport_validation').addClass('d-none');
             }
 
             // Check required fields for location details

@@ -25,7 +25,7 @@ class EmployeeDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
-        $rowColumn = ['employee_id', 'name', 'toggle', 'email', 'phone', 'department_id', 'designation_id', 'company_doj', 'passport', 'passport_country', 'country', 'state', 'city', 'zipcode', 'training', 'sop_guidelines', 'reports', 'kpi', 'checklist_rr', 'checklist_sr_rr', 'checklist_general'];
+        $rowColumn = ['employee_id', 'name', 'toggle', 'email', 'phone', 'department_id', 'designation_id', 'company_doj', 'country', 'state', 'city', 'zipcode', 'training', 'sop_guidelines', 'reports', 'kpi', 'checklist_rr', 'checklist_sr_rr', 'checklist_general'];
         $dataTable = (new EloquentDataTable($query))
             ->addIndexColumn()
             ->editColumn('employee_id', function (User $employees) {
@@ -100,32 +100,6 @@ class EmployeeDataTable extends DataTable
             })
             ->editColumn('company_doj', function (User $employees) {
                 return $employees->company_doj ? company_date_formate($employees->company_doj ?? '-') : '-';
-            })
-            ->editColumn('passport', function (User $employees) {
-                if (!empty($employees->passport)) {
-                    // Always show link icon for any content
-                    $url = filter_var($employees->passport, FILTER_VALIDATE_URL) ? $employees->passport : '#';
-                    $tooltip = filter_var($employees->passport, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->passport);
-                    
-                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
-                                <i class="fas fa-link"></i>
-                            </a>';
-                } else {
-                    return '-';
-                }
-            })
-            ->editColumn('passport_country', function (User $employees) {
-                if (!empty($employees->passport_country)) {
-                    // Always show link icon for any content
-                    $url = filter_var($employees->passport_country, FILTER_VALIDATE_URL) ? $employees->passport_country : '#';
-                    $tooltip = filter_var($employees->passport_country, FILTER_VALIDATE_URL) ? 'Open Link' : htmlspecialchars($employees->passport_country);
-                    
-                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-warning text-white" data-bs-toggle="tooltip" title="' . $tooltip . '" style="border-radius: 50%; padding: 4px 8px;">
-                                <i class="fas fa-link"></i>
-                            </a>';
-                } else {
-                    return '-';
-                }
             })
             ->editColumn('country', function (User $employees) {
                 if (!empty($employees->country)) {
@@ -527,8 +501,6 @@ if (\Laratrust::hasPermission('employee show') || \Laratrust::hasPermission('emp
             // Column::make('branch_id')->title(!empty($company_settings['hrm_branch_name']) ? $company_settings['hrm_branch_name'] : __('Branch'))->name('branches.name'),
             Column::make('department_id')->title(!empty($company_settings['hrm_department_name']) ? $company_settings['hrm_department_name'] : __('Department'))->name('departments.name'),
             Column::make('designation_id')->title(!empty($company_settings['hrm_designation_name']) ? $company_settings['hrm_designation_name'] : __('Designation'))->name(('designations.name')),
-            Column::make('passport')->title(__('Responsibility'))->name('employees.passport')->searchable(false),
-            Column::make('passport_country')->title(__('Accountability'))->name('employees.passport_country')->searchable(false),
             Column::make('country')->title(__('Tools'))->name('employees.country')->searchable(false),
             Column::make('state')->title(__('R&R'))->name('employees.state')->searchable(false),
             Column::make('city')->title(__('Incentive'))->name('employees.city')->searchable(false),

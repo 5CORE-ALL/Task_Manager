@@ -162,23 +162,9 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="info font-style">
-                                                    <strong>{{ __('Passport Country') }} :</strong>
-                                                    <span
-                                                        class="text-muted">{{ !empty($employee->passport_country) ? $employee->passport_country : '-' }}</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="info font-style">
                                                     <strong>{{ __('Salary Type') }} :</strong>
                                                     <span
                                                         class="text-muted">{{ !empty($employee->salaryType) ? $employee->salaryType->name : '-' }}</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="info font-style">
-                                                    <strong>{{ __('Passport') }} :</strong>
-                                                    <span
-                                                        class="text-muted">{{ !empty($employee->passport) ? $employee->passport : '-' }}</span>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">

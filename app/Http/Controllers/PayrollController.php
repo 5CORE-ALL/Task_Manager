@@ -1371,19 +1371,12 @@ public function index(Request $request)
             $workspaceId = getActiveWorkSpace();
             $selectedMonth = $request->get('month', 'August 2025');
             
-            // Get all contractual payroll records (regardless of month) to show cumulative contractual list
-            // This ensures that once an employee is moved to contractual, they stay there until manually restored
+            // Get contractual payroll records for the selected month
             $contractualPayrolls = Payroll::where('workspace_id', $workspaceId)
                 ->where('is_contractual', true)
-                ->orderBy('month', 'desc')
+                ->where('month', $selectedMonth)
                 ->orderBy('created_at', 'desc')
-                ->get()
-                ->groupBy('employee_id')
-                ->map(function($employeePayrolls) {
-                    // Return the most recent payroll record for each employee
-                    return $employeePayrolls->first();
-                })
-                ->values();
+                ->get();
             
             return response()->json([
                 'success' => true,
@@ -3016,13 +3009,19 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
                 return response()->json(['error' => 'Payroll record not found'], 404);
             }
 
-            $payroll->advance = intval($advanceAmount); // Store as integer (no decimals)
+            $payroll->advance = floatval($advanceAmount);
             
-            // Recalculate total payable: payable - advance + extra
-            $payable = $payroll->payable ?? 0;
-            $extra = $payroll->extra ?? 0;
-            // Total Payable = Payable + Incentive - Advance + Extra
-            $payroll->total_payable = $payable + ($payroll->incentive ?? 0) - $payroll->advance + $extra;
+            // For contractual employees: Total Payable = Payable - Advance
+            // Check if this is a contractual employee
+            if ($payroll->is_contractual) {
+                $payable = $payroll->payable ?? 0;
+                $payroll->total_payable = $payable - $payroll->advance;
+            } else {
+                // For regular employees: Total Payable = Payable + Incentive - Advance + Extra
+                $payable = $payroll->payable ?? 0;
+                $extra = $payroll->extra ?? 0;
+                $payroll->total_payable = $payable + ($payroll->incentive ?? 0) - $payroll->advance + $extra;
+            }
             
             $payroll->save();
 
@@ -3035,6 +3034,90 @@ $endDate = \Carbon\Carbon::create($year, $monthNumber)->endOfMonth()->format('Y-
 
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to update advance amount: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function updateBlogsVideos(Request $request)
+    {
+        try {
+            $payrollId = $request->input('payroll_id');
+            $blogsVideos = $request->input('number_of_blogs_videos');
+
+            // Validate input
+            if (!$payrollId || $blogsVideos === null) {
+                return response()->json(['error' => 'Invalid data'], 400);
+            }
+
+            // Find and update the payroll record
+            $payroll = \App\Models\Payroll::find($payrollId);
+            if (!$payroll) {
+                return response()->json(['error' => 'Payroll record not found'], 404);
+            }
+
+            $payroll->number_of_blogs_videos = intval($blogsVideos);
+            
+            // Recalculate payable: Number of Videos * Rate
+            $rate = $payroll->rate ?? 0;
+            $payroll->payable = $payroll->number_of_blogs_videos * $rate;
+            
+            // Recalculate total payable: Payable - Advance
+            $advance = $payroll->advance ?? 0;
+            $payroll->total_payable = $payroll->payable - $advance;
+            
+            $payroll->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Number of blogs/videos updated successfully',
+                'number_of_blogs_videos' => $payroll->number_of_blogs_videos,
+                'payable' => $payroll->payable,
+                'total_payable' => $payroll->total_payable
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to update number of blogs/videos: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function updateRate(Request $request)
+    {
+        try {
+            $payrollId = $request->input('payroll_id');
+            $rate = $request->input('rate');
+
+            // Validate input
+            if (!$payrollId || $rate === null) {
+                return response()->json(['error' => 'Invalid data'], 400);
+            }
+
+            // Find and update the payroll record
+            $payroll = \App\Models\Payroll::find($payrollId);
+            if (!$payroll) {
+                return response()->json(['error' => 'Payroll record not found'], 404);
+            }
+
+            $payroll->rate = floatval($rate);
+            
+            // Recalculate payable: Number of Videos * Rate
+            $blogsVideos = $payroll->number_of_blogs_videos ?? 0;
+            $payroll->payable = $blogsVideos * $payroll->rate;
+            
+            // Recalculate total payable: Payable - Advance
+            $advance = $payroll->advance ?? 0;
+            $payroll->total_payable = $payroll->payable - $advance;
+            
+            $payroll->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Rate updated successfully',
+                'rate' => $payroll->rate,
+                'payable' => $payroll->payable,
+                'total_payable' => $payroll->total_payable
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to update rate: ' . $e->getMessage()], 500);
         }
     }
 

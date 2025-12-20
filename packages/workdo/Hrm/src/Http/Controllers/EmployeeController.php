@@ -162,8 +162,6 @@ class EmployeeController extends Controller
                     'gender' => $request['gender'],
                     'phone' => $request['phone'],
                     'email' => $user->email,
-                    'passport_country' => $request['passport_country'],
-                    'passport' => $request['passport'],
                     'location_type' => $request['location_type'],
                     'country' => $request['country'],
                     'state' => $request['state'],

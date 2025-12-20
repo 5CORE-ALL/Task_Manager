@@ -25,7 +25,7 @@ class EmployeeDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
-        $rowColumn = ['employee_id', 'name', 'email', 'phone', 'department_id', 'designation_id', 'company_doj', 'passport_country', 'country', 'state', 'city','zipcode'];
+        $rowColumn = ['employee_id', 'name', 'email', 'phone', 'department_id', 'designation_id', 'company_doj', 'country', 'state', 'city','zipcode'];
         $dataTable = (new EloquentDataTable($query))
             ->addIndexColumn()
             ->editColumn('employee_id', function (User $employees) {
@@ -424,8 +424,6 @@ if (\Laratrust::hasPermission('employee show') || \Laratrust::hasPermission('emp
             // Column::make('branch_id')->title(!empty($company_settings['hrm_branch_name']) ? $company_settings['hrm_branch_name'] : __('Branch'))->name('branches.name'),
             Column::make('department_id')->title(!empty($company_settings['hrm_department_name']) ? $company_settings['hrm_department_name'] : __('Department'))->name('departments.name'),
             Column::make('designation_id')->title(!empty($company_settings['hrm_designation_name']) ? $company_settings['hrm_designation_name'] : __('Designation'))->name(('designations.name')),
-            Column::make('passport')->title(__('Responsibility'))->name('employees.passport')->searchable(false),
-            Column::make('passport_country')->title(__('Accountability'))->name('employees.passport_country')->searchable(false),
             Column::make('country')->title(__('Tools'))->name('employees.country')->searchable(false),
             Column::make('state')->title(__('R&R'))->name('employees.state')->searchable(false),
             Column::make('city')->title(__('Incentive'))->name('employees.city')->searchable(false),

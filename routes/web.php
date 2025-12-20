@@ -276,6 +276,8 @@ Route::get('/profile/edit', [UserController::class, 'editprofile'])->name('profi
     Route::post('/payroll/update-extra', [App\Http\Controllers\PayrollController::class, 'updateExtra'])->name('payroll.update-extra')->middleware('payroll.admin');
     Route::post('/payroll/update-incentive', [App\Http\Controllers\PayrollController::class, 'updateIncentive'])->name('payroll.update-incentive')->middleware('payroll.admin');
     Route::post('/payroll/update-advance', [App\Http\Controllers\PayrollController::class, 'updateAdvance'])->name('payroll.update-advance')->middleware('payroll.admin');
+    Route::post('/payroll/update-blogs-videos', [App\Http\Controllers\PayrollController::class, 'updateBlogsVideos'])->name('payroll.update-blogs-videos')->middleware('payroll.admin');
+    Route::post('/payroll/update-rate', [App\Http\Controllers\PayrollController::class, 'updateRate'])->name('payroll.update-rate')->middleware('payroll.admin');
     Route::post('/payroll/update-salary-data', [App\Http\Controllers\PayrollController::class, 'updateSalaryData'])->name('payroll.update-salary-data')->middleware('payroll.admin');
     Route::post('/payroll/refresh-teamlogger-data', [App\Http\Controllers\PayrollController::class, 'refreshTeamLoggerData'])->name('payroll.refresh-teamlogger-data')->middleware('payroll.admin');
     Route::post('/payroll/fix-corrupted-data', [App\Http\Controllers\PayrollController::class, 'fixCorruptedData'])->name('payroll.fix-corrupted-data')->middleware('payroll.admin');

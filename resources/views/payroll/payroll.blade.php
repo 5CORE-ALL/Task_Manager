@@ -946,6 +946,28 @@
                         </h5>
                     </div>
                     <div class="card-body">
+                        <!-- Month Filter for Contractual Section -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label for="contractualMonthSelect" class="form-label">
+                                    <i class="bi bi-calendar"></i> Month
+                                </label>
+                                <select id="contractualMonthSelect" class="form-control">
+                                    <option value="January 2025">January</option>
+                                    <option value="February 2025">February</option>
+                                    <option value="March 2025">March</option>
+                                    <option value="April 2025">April</option>
+                                    <option value="May 2025">May</option>
+                                    <option value="June 2025">June</option>
+                                    <option value="July 2025">July</option>
+                                    <option value="August 2025" selected>August</option>
+                                    <option value="September 2025">September</option>
+                                    <option value="October 2025">October</option>
+                                    <option value="November 2025">November</option>
+                                    <option value="December 2025">December</option>
+                                </select>
+                            </div>
+                        </div>
                         <div id="contractual-alert" class="alert alert-info d-none" role="alert">
                             <i class="bi bi-info-circle"></i>
                             <strong>Contractual Information:</strong> This page shows employees who have been moved to contractual status. 
@@ -963,13 +985,10 @@
                                         <th>{{ __('Department') }}</th>
                                         <th>{{ __('Email') }}</th>
                                         <th>{{ __('Month') }}</th>
-                                        <th>{{ __('Previous Salary') }}</th>
-                                        <th>{{ __('Increment') }}</th>
-                                        <th>{{ __('Current Salary') }}</th>
-                                        <th>{{ __('Productive Hrs') }}</th>
-                                        <th>{{ __('Incentive') }}</th>
-                                        <th>{{ __('Payable') }}</th>
+                                        <th>{{ __('Number of Blog/Videos') }}</th>
+                                        <th>{{ __('Rate') }}</th>
                                         <th>{{ __('Advance') }}</th>
+                                        <th>{{ __('Payable') }}</th>
                                         <th>{{ __('Total Payable') }}</th>
                                         <th>{{ __('Payment Status') }}</th>
                                         <th>{{ __('Action') }}</th>
@@ -1329,8 +1348,13 @@ $('#payrollTable').DataTable({
         
         currentActiveTab = tabName;
         
-        // Get current month
-        const selectedMonth = $('#monthSelect').val();
+        // Get current month based on active tab
+        let selectedMonth;
+        if (tabName === 'contractual') {
+            selectedMonth = $('#contractualMonthSelect').val();
+        } else {
+            selectedMonth = $('#monthSelect').val();
+        }
         
         // Load data only if not already loaded (archive data is cumulative across months)
         if (tabName === 'archive' && !archiveDataLoaded) {
@@ -1460,26 +1484,50 @@ $('#payrollTable').DataTable({
         if (data.length === 0) {
             $('#contractual-alert').addClass('d-none');
             $('#contractual-empty').removeClass('d-none');
-            tbody.append('<tr><td colspan="14" class="text-center text-muted py-4"><i class="bi bi-inbox"></i><br>No contractual employees found.</td></tr>');
+            tbody.append('<tr><td colspan="11" class="text-center text-muted py-4"><i class="bi bi-inbox"></i><br>No contractual employees found.</td></tr>');
         } else {
             $('#contractual-alert').removeClass('d-none');
             $('#contractual-empty').addClass('d-none');
             
             data.forEach(payroll => {
+                // Calculate payable: Number of Videos * Rate
+                const blogsVideos = parseFloat(payroll.number_of_blogs_videos) || 0;
+                const rate = parseFloat(payroll.rate) || 0;
+                const advance = parseFloat(payroll.advance) || 0;
+                const calculatedPayable = blogsVideos * rate;
+                const calculatedTotalPayable = calculatedPayable - advance;
+                
                 const row = `
                     <tr class="contractual-row" data-id="${payroll.id}">
                         <td>${payroll.name || 'N/A'}</td>
                         <td>${payroll.department || 'N/A'}</td>
                         <td>${payroll.email_address || 'N/A'}</td>
                         <td>${payroll.month || 'N/A'}</td>
-                        <td>₹${payroll.sal_previous ? parseInt(payroll.sal_previous).toLocaleString('en-IN') : '0'}</td>
-                        <td>₹${payroll.increment ? parseInt(payroll.increment).toLocaleString('en-IN') : '0'}</td>
-                        <td>₹${payroll.salary_current ? parseInt(payroll.salary_current).toLocaleString('en-IN') : '0'}</td>
-                        <td>${payroll.productive_hrs || '0'}</td>
-                        <td>₹${payroll.incentive ? parseInt(payroll.incentive).toLocaleString('en-IN') : '0'}</td>
-                        <td>₹${payroll.payable ? parseInt(payroll.payable).toLocaleString('en-IN') : '0'}</td>
-                        <td>₹${payroll.advance ? parseInt(payroll.advance).toLocaleString('en-IN') : '0'}</td>
-                        <td>₹${payroll.total_payable ? parseInt(payroll.total_payable).toLocaleString('en-IN') : '0'}</td>
+                        <td class="blogs-videos-cell">
+                            <input type="number" class="form-control form-control-sm blogs-videos-input" 
+                                   data-payroll-id="${payroll.id}" 
+                                   value="${blogsVideos}" 
+                                   min="0" 
+                                   style="width: 80px; display: inline-block;">
+                        </td>
+                        <td class="rate-cell">
+                            <input type="number" class="form-control form-control-sm rate-input" 
+                                   data-payroll-id="${payroll.id}" 
+                                   value="${rate}" 
+                                   min="0" 
+                                   step="0.01"
+                                   style="width: 100px; display: inline-block;">
+                        </td>
+                        <td class="advance-cell">
+                            <input type="number" class="form-control form-control-sm advance-input" 
+                                   data-payroll-id="${payroll.id}" 
+                                   value="${advance}" 
+                                   min="0" 
+                                   step="0.01"
+                                   style="width: 100px; display: inline-block;">
+                        </td>
+                        <td>₹${Math.round(calculatedPayable).toLocaleString('en-IN')}</td>
+                        <td>₹${Math.round(calculatedTotalPayable).toLocaleString('en-IN')}</td>
                         <td>
                             ${payroll.payment_done ? 
                                 '<span class="badge bg-success">Done</span>' : 
@@ -1641,7 +1689,8 @@ $('#payrollTable').DataTable({
                         
                         // If currently on contractual tab, reload data
                         if (currentActiveTab === 'contractual') {
-                            const selectedMonth = $('#monthSelect').val();
+                            const selectedMonth = $('#contractualMonthSelect').val();
+                            contractualDataLoaded = false; // Reset flag to force reload
                             loadContractualData(selectedMonth);
                         }
                     } else {
@@ -1829,8 +1878,29 @@ $('#payrollTable').DataTable({
             // Reload archive data (will show cumulative archived employees)
             loadArchiveData(selectedMonth);
         } else if (currentActiveTab === 'contractual') {
-            // Reload contractual data for new month
-            loadContractualData(selectedMonth);
+            // Reload contractual data for new month using contractual month filter
+            const contractualMonth = $('#contractualMonthSelect').val();
+            contractualDataLoaded = false; // Reset flag to force reload
+            loadContractualData(contractualMonth);
+        }
+    });
+    
+    // Contractual month filter change handler
+    $('#contractualMonthSelect').on('change', function() {
+        const selectedMonth = $(this).val();
+        contractualDataLoaded = false; // Reset flag to force reload
+        loadContractualData(selectedMonth);
+    });
+    
+    // Initialize contractual month filter with main month filter value on page load
+    $(document).ready(function() {
+        // Get month from URL parameter or main month filter
+        const urlParams = new URLSearchParams(window.location.search);
+        const monthFromUrl = urlParams.get('month');
+        const mainMonth = monthFromUrl || $('#monthSelect').val();
+        
+        if (mainMonth) {
+            $('#contractualMonthSelect').val(mainMonth);
         }
     });
     
@@ -3715,6 +3785,191 @@ document.addEventListener("DOMContentLoaded", function () {
                   errorMessage = xhr.responseJSON.message;
               }
               alert(errorMessage);
+          },
+          complete: function() {
+              input.prop('disabled', false);
+          }
+      });
+  });
+  
+  // Update Number of Blogs/Videos for contractual table
+  $(document).on('change blur', '.blogs-videos-input', function() {
+      const input = $(this);
+      const row = input.closest('tr');
+      const payrollId = input.data('payroll-id');
+      const blogsVideos = parseFloat(input.val()) || 0;
+      const rate = parseFloat(row.find('.rate-input').val()) || 0;
+      const advance = parseFloat(row.find('.advance-input').val()) || 0;
+      
+      // Calculate payable immediately: Number of Videos * Rate
+      const payable = blogsVideos * rate;
+      const totalPayable = payable - advance;
+      
+      // Update display immediately
+      row.find('td').eq(7).text('₹' + Math.round(payable).toLocaleString('en-IN'));
+      row.find('td').eq(8).text('₹' + Math.round(totalPayable).toLocaleString('en-IN'));
+      
+      // Show loading state
+      input.prop('disabled', true);
+      
+      // Save blogs/videos data via AJAX
+      $.ajax({
+          url: '{{ route("payroll.update-blogs-videos") }}',
+          method: 'POST',
+          data: {
+              payroll_id: payrollId,
+              number_of_blogs_videos: blogsVideos
+          },
+          success: function(response) {
+              if (response.success) {
+                  // Show brief success feedback
+                  input.css('border-color', '#28a745');
+                  setTimeout(() => {
+                      input.css('border-color', '');
+                  }, 1500);
+                  
+                  // Update display with server values
+                  if (response.payable !== undefined && response.total_payable !== undefined) {
+                      row.find('td').eq(7).text('₹' + Math.round(response.payable).toLocaleString('en-IN'));
+                      row.find('td').eq(8).text('₹' + Math.round(response.total_payable).toLocaleString('en-IN'));
+                  }
+              } else {
+                  alert('Error: ' + (response.message || 'Failed to update number of blogs/videos'));
+                  // Reset to previous value
+                  input.val(input.data('previous-value') || 0);
+              }
+          },
+          error: function(xhr) {
+              let errorMessage = 'Error updating number of blogs/videos. Please try again.';
+              if (xhr.responseJSON && xhr.responseJSON.message) {
+                  errorMessage = xhr.responseJSON.message;
+              }
+              alert(errorMessage);
+              // Reset to previous value
+              input.val(input.data('previous-value') || 0);
+          },
+          complete: function() {
+              input.prop('disabled', false);
+          }
+      });
+  });
+  
+  // Update Rate for contractual table
+  $(document).on('change blur', '.rate-input', function() {
+      const input = $(this);
+      const row = input.closest('tr');
+      const payrollId = input.data('payroll-id');
+      const rate = parseFloat(input.val()) || 0;
+      const blogsVideos = parseFloat(row.find('.blogs-videos-input').val()) || 0;
+      const advance = parseFloat(row.find('.advance-input').val()) || 0;
+      
+      // Calculate payable immediately: Number of Videos * Rate
+      const payable = blogsVideos * rate;
+      const totalPayable = payable - advance;
+      
+      // Update display immediately
+      row.find('td').eq(7).text('₹' + Math.round(payable).toLocaleString('en-IN'));
+      row.find('td').eq(8).text('₹' + Math.round(totalPayable).toLocaleString('en-IN'));
+      
+      // Show loading state
+      input.prop('disabled', true);
+      
+      // Save rate data via AJAX
+      $.ajax({
+          url: '{{ route("payroll.update-rate") }}',
+          method: 'POST',
+          data: {
+              payroll_id: payrollId,
+              rate: rate
+          },
+          success: function(response) {
+              if (response.success) {
+                  // Show brief success feedback
+                  input.css('border-color', '#28a745');
+                  setTimeout(() => {
+                      input.css('border-color', '');
+                  }, 1500);
+                  
+                  // Update display with server values
+                  if (response.payable !== undefined && response.total_payable !== undefined) {
+                      row.find('td').eq(7).text('₹' + Math.round(response.payable).toLocaleString('en-IN'));
+                      row.find('td').eq(8).text('₹' + Math.round(response.total_payable).toLocaleString('en-IN'));
+                  }
+              } else {
+                  alert('Error: ' + (response.message || 'Failed to update rate'));
+                  // Reset to previous value
+                  input.val(input.data('previous-value') || 0);
+              }
+          },
+          error: function(xhr) {
+              let errorMessage = 'Error updating rate. Please try again.';
+              if (xhr.responseJSON && xhr.responseJSON.message) {
+                  errorMessage = xhr.responseJSON.message;
+              }
+              alert(errorMessage);
+              // Reset to previous value
+              input.val(input.data('previous-value') || 0);
+          },
+          complete: function() {
+              input.prop('disabled', false);
+          }
+      });
+  });
+  
+  // Update Advance for contractual table
+  $(document).on('change blur', '.advance-input', function() {
+      const input = $(this);
+      const row = input.closest('tr');
+      const payrollId = input.data('payroll-id');
+      const advance = parseFloat(input.val()) || 0;
+      const blogsVideos = parseFloat(row.find('.blogs-videos-input').val()) || 0;
+      const rate = parseFloat(row.find('.rate-input').val()) || 0;
+      
+      // Calculate payable: Number of Videos * Rate
+      const payable = blogsVideos * rate;
+      // Calculate total payable: Payable - Advance
+      const totalPayable = payable - advance;
+      
+      // Update display immediately
+      row.find('td').eq(8).text('₹' + Math.round(totalPayable).toLocaleString('en-IN'));
+      
+      // Show loading state
+      input.prop('disabled', true);
+      
+      // Save advance data via AJAX
+      $.ajax({
+          url: '{{ route("payroll.update-advance") }}',
+          method: 'POST',
+          data: {
+              payroll_id: payrollId,
+              advance: advance
+          },
+          success: function(response) {
+              if (response.success) {
+                  // Show brief success feedback
+                  input.css('border-color', '#28a745');
+                  setTimeout(() => {
+                      input.css('border-color', '');
+                  }, 1500);
+                  
+                  // Update total payable if returned
+                  if (response.total_payable !== undefined) {
+                      row.find('td').eq(8).text('₹' + Math.round(response.total_payable).toLocaleString('en-IN'));
+                  }
+              } else {
+                  alert('Error: ' + (response.message || 'Failed to update advance'));
+                  // Reset to previous value
+                  input.val(input.data('previous-value') || 0);
+              }
+          },
+          error: function(xhr) {
+              let errorMessage = 'Error updating advance. Please try again.';
+              if (xhr.responseJSON && xhr.responseJSON.message) {
+                  errorMessage = xhr.responseJSON.message;
+              }
+              alert(errorMessage);
+              // Reset to previous value
+              input.val(input.data('previous-value') || 0);
           },
           complete: function() {
               input.prop('disabled', false);

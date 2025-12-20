@@ -91,18 +91,6 @@
                                             ]) !!}
                                         </div>
                                         <div class="form-group col-md-6">
-                                            {{ Form::label('passport_country', __('Accountability'), ['class' => 'form-label']) }}
-                                            <div class="form-icon-user">
-                                                {{ Form::text('passport_country', null, ['class' => 'form-control', 'placeholder' => __('Enter Accountability')]) }}
-                                            </div>
-                                        </div>
-                                        <div class="form-group col-md-6">
-                                            {{ Form::label('passport', __('Responsibility'), ['class' => 'form-label']) }}
-                                            <div class="form-icon-user">
-                                                {{ Form::text('passport', null, ['class' => 'form-control', 'placeholder' => __('Enter Responsibility')]) }}
-                                            </div>
-                                        </div>
-                                        <div class="form-group col-md-6">
                                             {{ Form::label('country', __('Tools Link'), ['class' => 'form-label']) }}
                                             <div class="form-icon-user">
                                                 {{ Form::text('country', null, ['class' => 'form-control', 'placeholder' => __('Enter Tools')]) }}
