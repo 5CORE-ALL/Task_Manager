@@ -1427,6 +1427,20 @@
                     }
                 });
 
+                // Function to transform status display text
+                function transformStatusDisplay(status) {
+                    if (!status) return status;
+                    var statusLower = status.trim().toLowerCase();
+                    if (statusLower === 'need help') {
+                        return 'Help';
+                    } else if (statusLower === 'need approval') {
+                        return 'Need App';
+                    } else if (statusLower === 'not applicable') {
+                        return 'Inapplicable';
+                    }
+                    return status;
+                }
+
                 // Function to update the data via AJAX
                 function updateData(e, id, column, value,originalText) {
 
@@ -1465,7 +1479,8 @@
                                
                                 let item = stagesArr.find(item => item.name === value);
                                 if (!item) return;
-                                element.text(value); // Update the text
+                                var displayStatus = transformStatusDisplay(value); // Transform the status
+                                element.text(displayStatus); // Update the text with transformed value
                                 element.css({
                                     "padding": "5px 10px",
                                     "border-radius": "5px",
