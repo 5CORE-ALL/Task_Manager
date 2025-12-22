@@ -135,7 +135,7 @@
                            required 
                            placeholder="{{ __('Enter ETA Time')}}" 
                            name="eta_time"  
-                           value="{{$task->eta_time}}"
+                           value="{{$task->eta_time ?? 10}}"
                            @if(Auth::user()->email != $task->assignor && in_array(Auth::user()->email, $task->assign_to)) disabled @endif>
                 </div>
 

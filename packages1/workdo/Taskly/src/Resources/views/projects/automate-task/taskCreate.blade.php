@@ -81,7 +81,7 @@
                   <div class="form-group col-md-6">
                       <label class="form-label">{{ __('ETC (Min)')}}</label><x-required></x-required>
                     <input type="number" class="form-control form-control-light" id="eta_time" placeholder="{{ __('Enter ETA Time')}}" name="eta_time" required 
-                           oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
+                           value="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
                 </div>
 
                <div class="form-group col-md-6">
