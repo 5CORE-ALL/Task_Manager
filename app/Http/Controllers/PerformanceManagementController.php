@@ -34,7 +34,7 @@ class PerformanceManagementController extends Controller
             'mgr-content@5core.com',
         ];
         
-        $isPrivileged = Auth::user()->type === 'super admin' || in_array(Auth::user()->email, $privilegedEmails);
+        $isPrivileged = Auth::user()->type === 'super admin' || in_array(strtolower(Auth::user()->email), array_map('strtolower', $privilegedEmails));
         
         // Get employees list
         if ($isPrivileged) {
@@ -429,8 +429,9 @@ class PerformanceManagementController extends Controller
             ->findOrFail($id);
         
         // Check access
+        $privilegedEmails = ['president@5core.com', 'hr@5core.com', 'software2@5core.com', 'tech-support@5core.com', 'support@5core.com'];
         $isPrivileged = Auth::user()->type === 'super admin' || 
-            in_array(Auth::user()->email, ['president@5core.com', 'hr@5core.com', 'software2@5core.com', 'tech-support@5core.com', 'support@5core.com']);
+            in_array(strtolower(Auth::user()->email), array_map('strtolower', $privilegedEmails));
         
         if (!$isPrivileged && $performance->employee_id != Auth::id()) {
             abort(403);
@@ -456,7 +457,7 @@ class PerformanceManagementController extends Controller
         ];
         
         $isPrivileged = Auth::user()->type === 'super admin' || 
-            in_array(Auth::user()->email, $privilegedEmails);
+            in_array(strtolower(Auth::user()->email), array_map('strtolower', $privilegedEmails));
         
         if (!$isPrivileged) {
             return response()->json([
