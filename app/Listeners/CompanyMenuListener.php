@@ -220,19 +220,35 @@ class CompanyMenuListener
                 'module' => $module,
                 'permission' => ''
             ]);
-            $menu->add([
-                'category' => 'Reports',
-                'title' => __('Performance Management'),
-                'icon' => 'ti ti-chart-line',
-                'name' => 'performance-management',
-                'parent' => null,
-                'order' => 1860,
-                'ignore_if' => [],
-                'depend_on' => [],
-                'route' => 'performance.index',
-                'module' => $module,
-                'permission' => ''
-            ]);
+            // Performance Management - Only for privileged users
+            $privilegedEmails = [
+                'president@5core.com',
+                'hr@5core.com',
+                'software2@5core.com',
+                'tech-support@5core.com',
+                'support@5core.com',
+                'mgr-advertisement@5core.com',
+                'mgr-content@5core.com',
+            ];
+            $user = $menu->user;
+            $isPrivileged = $user->type === 'super admin' || 
+                in_array(strtolower($user->email), array_map('strtolower', $privilegedEmails));
+            
+            if ($isPrivileged) {
+                $menu->add([
+                    'category' => 'Reports',
+                    'title' => __('Performance Management'),
+                    'icon' => 'ti ti-chart-line',
+                    'name' => 'performance-management',
+                    'parent' => null,
+                    'order' => 1860,
+                    'ignore_if' => [],
+                    'depend_on' => [],
+                    'route' => 'performance.index',
+                    'module' => $module,
+                    'permission' => ''
+                ]);
+            }
                 $menu->add([
             'category' => 'Reports',
             'title' => __('Activity'),
