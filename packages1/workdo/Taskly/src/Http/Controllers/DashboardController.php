@@ -53,13 +53,13 @@ class DashboardController extends Controller
 
 		  $inventory_Stock_missing_listing = DB::table('inventories')->where('inv_route','Stock_missing_listing')->first();
 		  
-		  $total_avgPft = $inventory_total_avgPft->inv_value;
-		  $total_avgRoi = $inventory_total_avgRoi->inv_value;
+		  $total_avgPft = $inventory_total_avgPft ? $inventory_total_avgPft->inv_value : 0;
+		  $total_avgRoi = $inventory_total_avgRoi ? $inventory_total_avgRoi->inv_value : 0;
 		  
-		  $total_inv = $inventory_total_inv->inv_value;
-		  $total_lpv = $inventory_total_lpvalue->inv_value;
+		  $total_inv = $inventory_total_inv ? $inventory_total_inv->inv_value : 0;
+		  $total_lpv = $inventory_total_lpvalue ? $inventory_total_lpvalue->inv_value : 0;
 
-		  $total_missing_list = $inventory_Stock_missing_listing->inv_value;
+		  $total_missing_list = $inventory_Stock_missing_listing ? $inventory_Stock_missing_listing->inv_value : 0;
 
 		  $currentMonthStart = Carbon::now()->startOfMonth();
           $currentMonthEnd = Carbon::now()->endOfMonth();
@@ -615,9 +615,23 @@ public function myTeamAdd(Request $request)
     public function sales_dashboard()
     {
         // inventory total l30 sales api call
-                $response = Http::get('https://inventory.5coremanagement.com/api/l30-total-sales');
+        try {
+            $response = Http::timeout(5)->get('https://inventory.5coremanagement.com/api/l30-total-sales');
+        
+            if ($response->successful()) {
                 $data = $response->json();
-                $total_l30_sales = $data['data'];
+        
+                // Check if key exists
+                $total_l30_sales = $data['data'] ?? 0;
+            } else {
+                // API returned 4xx or 5xx
+                $total_l30_sales = 0;
+            }
+        
+        } catch (\Exception $e) {
+            // API not reachable, timeout, network error, invalid JSON, etc.
+            $total_l30_sales = 0;
+        }
 
          $inventory_total_avgPft = DB::table('inventories')->where('inv_route','pricing-masters.pricing_masters')->first();
 		  $inventory_total_avgRoi = DB::table('inventories')->where('inv_route','pricing-masters.pricing_masters.roiHeader')->first();
@@ -627,13 +641,13 @@ public function myTeamAdd(Request $request)
 
 		  $inventory_Stock_missing_listing = DB::table('inventories')->where('inv_route','Stock_missing_listing')->first();
 		  
-		  $total_avgPft = $inventory_total_avgPft->inv_value;
-		  $total_avgRoi = $inventory_total_avgRoi->inv_value;
+		  $total_avgPft = $inventory_total_avgPft ? $inventory_total_avgPft->inv_value : 0;
+		  $total_avgRoi = $inventory_total_avgRoi ? $inventory_total_avgRoi->inv_value : 0;
 		  
-		  $total_inv = $inventory_total_inv->inv_value;
-		  $total_lpv = $inventory_total_lpvalue->inv_value;
+		  $total_inv = $inventory_total_inv ? $inventory_total_inv->inv_value : 0;
+		  $total_lpv = $inventory_total_lpvalue ? $inventory_total_lpvalue->inv_value : 0;
 
-		  $total_missing_list = $inventory_Stock_missing_listing->inv_value;
+		  $total_missing_list = $inventory_Stock_missing_listing ? $inventory_Stock_missing_listing->inv_value : 0;
         return view('taskly::SalesDash.index',compact('total_avgPft','total_avgRoi','total_inv','total_lpv','total_missing_list','total_l30_sales'));
     }
 }
