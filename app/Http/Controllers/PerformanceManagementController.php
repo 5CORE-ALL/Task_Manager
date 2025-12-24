@@ -26,6 +26,7 @@ class PerformanceManagementController extends Controller
         // Check if user is privileged (super admin or specific emails)
         $privilegedEmails = [
             'president@5core.com',
+            'hr@5core.com',
             'tech-support@5core.com',
             'support@5core.com',
             'mgr-advertisement@5core.com',
@@ -428,7 +429,7 @@ class PerformanceManagementController extends Controller
         
         // Check access
         $isPrivileged = Auth::user()->type === 'super admin' || 
-            in_array(Auth::user()->email, ['president@5core.com', 'tech-support@5core.com', 'support@5core.com']);
+            in_array(Auth::user()->email, ['president@5core.com', 'hr@5core.com', 'tech-support@5core.com', 'support@5core.com']);
         
         if (!$isPrivileged && $performance->employee_id != Auth::id()) {
             abort(403);
@@ -445,6 +446,7 @@ class PerformanceManagementController extends Controller
         // Check if user is privileged (only privileged users can add feedback)
         $privilegedEmails = [
             'president@5core.com',
+            'hr@5core.com',
             'tech-support@5core.com',
             'support@5core.com',
             'mgr-advertisement@5core.com',
