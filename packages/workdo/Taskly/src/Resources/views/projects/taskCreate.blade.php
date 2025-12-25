@@ -596,12 +596,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const shouldSplit = toggle.checked;
 
         try {
+            let redirectUrl = null;
             if (shouldSplit) {
-                await createIndividualTasks(assignees);
+                redirectUrl = await createIndividualTasks(assignees);
             } else {
-                await createGroupedTask(assignees);
+                redirectUrl = await createGroupedTask(assignees);
             }
-            window.location.reload(); // Refresh to show new tasks
+            // Redirect to task list with is_add_enable parameter if redirect URL is provided
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+            } else {
+                // Fallback: redirect to task list with parameter
+                window.location.href = "{{ route('projecttask.list', ['is_add_enable' => 'true']) }}";
+            }
         } catch (error) {
             console.error('Error:', error);
             alert('Task creation failed. Please try again.');
@@ -640,7 +647,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const response = await submitTask(formData);
         if (response.success) {
             alert('Task created with all assignees!');
+            return response.redirect_url;
         }
+        return null;
     }
 
     async function createIndividualTasks(assignees) {
@@ -661,8 +670,13 @@ document.addEventListener('DOMContentLoaded', function() {
             return submitTask(taskData);
         });
 
-        await Promise.all(requests);
+        const responses = await Promise.all(requests);
         alert(`${assignees.length} individual tasks created!`);
+        // Return redirect URL from the last response
+        if (responses.length > 0 && responses[responses.length - 1].success) {
+            return responses[responses.length - 1].redirect_url;
+        }
+        return null;
     }
 
     async function submitTask(formData) {
@@ -721,8 +735,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 .filter(opt => opt.value !== 'all_members' && opt.value !== '')
                 .map(opt => opt.value);
             
-            // Submit form for each member
-            allMemberEmails.forEach(email => {
+            // Submit form for each member using Promise.all to wait for all requests
+            const requests = allMemberEmails.map(email => {
                 const formData = new FormData(taskForm);
                 
                 // Set single assignee
@@ -730,7 +744,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('assign_to[]', email);
                 
                 // Submit individual task
-                fetch(taskForm.action, {
+                return fetch(taskForm.action, {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -740,17 +754,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 }).then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
-                }).then(data => {
-                    if (data.success) {
-                        window.location.href = data.redirect_url || taskForm.action;
-                    }
-                }).catch(error => {
-                    console.error('Error:', error);
                 });
             });
             
-            alert(`${allMemberEmails.length} tasks created successfully!`);
-            taskForm.reset();
+            // Wait for all requests to complete, then redirect
+            Promise.all(requests).then(results => {
+                const allSuccess = results.every(data => data.success);
+                if (allSuccess) {
+                    alert(`${allMemberEmails.length} tasks created successfully!`);
+                    // Use redirect_url from the last response, or fallback to task list with is_add_enable
+                    const lastResponse = results[results.length - 1];
+                    const redirectUrl = lastResponse.redirect_url || "{{ route('projecttask.list', ['is_add_enable' => 'true']) }}";
+                    window.location.href = redirectUrl;
+                } else {
+                    alert('Some tasks failed to create. Please try again.');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('Error creating tasks. Please try again.');
+            });
         }
         
         // Original validation checks

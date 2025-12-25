@@ -1035,6 +1035,16 @@ public function taskStore(Request $request)
         // Rest of your file handling and activity logging code...
         
         $returnUrl = route('projecttask.list',['is_add_enable'=>'true']);
+        
+        // Handle AJAX requests
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('The task has been created successfully.'),
+                'redirect_url' => $returnUrl
+            ]);
+        }
+        
         return redirect($returnUrl)->with('success', __('The task has been created successfully.'));
     } else {
         return redirect()->back()->with('error', __('Please add stages first.'));
@@ -1198,7 +1208,18 @@ public function multipleTaskSave(Request $request)
     }
 
     $taskCount = count($createdTasks);
-    return redirect()->route('projecttask.list', ['is_add_enable' => 'true'])
+    $returnUrl = route('projecttask.list', ['is_add_enable' => 'true']);
+    
+    // Handle AJAX requests
+    if ($request->ajax() || $request->wantsJson()) {
+        return response()->json([
+            'success' => true,
+            'message' => __(':count task(s) created successfully.', ['count' => $taskCount]),
+            'redirect_url' => $returnUrl
+        ]);
+    }
+    
+    return redirect($returnUrl)
         ->with('success', __(':count task(s) created successfully.', ['count' => $taskCount]));
 }
 // staging event create

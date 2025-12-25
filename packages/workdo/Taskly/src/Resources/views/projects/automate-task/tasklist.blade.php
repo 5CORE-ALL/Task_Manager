@@ -167,7 +167,7 @@
             var isAddEnable = "{{ request()->query('is_add_enable') ?? false }}";
             console.log(isAddEnable);
             $(document).ready(function () {
-                if (isAddEnable) {
+                if (isAddEnable === "true" || isAddEnable === true) {
                     $('.add-task').trigger('click');
                 }
             });
