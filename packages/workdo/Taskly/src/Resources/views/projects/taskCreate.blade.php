@@ -582,126 +582,31 @@
 
 
 <script>
-// Immediately attach handler - this runs as soon as the script loads
-(function() {
-    'use strict';
-    
-    let formHandlerAttached = false;
-    
-    // Function to handle form submission
-    async function handleTaskFormSubmit(e) {
-        console.log('Task form submit intercepted - preventing default');
+document.addEventListener('DOMContentLoaded', function() {
+    const taskForm = document.querySelector('form.needs-validation');
+    const toggle = document.getElementById('splitTasksToggle');
+
+    taskForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        
-        const taskForm = e.target.closest('form.needs-validation') || e.target;
-        const toggle = document.getElementById('splitTasksToggle');
         
         // Validate form first
-        if (!validateForm()) {
-            return false;
-        }
+        if (!validateForm()) return;
 
         const assignees = Array.from(document.getElementById('assign_to').selectedOptions).map(o => o.value);
-        const shouldSplit = toggle ? toggle.checked : false;
+        const shouldSplit = toggle.checked;
 
         try {
-            // Controller handles "All Members" and "All Managers" expansion
-            // We just pass the selected values as-is
             if (shouldSplit) {
-                await createIndividualTasks(taskForm, assignees);
+                await createIndividualTasks(assignees);
             } else {
-                await createGroupedTask(taskForm, assignees);
+                await createGroupedTask(assignees);
             }
-            
-            // Refresh DataTable if it exists on the parent page
-            if (typeof $ !== 'undefined' && $.fn.DataTable && $.fn.DataTable.isDataTable('#projects-task-table')) {
-                $('#projects-task-table').DataTable().ajax.reload(null, false);
-            }
-            
-            // Reset form and keep modal open
-            resetTaskForm(taskForm);
-            
-            // Show success message
-            if (typeof toastrs !== 'undefined') {
-                toastrs('{{ __('Success') }}', '{{ __('Task created successfully!') }}', 'success');
-            } else {
-                alert('Task created successfully!');
-            }
+            window.location.reload(); // Refresh to show new tasks
         } catch (error) {
             console.error('Error:', error);
-            if (typeof toastrs !== 'undefined') {
-                toastrs('{{ __('Error') }}', error.message || 'Task creation failed. Please try again.', 'error');
-            } else {
-                alert(error.message || 'Task creation failed. Please try again.');
-            }
+            alert('Task creation failed. Please try again.');
         }
-        
-        return false;
-    }
-    
-    // Function to attach handler to form
-    function attachHandler() {
-        if (formHandlerAttached) return;
-        
-        const taskForm = document.querySelector('form.needs-validation');
-        if (taskForm) {
-            console.log('Attaching custom form handler');
-            formHandlerAttached = true;
-            
-            // Remove any existing onsubmit attribute to prevent native submission
-            taskForm.onsubmit = null;
-            taskForm.setAttribute('onsubmit', 'return false;');
-            
-            // Attach our handler with capture: true to catch it FIRST (before other handlers)
-            taskForm.addEventListener('submit', handleTaskFormSubmit, true);
-            
-            // Also intercept submit button clicks
-            const submitBtn = taskForm.querySelector('input[type="submit"], button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Trigger form submit which our handler will catch
-                    taskForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-                }, true);
-            }
-        }
-    }
-    
-    // Try to attach immediately
-    attachHandler();
-    
-    // Also try when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            formHandlerAttached = false;
-            attachHandler();
-        });
-    }
-    
-    // Listen for modal shown event (when modal content is loaded via AJAX)
-    if (typeof $ !== 'undefined') {
-        $(document).on('shown.bs.modal', '#commonModal', function() {
-            formHandlerAttached = false;
-            setTimeout(attachHandler, 100);
-        });
-    } else {
-        // Fallback if jQuery not available
-        document.addEventListener('DOMContentLoaded', function() {
-            const observer = new MutationObserver(function(mutations) {
-                formHandlerAttached = false;
-                attachHandler();
-            });
-            
-            const modal = document.querySelector('#commonModal');
-            if (modal) {
-                observer.observe(modal, { childList: true, subtree: true });
-            }
-        });
-    }
-})();
+    });
 
     function validateForm() {
         // Validate assignees
@@ -714,7 +619,7 @@
 
         // Validate ETC
         const etaTime = parseInt($('#eta_time').val());
-        if (isNaN(etaTime) {
+        if (isNaN(etaTime)) {
             alert('ETC must be a number');
             $('#eta_time').focus();
             return false;
@@ -723,8 +628,8 @@
         return true;
     }
 
-    async function createGroupedTask(form, assignees) {
-        const formData = new FormData(form);
+    async function createGroupedTask(assignees) {
+        const formData = new FormData(taskForm);
         
         // Clear and set all assignees
         formData.delete('assign_to');
@@ -732,15 +637,14 @@
             formData.append('assign_to[]', assignee);
         });
 
-        const response = await submitTask(form, formData);
-        if (!response.success) {
-            throw new Error(response.message || 'Task creation failed');
+        const response = await submitTask(formData);
+        if (response.success) {
+            alert('Task created with all assignees!');
         }
-        return response;
     }
 
-    async function createIndividualTasks(form, assignees) {
-        const baseFormData = new FormData(form);
+    async function createIndividualTasks(assignees) {
+        const baseFormData = new FormData(taskForm);
         baseFormData.delete('assign_to[]');
         
         const requests = assignees.map(assignee => {
@@ -754,115 +658,23 @@
             // Set single assignee
             taskData.append('assign_to[]', assignee);
             
-            return submitTask(form, taskData);
+            return submitTask(taskData);
         });
 
-        const results = await Promise.all(requests);
-        const failed = results.filter(r => !r.success);
-        if (failed.length > 0) {
-            throw new Error(`${failed.length} task(s) failed to create`);
-        }
-        return results;
+        await Promise.all(requests);
+        alert(`${assignees.length} individual tasks created!`);
     }
 
-    async function submitTask(form, formData) {
-        console.log('Submitting task via AJAX');
-        const response = await fetch(form.action, {
+    async function submitTask(formData) {
+        const response = await fetch(taskForm.action, {
             method: 'POST',
             body: formData,
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
+                'X-Requested-With': 'XMLHttpRequest'
             }
         });
-        
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers.get('content-type'));
-        
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error('Task creation error:', errorData);
-            return { 
-                success: false, 
-                message: errorData.message || 'Task creation failed' 
-            };
-        }
-        
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            const data = await response.json();
-            console.log('Task creation success:', data);
-            return data;
-        } else {
-            // If we get HTML instead of JSON, the controller didn't detect AJAX
-            console.warn('Received HTML response instead of JSON - controller may not have detected AJAX request');
-            return { 
-                success: false, 
-                message: 'Server returned unexpected response format' 
-            };
-        }
-    }
-
-    function resetTaskForm(form) {
-        // Reset the form
-        form.reset();
-        
-        // Reset Select2 dropdowns if they exist
-        if (typeof $ !== 'undefined') {
-            // Reset assign_to dropdown
-            if ($('#assign_to').length && $('#assign_to').data('select2')) {
-                $('#assign_to').val(null).trigger('change');
-            }
-            
-            // Reset assignor dropdown
-            if ($('#assignor').length && $('#assignor').data('select2')) {
-                $('#assignor').val(null).trigger('change');
-                // Set current user as default assignor
-                const currentUserEmail = '{{ auth()->user()->email }}';
-                $('#assignor').val([currentUserEmail]).trigger('change');
-            }
-            
-            // Reset status dropdown
-            if ($('#task-stage').length) {
-                $('#task-stage').val('');
-            }
-            
-            // Reset priority to default
-            if ($('#task-priority').length) {
-                $('#task-priority').val('normal');
-            }
-            
-            // Reset ETA time to default
-            if ($('#eta_time').length) {
-                $('#eta_time').val('10');
-            }
-            
-            // Reset toggle
-            if ($('#splitTasksToggle').length) {
-                $('#splitTasksToggle').prop('checked', false);
-            }
-            
-            // Reset date picker to default values (today + 4 days)
-            if ($('#duration').length && $('#duration').data('daterangepicker')) {
-                const start = moment();
-                const end = moment().add(4, 'days');
-                $('#duration').data('daterangepicker').setStartDate(start);
-                $('#duration').data('daterangepicker').setEndDate(end);
-                $('#duration').val(start.format('MMM D, YY hh:mm A') + ' - ' + end.format('MMM D, YY hh:mm A'));
-                $('input[name="start_date"]').val(start.format('YYYY-MM-DD HH:mm:ss'));
-                $('input[name="due_date"]').val(end.format('YYYY-MM-DD HH:mm:ss'));
-            }
-            
-            // Reset file input
-            if ($('#file-upload').length) {
-                $('#file-upload').val('');
-                $('#file-name').text('');
-            }
-            
-            // Hide validation messages
-            $('#user_validation').addClass('d-none');
-        }
+        return await response.json();
     }
 });
 </script>
@@ -894,6 +706,72 @@
             });
         }
     });
+    
+    // Form submission handling
+    const taskForm = document.querySelector('form');
+    taskForm.addEventListener('submit', function(e) {
+        const assignToOptions = Array.from(assignToSelect.selectedOptions);
+        const hasAllMembers = assignToOptions.some(opt => opt.value === 'all_members');
+        
+        if (hasAllMembers) {
+            e.preventDefault();
+            
+            // Get all member emails except "All Members" option
+            const allMemberEmails = Array.from(assignToSelect.options)
+                .filter(opt => opt.value !== 'all_members' && opt.value !== '')
+                .map(opt => opt.value);
+            
+            // Submit form for each member
+            allMemberEmails.forEach(email => {
+                const formData = new FormData(taskForm);
+                
+                // Set single assignee
+                formData.delete('assign_to[]');
+                formData.append('assign_to[]', email);
+                
+                // Submit individual task
+                fetch(taskForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                }).then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect_url || taskForm.action;
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+            
+            alert(`${allMemberEmails.length} tasks created successfully!`);
+            taskForm.reset();
+        }
+        
+        // Original validation checks
+        const user = $("#assign_to option:selected").length;
+        if (user == 0) {
+            e.preventDefault();
+            $('#user_validation').removeClass('d-none');
+            return false;
+        } else {
+            $('#user_validation').addClass('d-none');
+        }
+        
+        const etaTime = parseInt($('#eta_time').val());
+        if (isNaN(etaTime)) {
+            e.preventDefault();
+            alert('ETC (Min) must be a number');
+            $('#eta_time').focus();
+            return false;
+        }
+    });
+});
 </script>
 
 
