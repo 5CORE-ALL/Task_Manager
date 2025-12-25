@@ -958,6 +958,13 @@ public function taskStore(Request $request)
             $upload = upload_file($request, 'file', $fileName, 'tasks', []);
             // Check if upload failed
             if (!isset($upload['flag']) || $upload['flag'] != 1 || !isset($upload['url'])) {
+                // Return JSON response for AJAX requests
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => __('File upload failed: ') . ($upload['msg'] ?? __('Unknown error occurred'))
+                    ], 400);
+                }
                 return redirect()->back()->withInput()->with('error', __('File upload failed: ') . ($upload['msg'] ?? __('Unknown error occurred')));
             }
         }
@@ -1035,8 +1042,26 @@ public function taskStore(Request $request)
         // Rest of your file handling and activity logging code...
         
         $returnUrl = route('projecttask.list',['is_add_enable'=>'true']);
+        
+        // Return JSON response for AJAX requests
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('The task has been created successfully.'),
+                'redirect_url' => $returnUrl
+            ]);
+        }
+        
         return redirect($returnUrl)->with('success', __('The task has been created successfully.'));
     } else {
+        // Return JSON response for AJAX requests
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Please add stages first.')
+            ], 400);
+        }
+        
         return redirect()->back()->with('error', __('Please add stages first.'));
     }
 }

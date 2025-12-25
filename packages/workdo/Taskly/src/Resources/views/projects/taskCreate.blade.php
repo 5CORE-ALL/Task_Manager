@@ -601,10 +601,28 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 await createGroupedTask(assignees);
             }
-            window.location.reload(); // Refresh to show new tasks
+            
+            // Refresh DataTable if it exists on the parent page
+            if (typeof $ !== 'undefined' && $.fn.DataTable && $.fn.DataTable.isDataTable('#projects-task-table')) {
+                $('#projects-task-table').DataTable().ajax.reload(null, false);
+            }
+            
+            // Reset form and keep modal open
+            resetTaskForm();
+            
+            // Show success message
+            if (typeof toastrs !== 'undefined') {
+                toastrs('{{ __('Success') }}', '{{ __('Task created successfully!') }}', 'success');
+            } else {
+                alert('Task created successfully!');
+            }
         } catch (error) {
             console.error('Error:', error);
-            alert('Task creation failed. Please try again.');
+            if (typeof toastrs !== 'undefined') {
+                toastrs('{{ __('Error') }}', 'Task creation failed. Please try again.', 'error');
+            } else {
+                alert('Task creation failed. Please try again.');
+            }
         }
     });
 
@@ -638,9 +656,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         const response = await submitTask(formData);
-        if (response.success) {
-            alert('Task created with all assignees!');
+        if (!response.success) {
+            throw new Error(response.message || 'Task creation failed');
         }
+        return response;
     }
 
     async function createIndividualTasks(assignees) {
@@ -661,8 +680,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return submitTask(taskData);
         });
 
-        await Promise.all(requests);
-        alert(`${assignees.length} individual tasks created!`);
+        const results = await Promise.all(requests);
+        const failed = results.filter(r => !r.success);
+        if (failed.length > 0) {
+            throw new Error(`${failed.length} task(s) failed to create`);
+        }
+        return results;
     }
 
     async function submitTask(formData) {
@@ -671,10 +694,82 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData,
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
             }
         });
-        return await response.json();
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            return { 
+                success: false, 
+                message: errorData.message || 'Task creation failed' 
+            };
+        }
+        
+        const data = await response.json().catch(() => ({}));
+        return data;
+    }
+
+    function resetTaskForm() {
+        // Reset the form
+        taskForm.reset();
+        
+        // Reset Select2 dropdowns if they exist
+        if (typeof $ !== 'undefined') {
+            // Reset assign_to dropdown
+            if ($('#assign_to').length && $('#assign_to').data('select2')) {
+                $('#assign_to').val(null).trigger('change');
+            }
+            
+            // Reset assignor dropdown
+            if ($('#assignor').length && $('#assignor').data('select2')) {
+                $('#assignor').val(null).trigger('change');
+                // Set current user as default assignor
+                const currentUserEmail = '{{ auth()->user()->email }}';
+                $('#assignor').val([currentUserEmail]).trigger('change');
+            }
+            
+            // Reset status dropdown
+            if ($('#task-stage').length) {
+                $('#task-stage').val('');
+            }
+            
+            // Reset priority to default
+            if ($('#task-priority').length) {
+                $('#task-priority').val('normal');
+            }
+            
+            // Reset ETA time to default
+            if ($('#eta_time').length) {
+                $('#eta_time').val('10');
+            }
+            
+            // Reset toggle
+            if ($('#splitTasksToggle').length) {
+                $('#splitTasksToggle').prop('checked', false);
+            }
+            
+            // Reset date picker to default values (today + 4 days)
+            if ($('#duration').length && $('#duration').data('daterangepicker')) {
+                const start = moment();
+                const end = moment().add(4, 'days');
+                $('#duration').data('daterangepicker').setStartDate(start);
+                $('#duration').data('daterangepicker').setEndDate(end);
+                $('#duration').val(start.format('MMM D, YY hh:mm A') + ' - ' + end.format('MMM D, YY hh:mm A'));
+                $('input[name="start_date"]').val(start.format('YYYY-MM-DD HH:mm:ss'));
+                $('input[name="due_date"]').val(end.format('YYYY-MM-DD HH:mm:ss'));
+            }
+            
+            // Reset file input
+            if ($('#file-upload').length) {
+                $('#file-upload').val('');
+                $('#file-name').text('');
+            }
+            
+            // Hide validation messages
+            $('#user_validation').addClass('d-none');
+        }
     }
 });
 </script>
