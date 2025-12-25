@@ -754,22 +754,6 @@ $menu->add([
             'permission' => 'helpdesk ticket manage'
         ]);
         
-
-         $menu->add([
-            'category' => 'Settings',
-            'title' => __('Speed Test'),
-            'icon' => 'ti ti-world',
-            'name' => 'Speed Test',
-            'parent' => null,
-            'order' => 1900,
-            'ignore_if' => [],
-            'depend_on' => [],
-            'route' => 'redirect.Speedtest',
-            'attributes' => ['target' => '_blank'],
-            'module' => $module,
-            'permission' => 'helpdesk ticket manage'
-        ]);
-        
         $menu->add([
             'category' => 'Settings',
             'title' => __('Socialmedia'),

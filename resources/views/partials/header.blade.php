@@ -381,10 +381,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <a class="app-item" href="https://www.speedtest.net/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                                                <img src="https://cdn-icons-png.flaticon.com/512/93/93158.png" alt="Speed Test" class="app-icon" style="width:40px;height:40px;margin-bottom:6px;" />
-                                                <div>Speed Test</div>
-                                            </a>
                                              <a class="app-item" href="{{ route('tutorial') }}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
                                                 <img src="https://cdn-icons-png.flaticon.com/512/0/375.png" alt="Tutorial" style="width:40px;height:40px;margin-bottom:6px;" />
                                                 <div>Tutorial</div>

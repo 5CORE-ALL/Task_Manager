@@ -754,9 +754,6 @@ Route::get('/redirect/Product-Masters', function () {
     return redirect()->away('http://inventory.5coremanagement.com/product/productmaster');
 })->name('redirect.Product-Masters');
 
-Route::get('/redirect/Speedtest', function () {
-    return redirect()->away('http://speedtest.5coremanagement.com/');
-})->name('redirect.Speedtest');
 
 Route::get('/redirect/Shipping', function () {
     return redirect()->away('https://ship-hub-production.5coremanagement.com/admin/login');
