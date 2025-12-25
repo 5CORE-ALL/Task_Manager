@@ -1044,7 +1044,8 @@ public function taskStore(Request $request)
         $returnUrl = route('projecttask.list',['is_add_enable'=>'true']);
         
         // Return JSON response for AJAX requests
-        if ($request->ajax() || $request->wantsJson()) {
+        // Check for X-Requested-With header or Accept: application/json header
+        if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest' || $request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => __('The task has been created successfully.'),

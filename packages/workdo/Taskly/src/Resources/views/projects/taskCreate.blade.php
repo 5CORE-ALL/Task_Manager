@@ -582,24 +582,37 @@
 
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const taskForm = document.querySelector('form.needs-validation');
-    const toggle = document.getElementById('splitTasksToggle');
-
-    taskForm.addEventListener('submit', async function(e) {
+// Immediately attach handler - this runs as soon as the script loads
+(function() {
+    'use strict';
+    
+    let formHandlerAttached = false;
+    
+    // Function to handle form submission
+    async function handleTaskFormSubmit(e) {
+        console.log('Task form submit intercepted - preventing default');
         e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        const taskForm = e.target.closest('form.needs-validation') || e.target;
+        const toggle = document.getElementById('splitTasksToggle');
         
         // Validate form first
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            return false;
+        }
 
         const assignees = Array.from(document.getElementById('assign_to').selectedOptions).map(o => o.value);
-        const shouldSplit = toggle.checked;
+        const shouldSplit = toggle ? toggle.checked : false;
 
         try {
+            // Controller handles "All Members" and "All Managers" expansion
+            // We just pass the selected values as-is
             if (shouldSplit) {
-                await createIndividualTasks(assignees);
+                await createIndividualTasks(taskForm, assignees);
             } else {
-                await createGroupedTask(assignees);
+                await createGroupedTask(taskForm, assignees);
             }
             
             // Refresh DataTable if it exists on the parent page
@@ -608,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Reset form and keep modal open
-            resetTaskForm();
+            resetTaskForm(taskForm);
             
             // Show success message
             if (typeof toastrs !== 'undefined') {
@@ -619,12 +632,76 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error:', error);
             if (typeof toastrs !== 'undefined') {
-                toastrs('{{ __('Error') }}', 'Task creation failed. Please try again.', 'error');
+                toastrs('{{ __('Error') }}', error.message || 'Task creation failed. Please try again.', 'error');
             } else {
-                alert('Task creation failed. Please try again.');
+                alert(error.message || 'Task creation failed. Please try again.');
             }
         }
-    });
+        
+        return false;
+    }
+    
+    // Function to attach handler to form
+    function attachHandler() {
+        if (formHandlerAttached) return;
+        
+        const taskForm = document.querySelector('form.needs-validation');
+        if (taskForm) {
+            console.log('Attaching custom form handler');
+            formHandlerAttached = true;
+            
+            // Remove any existing onsubmit attribute to prevent native submission
+            taskForm.onsubmit = null;
+            taskForm.setAttribute('onsubmit', 'return false;');
+            
+            // Attach our handler with capture: true to catch it FIRST (before other handlers)
+            taskForm.addEventListener('submit', handleTaskFormSubmit, true);
+            
+            // Also intercept submit button clicks
+            const submitBtn = taskForm.querySelector('input[type="submit"], button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Trigger form submit which our handler will catch
+                    taskForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }, true);
+            }
+        }
+    }
+    
+    // Try to attach immediately
+    attachHandler();
+    
+    // Also try when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            formHandlerAttached = false;
+            attachHandler();
+        });
+    }
+    
+    // Listen for modal shown event (when modal content is loaded via AJAX)
+    if (typeof $ !== 'undefined') {
+        $(document).on('shown.bs.modal', '#commonModal', function() {
+            formHandlerAttached = false;
+            setTimeout(attachHandler, 100);
+        });
+    } else {
+        // Fallback if jQuery not available
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new MutationObserver(function(mutations) {
+                formHandlerAttached = false;
+                attachHandler();
+            });
+            
+            const modal = document.querySelector('#commonModal');
+            if (modal) {
+                observer.observe(modal, { childList: true, subtree: true });
+            }
+        });
+    }
+})();
 
     function validateForm() {
         // Validate assignees
@@ -646,8 +723,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
-    async function createGroupedTask(assignees) {
-        const formData = new FormData(taskForm);
+    async function createGroupedTask(form, assignees) {
+        const formData = new FormData(form);
         
         // Clear and set all assignees
         formData.delete('assign_to');
@@ -655,15 +732,15 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('assign_to[]', assignee);
         });
 
-        const response = await submitTask(formData);
+        const response = await submitTask(form, formData);
         if (!response.success) {
             throw new Error(response.message || 'Task creation failed');
         }
         return response;
     }
 
-    async function createIndividualTasks(assignees) {
-        const baseFormData = new FormData(taskForm);
+    async function createIndividualTasks(form, assignees) {
+        const baseFormData = new FormData(form);
         baseFormData.delete('assign_to[]');
         
         const requests = assignees.map(assignee => {
@@ -677,7 +754,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set single assignee
             taskData.append('assign_to[]', assignee);
             
-            return submitTask(taskData);
+            return submitTask(form, taskData);
         });
 
         const results = await Promise.all(requests);
@@ -688,8 +765,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return results;
     }
 
-    async function submitTask(formData) {
-        const response = await fetch(taskForm.action, {
+    async function submitTask(form, formData) {
+        console.log('Submitting task via AJAX');
+        const response = await fetch(form.action, {
             method: 'POST',
             body: formData,
             headers: {
@@ -699,21 +777,36 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers.get('content-type'));
+        
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
+            console.error('Task creation error:', errorData);
             return { 
                 success: false, 
                 message: errorData.message || 'Task creation failed' 
             };
         }
         
-        const data = await response.json().catch(() => ({}));
-        return data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+            console.log('Task creation success:', data);
+            return data;
+        } else {
+            // If we get HTML instead of JSON, the controller didn't detect AJAX
+            console.warn('Received HTML response instead of JSON - controller may not have detected AJAX request');
+            return { 
+                success: false, 
+                message: 'Server returned unexpected response format' 
+            };
+        }
     }
 
-    function resetTaskForm() {
+    function resetTaskForm(form) {
         // Reset the form
-        taskForm.reset();
+        form.reset();
         
         // Reset Select2 dropdowns if they exist
         if (typeof $ !== 'undefined') {
@@ -801,72 +894,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-    
-    // Form submission handling
-    const taskForm = document.querySelector('form');
-    taskForm.addEventListener('submit', function(e) {
-        const assignToOptions = Array.from(assignToSelect.selectedOptions);
-        const hasAllMembers = assignToOptions.some(opt => opt.value === 'all_members');
-        
-        if (hasAllMembers) {
-            e.preventDefault();
-            
-            // Get all member emails except "All Members" option
-            const allMemberEmails = Array.from(assignToSelect.options)
-                .filter(opt => opt.value !== 'all_members' && opt.value !== '')
-                .map(opt => opt.value);
-            
-            // Submit form for each member
-            allMemberEmails.forEach(email => {
-                const formData = new FormData(taskForm);
-                
-                // Set single assignee
-                formData.delete('assign_to[]');
-                formData.append('assign_to[]', email);
-                
-                // Submit individual task
-                fetch(taskForm.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                }).then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                }).then(data => {
-                    if (data.success) {
-                        window.location.href = data.redirect_url || taskForm.action;
-                    }
-                }).catch(error => {
-                    console.error('Error:', error);
-                });
-            });
-            
-            alert(`${allMemberEmails.length} tasks created successfully!`);
-            taskForm.reset();
-        }
-        
-        // Original validation checks
-        const user = $("#assign_to option:selected").length;
-        if (user == 0) {
-            e.preventDefault();
-            $('#user_validation').removeClass('d-none');
-            return false;
-        } else {
-            $('#user_validation').addClass('d-none');
-        }
-        
-        const etaTime = parseInt($('#eta_time').val());
-        if (isNaN(etaTime) {
-            e.preventDefault();
-            alert('ETC (Min) must be a number');
-            $('#eta_time').focus();
-            return false;
-        }
-    });
-});
 </script>
 
 
