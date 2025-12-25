@@ -178,187 +178,125 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
                 @permission('user chat manage')
-                                <!-- Google Apps Launcher Icon & Dropdown -->
+                                <!-- Apps displayed directly in header -->
                                 <li class="dash-h-item position-relative" style="z-index:1052;">
-                                    <div id="appsIcon" style="display:inline-block; cursor:pointer; vertical-align:middle;">
-                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center shadow" style="width:38px; height:38px;">
-                                            <div class="d-flex flex-column gap-1">
-                                                <div class="d-flex gap-1">
-                                                    <span class="icon-dot" style="width:5px;height:5px;background:#333;border-radius:50%;display:inline-block;"></span>
-                                                    <span class="icon-dot" style="width:5px;height:5px;background:#333;border-radius:50%;display:inline-block;"></span>
-                                                    <span class="icon-dot" style="width:5px;height:5px;background:#333;border-radius:50%;display:inline-block;"></span>
+                                    <div class="apps-toolbar">
+                                        <!-- ChatGPT -->
+                                        <a class="header-app-item" href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer" title="ChatGPT">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT" class="header-app-icon" />
+                                        </a>
+                                        <!-- Chatbot -->
+                                        <a class="header-app-item" href="{{ route('chatbot') }}" target="_blank" rel="noopener noreferrer" title="Chatbot">
+                                            <img src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/svgs/solid/robot.svg" alt="Chatbot" class="header-app-icon" />
+                                        </a>
+                                        <!-- DAR -->
+                                        <a class="header-app-item" href="#" data-bs-toggle="modal" data-bs-target="#darModal" title="Daily Activity Report">
+                                            <img src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/svgs/regular/clock.svg" alt="DAR" class="header-app-icon" />
+                                        </a>
+                                        <!-- Flags -->
+                                        <a class="header-app-item" href="{{ route('flag-raise.history') }}" target="_blank" rel="noopener noreferrer" title="Show Flag History">
+                                            <img src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/svgs/regular/flag.svg" alt="Flags" class="header-app-icon" />
+                                        </a>
+                                        <!-- Improvements with submenu -->
+                                        <div class="header-app-item position-relative" id="improvementsItem" title="Improvements">
+                                            <img src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/svgs/solid/wrench.svg" alt="Improvements" class="header-app-icon" />
+                                            <div class="submenu position-absolute shadow bg-white rounded py-2" id="improvementsMenu" style="display:none; top: 100%; left: 0; z-index: 3000; min-width: 140px; margin-top: 8px;">
+                                                <div class="px-3 py-1 submenu-item">
+                                                    <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                                        <i class="ti ti-plus"></i>
+                                                        <span>Create Imp</span>
+                                                    </a>
                                                 </div>
-                                                <div class="d-flex gap-1">
-                                                    <span class="icon-dot" style="width:5px;height:5px;background:#333;border-radius:50%;display:inline-block;"></span>
-                                                    <span class="icon-dot" style="width:5px;height:5px;background:#333;border-radius:50%;display:inline-block;"></span>
-                                                    <span class="icon-dot" style="width:5px;height:5px;background:#333;border-radius:50%;display:inline-block;"></span>
-                                                </div>
-                                                <div class="d-flex gap-1">
-                                                    <span class="icon-dot" style="width:5px;height:5px;background:#333;border-radius:50%;display:inline-block;"></span>
-                                                    <span class="icon-dot" style="width:5px;height:5px;background:#333;border-radius:50%;display:inline-block;"></span>
-                                                    <span class="icon-dot" style="width:5px;height:5px;background:#333;border-radius:50%;display:inline-block;"></span>
+                                                <div class="px-3 py-1 submenu-item">
+                                                    <a href="{{ route('reviews.index') }}" target="_blank" class="dropdown-item">
+                                                        <i class="ti ti-list"></i>
+                                                        <span>Show Imp</span>
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div id="appsDropdown" style="display:none; position:absolute; top:48px; right:0; width:320px; background:#fff; border-radius:24px; box-shadow:0 2px 16px rgba(60,64,67,0.3); border:1px solid #e0e0e0; z-index:2000; padding:12px;">
-                                        <div class="app-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-height:360px; overflow-y:auto; padding:4px;">
-                                            <!-- Chat -->
-                                                <a class="app-item" href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT" class="app-icon" style="background:#f1f3f4; border-radius:50%; padding:4px;" />
-                                                    <div>ChatGPT</div>
-                                                </a>
-                                                <a class="app-item" href="{{ route('chatbot') }}" target="_blank" rel="noopener noreferrer"
-                                                    style="text-decoration:none;">
-                                                    <img src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/svgs/solid/robot.svg"
-                                                        alt="Chatbot" class="app-icon" style="background:#f1f3f4; border-radius:50%; padding:4px;" />
-                                                    <div>Chatbot</div>
-                                                </a>
-                                                <a class="app-item" href="#" data-bs-toggle="modal" data-bs-target="#darModal" title="Daily Activity Report" rel="noopener noreferrer"
-                                                    style="text-decoration:none;">
-                                                    <img src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/svgs/regular/clock.svg" alt="DAR" class="app-icon" />
-                                                    <div>DAR</div>
-                                                </a>
-                                                                <!-- Flags with submenu -->
-                                                <div class="app-item position-relative" id="flagsItem">
-                                                    <img src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/svgs/regular/flag.svg" alt="Flags"
-                                                        class="app-icon" />
-                                                    <div>Flags</div>
-
-                                                    <!-- Submenu -->
-                                                    <div class="submenu position-absolute shadow bg-white rounded py-2" id="flagsMenu"
-                                                        style="display:none; top: 60px; left: 0; z-index: 3000; min-width: 140px;">
-                                                        <div class="px-3 py-1 submenu-item">
-                                                            <a href="{{ route('flag-raise.history') }}" target="_blank" class="dropdown-item">
-                                                                    <i class="ti ti-list"></i>
-                                                                    <span>Show Flag History</span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
+                                        <!-- Achieve -->
+                                        <a class="header-app-item" href="https://accomplish.5coremanagement.com/" target="_blank" rel="noopener noreferrer" title="Achieve">
+                                            <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2705.svg" alt="Achieve" class="header-app-icon" />
+                                        </a>
+                                        <!-- Operations with submenu -->
+                                        <div class="header-app-item position-relative" id="operationsItem" title="Operations">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/1046/1046870.png" alt="Operations Warehouse" class="header-app-icon" />
+                                            <div class="submenu position-absolute shadow bg-white rounded py-2" id="operationsMenu" style="display:none; top: 100%; left: 0; z-index: 3000; min-width: 140px; margin-top: 8px;">
+                                                <div class="px-3 py-1 submenu-item">
+                                                    <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#dailyShippingChecklistModal">
+                                                        <i class="ti ti-truck"></i>
+                                                        <span>Daily Checklist</span>
+                                                    </a>
                                                 </div>
-
-                                                <div class="app-item position-relative" id="improvementsItem">
-                                                    <img src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/svgs/solid/wrench.svg" alt="Improvements"
-                                                        class="app-icon" />
-                                                    <div>Improvements</div>
-
-                                                    <!-- Submenu -->
-                                                    <div class="submenu position-absolute shadow bg-white rounded py-2" id="improvementsMenu"
-                                                        style="display:none; top: 60px; left: 0; z-index: 3000; min-width: 140px;">
-                                                        <div class="px-3 py-1 submenu-item">
-                                                            <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#reviewModal">
-                                                                <i class="ti ti-plus"></i>
-                                                                <span>Create Imp</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="px-3 py-1 submenu-item">
-                                                            <a href="{{ route('reviews.index') }}" target="_blank" class="dropdown-item">
-                                                                    <i class="ti ti-list"></i>
-                                                                    <span>Show Imp</span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                 <a class="app-item" href="https://accomplish.5coremanagement.com/" target="_blank" rel="noopener noreferrer"
-                                                        style="text-decoration:none;">
-                                                        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2705.svg"
-                                                            alt="Achieve" class="app-icon" style="background:#f1f3f4; border-radius:50%; padding:4px;" />
-                                                        <div>Achieve</div>
-                                                </a>
-                                               <div class="app-item position-relative" id="operationsItem">
-                                                <img src="https://cdn-icons-png.flaticon.com/512/1046/1046870.png" alt="Operations Warehouse"
-                                                    class="app-icon" style="background:#f1f3f4; border-radius:50%; padding:4px;" />
-                                                <div>Operations</div>
-
-                                                <!-- Submenu -->
-                                                <div class="submenu position-absolute shadow bg-white rounded py-2" id="operationsMenu"
-                                                    style="display:none; top: 60px; left: 0; z-index: 3000; min-width: 140px;">
-                                                    <div class="px-3 py-1 submenu-item">
-                                                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#dailyShippingChecklistModal">
-                                                            <i class="ti ti-truck"></i>
-                                                            <span>Daily Checklist</span>
-                                                        </a>
-                                                    </div>
-                                                    <div class="px-3 py-1 submenu-item">
-                                                        <a href="{{ route('shipping-checklist.index') }}" class="dropdown-item" target="_blank">
-                                                            <i class="ti ti-list"></i>
-                                                            <span>Show Checklist</span>
-                                                        </a>
-                                                    </div>
+                                                <div class="px-3 py-1 submenu-item">
+                                                    <a href="{{ route('shipping-checklist.index') }}" class="dropdown-item" target="_blank">
+                                                        <i class="ti ti-list"></i>
+                                                        <span>Show Checklist</span>
+                                                    </a>
                                                 </div>
                                             </div>
-                                             <div class="app-item position-relative" id="incentiveItem">
-                                                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Incentive"
-                                                    class="app-icon" style="background:#f1f3f4; border-radius:50%; padding:4px;" />
-                                                <div>Incentive</div>
-
-                                                <!-- Submenu -->
-                                                <div class="submenu position-absolute shadow bg-white rounded py-2" id="incentiveMenu"
-                                                    style="display:none; top: 60px; left: 0; z-index: 3000; min-width: 140px;">
-                                                    <div class="px-3 py-1 submenu-item">
-                                                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#incentiveModal">
-                                                            <i class="ti ti-plus"></i>
-                                                            <span>Add Incentive</span>
-                                                        </a>
-                                                    </div>
-                                                    <div class="px-3 py-1 submenu-item">
-                                                        <a href="{{ route('incentives.index') }}" target="_blank" class="dropdown-item">
-                                                            <i class="ti ti-list"></i>
-                                                            <span>Show Incentives</span>
-                                                        </a>
-                                                    </div>
-                                                    <div class="px-3 py-1 submenu-item">
-                                                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deductionModal">
-                                                            <i class="ti ti-minus"></i>
-                                                            <span>Add Deduction</span>
-                                                        </a>
-                                                    </div>
-                                                    <div class="px-3 py-1 submenu-item">
-                                                        <a href="{{ route('deductions.index') }}" target="_blank" class="dropdown-item">
-                                                            <i class="ti ti-list"></i>
-                                                            <span>Show Deductions</span>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                             <a class="app-item" href="{{ route('tutorial') }}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                                                <img src="https://cdn-icons-png.flaticon.com/512/0/375.png" alt="Tutorial" style="width:40px;height:40px;margin-bottom:6px;" />
-                                                <div>Tutorial</div>
-                                            </a>
-
-                                             <!-- Chat -->
-                                            <a class="app-item" href="https://chat.google.com/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                                                <img src="https://www.gstatic.com/images/branding/product/1x/chat_2020q4_48dp.png" alt="Chat" class="app-icon" style="width:40px;height:40px;margin-bottom:6px;" />
-                                                <div>Chat</div>
-                                            </a>
-                                             <a class="app-item" id="gmailItem" href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                                                    <img src="https://www.gstatic.com/images/branding/product/1x/gmail_2020q4_48dp.png" alt="Gmail" class="app-icon" style="width:40px;height:40px;margin-bottom:6px;" />
-                                                    <div>Gmail</div>
-                                            </a>
-                                            <a class="app-item" href="https://meet.google.com/landing" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                                                <img src="https://www.gstatic.com/images/branding/product/1x/meet_2020q4_48dp.png" alt="Meet" class="app-icon" />
-                                                <div>Meet</div>
-                                            </a>
-                                           <!-- Docs -->
-                                            <a class="app-item" href="https://docs.google.com/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                                                <img src="https://www.gstatic.com/images/branding/product/1x/docs_2020q4_48dp.png" alt="Docs" class="app-icon" style="width:40px;height:40px;margin-bottom:6px;" />
-                                                <div>Docs</div>
-                                            </a>
-                                            <!-- Sheets -->
-                                            <a class="app-item" href="https://sheets.google.com/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                                                <img src="https://www.gstatic.com/images/branding/product/1x/sheets_2020q4_48dp.png" alt="Sheets" class="app-icon" style="width:40px;height:40px;margin-bottom:6px;" />
-                                                <div>Sheets</div>
-                                            </a>
-                                            <!-- Calendar -->
-                                            <a class="app-item" href="https://calendar.google.com/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                                                <img src="https://www.gstatic.com/images/branding/product/1x/calendar_2020q4_48dp.png" alt="Calendar" class="app-icon" style="width:40px;height:40px;margin-bottom:6px;" />
-                                                <div>Calendar</div>
-                                            </a>
-                                           
-                                            
                                         </div>
+                                        <!-- Incentive with submenu -->
+                                        <div class="header-app-item position-relative" id="incentiveItem" title="Incentive">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Incentive" class="header-app-icon" />
+                                            <div class="submenu position-absolute shadow bg-white rounded py-2" id="incentiveMenu" style="display:none; top: 100%; left: 0; z-index: 3000; min-width: 140px; margin-top: 8px;">
+                                                <div class="px-3 py-1 submenu-item">
+                                                    <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#incentiveModal">
+                                                        <i class="ti ti-plus"></i>
+                                                        <span>Add Incentive</span>
+                                                    </a>
+                                                </div>
+                                                <div class="px-3 py-1 submenu-item">
+                                                    <a href="{{ route('incentives.index') }}" target="_blank" class="dropdown-item">
+                                                        <i class="ti ti-list"></i>
+                                                        <span>Show Incentives</span>
+                                                    </a>
+                                                </div>
+                                                <div class="px-3 py-1 submenu-item">
+                                                    <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deductionModal">
+                                                        <i class="ti ti-minus"></i>
+                                                        <span>Add Deduction</span>
+                                                    </a>
+                                                </div>
+                                                <div class="px-3 py-1 submenu-item">
+                                                    <a href="{{ route('deductions.index') }}" target="_blank" class="dropdown-item">
+                                                        <i class="ti ti-list"></i>
+                                                        <span>Show Deductions</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Tutorial -->
+                                        <a class="header-app-item" href="{{ route('tutorial') }}" target="_blank" rel="noopener noreferrer" title="Tutorial">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/0/375.png" alt="Tutorial" class="header-app-icon" />
+                                        </a>
+                                        <!-- Google Chat -->
+                                        <a class="header-app-item" href="https://chat.google.com/" target="_blank" rel="noopener noreferrer" title="Chat">
+                                            <img src="https://www.gstatic.com/images/branding/product/1x/chat_2020q4_48dp.png" alt="Chat" class="header-app-icon" />
+                                        </a>
+                                        <!-- Gmail -->
+                                        <a class="header-app-item" id="gmailItem" href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" title="Gmail">
+                                            <img src="https://www.gstatic.com/images/branding/product/1x/gmail_2020q4_48dp.png" alt="Gmail" class="header-app-icon" />
+                                        </a>
+                                        <!-- Meet -->
+                                        <a class="header-app-item" href="https://meet.google.com/landing" target="_blank" rel="noopener noreferrer" title="Meet">
+                                            <img src="https://www.gstatic.com/images/branding/product/1x/meet_2020q4_48dp.png" alt="Meet" class="header-app-icon" />
+                                        </a>
+                                        <!-- Docs -->
+                                        <a class="header-app-item" href="https://docs.google.com/" target="_blank" rel="noopener noreferrer" title="Docs">
+                                            <img src="https://www.gstatic.com/images/branding/product/1x/docs_2020q4_48dp.png" alt="Docs" class="header-app-icon" />
+                                        </a>
+                                        <!-- Sheets -->
+                                        <a class="header-app-item" href="https://sheets.google.com/" target="_blank" rel="noopener noreferrer" title="Sheets">
+                                            <img src="https://www.gstatic.com/images/branding/product/1x/sheets_2020q4_48dp.png" alt="Sheets" class="header-app-icon" />
+                                        </a>
+                                        <!-- Calendar -->
+                                        <a class="header-app-item" href="https://calendar.google.com/" target="_blank" rel="noopener noreferrer" title="Calendar">
+                                            <img src="https://www.gstatic.com/images/branding/product/1x/calendar_2020q4_48dp.png" alt="Calendar" class="header-app-icon" />
+                                        </a>
                                     </div>
-                                </li
+                                </li>
 
                 @endpermission
                  @permission('user chat manage')
@@ -671,14 +609,81 @@ document.addEventListener('DOMContentLoaded', function() {
     100% { transform: scale(1); opacity: 1; }
 }
 </style>
-<!-- Google Apps Launcher Styles -->
+<!-- Header Apps Styles -->
 <style>
-    .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 360px; overflow-y: auto; padding: 4px; }
-    .app-item { text-align: center; font-size: 13px; color: #3c4043; padding: 10px 0; border-radius: 12px; transition: background-color 0.2s ease; }
-    .app-item:hover { background-color: #f1f3f4; cursor: pointer; }
-    .app-icon { width: 40px; height: 40px; margin-bottom: 6px; }
+    .apps-toolbar { 
+        display: flex; 
+        align-items: center; 
+        gap: 8px; 
+        flex-wrap: wrap; 
+        padding: 8px 12px;
+        background: linear-gradient(141.55deg, #ff6f28 3.46%, #ff6f28 99.86%), #ff6f28;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(255, 111, 40, 0.3);
+    }
+    .header-app-item { 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center; 
+        width: 36px; 
+        height: 36px; 
+        border-radius: 8px; 
+        transition: all 0.2s ease; 
+        cursor: pointer; 
+        position: relative;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(10px);
+    }
+    .header-app-item:hover { 
+        background-color: rgba(255, 255, 255, 0.6); 
+        transform: scale(1.1);
+        box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+    }
+    .header-app-icon { 
+        width: 24px; 
+        height: 24px; 
+        object-fit: contain;
+    }
+    /* Tooltip styling */
+    .header-app-item[title] {
+        position: relative;
+    }
+    .header-app-item[title]:hover::after {
+        content: attr(title);
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 8px;
+        padding: 6px 10px;
+        background-color: rgba(0, 0, 0, 0.85);
+        color: #fff;
+        font-size: 12px;
+        white-space: nowrap;
+        border-radius: 4px;
+        pointer-events: none;
+        z-index: 10000;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    .header-app-item[title]:hover::before {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 2px;
+        border: 5px solid transparent;
+        border-bottom-color: rgba(0, 0, 0, 0.85);
+        pointer-events: none;
+        z-index: 10001;
+    }
     .submenu-item { font-size: 14px; color: #202124; cursor: pointer; transition: background-color 0.2s ease; }
     .submenu-item:hover { background-color: #f1f3f4; }
+    @media (max-width: 768px) {
+        .apps-toolbar { gap: 6px; padding: 6px 8px; }
+        .header-app-item { width: 32px; height: 32px; }
+        .header-app-icon { width: 20px; height: 20px; }
+    }
 </style>
 
 <style>
@@ -2366,16 +2371,11 @@ $(function() {
 });
 });
 </script>
-<!-- Google Apps Launcher JS -->
+<!-- Header Apps Submenu JS -->
  <script>
-    const appsIcon = document.getElementById("appsIcon");
-    const appsDropdown = document.getElementById("appsDropdown");
-
     const submenuMappings = [
-        { item: document.getElementById("gmailItem"), menu: document.getElementById("gmailMenu") },
         { item: document.getElementById("operationsItem"), menu: document.getElementById("operationsMenu") },
         { item: document.getElementById("incentiveItem"), menu: document.getElementById("incentiveMenu") },
-        { item: document.getElementById("flagsItem"), menu: document.getElementById("flagsMenu") },
         { item: document.getElementById("improvementsItem"), menu: document.getElementById("improvementsMenu") },
     ];
 
@@ -2390,7 +2390,12 @@ $(function() {
     submenuMappings.forEach(({ item, menu }) => {
         if (item && menu) {
             item.addEventListener("click", function (e) {
+                // Don't prevent default if clicking inside the submenu
+                if (menu.contains(e.target)) {
+                    return;
+                }
                 e.stopPropagation();
+                e.preventDefault();
                 const isOpen = menu.style.display === "block";
 
                 // Close all menus first
@@ -2402,12 +2407,27 @@ $(function() {
         }
     });
 
-    // Close dropdown + submenus when clicking outside
+    // Stop propagation on submenu links to prevent parent toggle
+    submenuMappings.forEach(({ menu }) => {
+        if (menu) {
+            const links = menu.querySelectorAll('a');
+            links.forEach(link => {
+                link.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                });
+            });
+        }
+    });
+
+    // Close submenus when clicking outside
     document.addEventListener("click", function (e) {
-        if (appsIcon.contains(e.target)) {
-            appsDropdown.style.display = appsDropdown.style.display === "none" ? "block" : "none";
-        } else if (!appsDropdown.contains(e.target)) {
-            appsDropdown.style.display = "none";
+        let clickedInsideSubmenu = false;
+        submenuMappings.forEach(({ item, menu }) => {
+            if ((item && item.contains(e.target)) || (menu && menu.contains(e.target))) {
+                clickedInsideSubmenu = true;
+            }
+        });
+        if (!clickedInsideSubmenu) {
             closeAllMenus();
         }
     });
