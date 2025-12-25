@@ -13,42 +13,73 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.css"> 
  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
    <style>
-       
+        /* Overall page styling */
+        body {
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .container-fluid, .container {
+            padding: 15px;
+            animation: fadeIn 0.6s ease-in;
+            zoom: 0.9;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         .top-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            background: white;
-            padding: 20px 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            background: #ffffff;
+            padding: 18px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            position: relative;
         }
 
         .user-section {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 18px;
         }
 
         .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #3b82f6;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 1.2em;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .user-name {
-            font-size: 1.3em;
+            font-size: 1.15em;
             font-weight: 600;
-            color: #1f2937;
+            color: #1e293b;
+            margin-bottom: 0;
         }
 
         .header-actions {
@@ -78,153 +109,214 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
             margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .dashboard-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+            background: linear-gradient(141.55deg, #ff6f28 3.46%, #ff6f28 99.86%), #ff6f28;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
             overflow: hidden;
         }
 
+
         .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
         }
 
-        .dashboard-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: #3b82f6;
-        }
-
-        .card-header {
+        .card-icon-badge-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
+            align-items: center;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
         }
 
         .card-icon {
-            width: 60px;
-            height: 60px;
+            width: 52px;
+            height: 52px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8em;
-            margin-bottom: 15px;
+            font-size: 1.6em;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .dashboard-card:hover .card-icon {
+            transform: scale(1.08) rotate(2deg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            flex: 1;
+            min-width: 0;
         }
 
         .card-title {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 8px;
+            font-size: 1.35em;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            line-height: 1.3;
         }
 
         .card-description {
-            color: #6b7280;
-            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 0.95em;
             line-height: 1.5;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 16px;
         }
 
         .card-badge {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.85em;
-            font-weight: 600;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dashboard-card:hover .card-badge {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.35);
         }
 
         .badge-cyan {
-            background: #cffafe;
-            color: #0891b2;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-green {
-            background: #d1fae5;
-            color: #059669;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-orange {
-            background: #fed7aa;
-            color: #ea580c;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-pink {
-            background: #fce7f3;
-            color: #db2777;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-purple {
-            background: #e9d5ff;
-            color: #9333ea;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-blue {
-            background: #dbeafe;
-            color: #2563eb;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-gray {
-            background: #e5e7eb;
-            color: #4b5563;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-red {
-            background: #fecaca;
-            color: #dc2626;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-yellow {
-            background: #fef3c7;
-            color: #d97706;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-teal {
-            background: #ccfbf1;
-            color: #0d9488;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-indigo {
-            background: #e0e7ff;
-            color: #4f46e5;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .badge-brown {
-            background: #fef3c7;
-            color: #92400e;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .subcards-preview {
             display: flex;
-            gap: 8px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #f3f4f6;
+            gap: 6px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
             flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
         }
 
         .subcard-item {
             padding: 6px 12px;
-            border-radius: 8px;
-            background: #f9fafb;
-            font-size: 0.8em;
-            color: #4b5563;
-            display: flex;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.95);
+            display: inline-flex;
             align-items: center;
             gap: 5px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .subcard-item:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #ffffff;
         }
 
         .graphs-section {
@@ -235,10 +327,17 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
         }
 
         .graph-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+        }
+
+        .graph-card:hover {
+            box-shadow: 0 12px 45px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
         }
 
         .graph-title {
@@ -263,7 +362,7 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
 
         .bar-item {
             flex: 1;
-            background: #3b82f6;
+            background: #ff6f28;
             border-radius: 8px 8px 0 0;
             position: relative;
             transition: all 0.3s;
@@ -299,10 +398,10 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
             height: 200px;
             border-radius: 50%;
             background: conic-gradient(
-                #3b82f6 0deg 120deg,
-                #10b981 120deg 240deg,
-                #f59e0b 240deg 300deg,
-                #ef4444 300deg 360deg
+                #ff6f28 0deg 120deg,
+                rgba(255, 111, 40, 0.8) 120deg 240deg,
+                rgba(255, 111, 40, 0.6) 240deg 300deg,
+                rgba(255, 111, 40, 0.4) 300deg 360deg
             );
             position: relative;
             margin: 0 auto;
@@ -576,11 +675,7 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
             <div class="user-avatar">VT</div>
             <div>
                 <div class="user-name">Vivek Thakur</div>
-                <div style="color: #6b7280; font-size: 0.9em;">Clocks</div>
             </div>
-        </div>
-        <div class="header-actions">
-            <button class="btn btn-primary">Manage Dashboard Cards</button>
         </div>
     </div>
 
@@ -669,14 +764,15 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
     </div>
 
     <div class="dashboard-grid">
+        <!-- Core Work Management -->
         <div class="dashboard-card" onclick="openModal('Tasks')">
-            <div class="card-icon" style="background: #cffafe;">✓</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">Tasks</div>
-                    <div class="card-description">Manage your tasks, assigned tasks, and track progress</div>
-                </div>
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #cffafe;">✓</div>
                 <span class="card-badge badge-cyan">31 Items</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">Tasks</div>
+                <div class="card-description">Manage your tasks, assigned tasks, and track progress</div>
             </div>
             <div class="subcards-preview">
                 <span class="subcard-item">📋 My Tasks</span>
@@ -686,13 +782,13 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
         </div>
 
         <div class="dashboard-card" onclick="openModal('My Team')">
-            <div class="card-icon" style="background: #d1fae5;">👥</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">My Team</div>
-                    <div class="card-description">View team members and performance metrics</div>
-                </div>
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #d1fae5;">👥</div>
                 <span class="card-badge badge-green">1 Members</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">My Team</div>
+                <div class="card-description">View team members and performance metrics</div>
             </div>
             <div class="subcards-preview">
                 <span class="subcard-item">👤 Members</span>
@@ -701,29 +797,15 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
             </div>
         </div>
 
-        <div class="dashboard-card" onclick="openModal('Inventory')">
-            <div class="card-icon" style="background: #fed7aa;">📦</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">Inventory</div>
-                    <div class="card-description">Inventory values</div>
-                </div>
-                <span class="card-badge badge-orange">1 Metrics</span>
-            </div>
-            <div class="subcards-preview">
-                <span class="subcard-item">📈 Stock Levels</span>
-                <span class="subcard-item">💰 Valuation</span>
-            </div>
-        </div>
-
+        <!-- Business Operations -->
         <div class="dashboard-card" onclick="openModal('Sales')">
-            <div class="card-icon" style="background: #fef3c7;">💰</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">Sales</div>
-                    <div class="card-description">Track sales performance</div>
-                </div>
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #fef3c7;">💰</div>
                 <span class="card-badge badge-brown">286,435</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">Sales</div>
+                <div class="card-description">Track sales performance</div>
             </div>
             <div class="subcards-preview">
                 <span class="subcard-item">🛒 E-Commerce</span>
@@ -733,62 +815,29 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
             </div>
         </div>
 
-        <div class="dashboard-card" onclick="openModal('Operations')">
-            <div class="card-icon" style="background: #fce7f3;">⏰</div>
+        <div class="dashboard-card" onclick="openModal('Inventory')">
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #fed7aa;">📦</div>
+                <span class="card-badge badge-orange">1 Metrics</span>
+            </div>
             <div class="card-header">
-                <div>
-                    <div class="card-title">Operations</div>
-                    <div class="card-description">Track customer, Shipping & Reviews analyze</div>
-                </div>
-                <span class="card-badge badge-pink">3 Metrics</span>
+                <div class="card-title">Inventory</div>
+                <div class="card-description">Inventory values</div>
             </div>
             <div class="subcards-preview">
-                <span class="subcard-item">🚚 Shipping</span>
-                <span class="subcard-item">⭐ Reviews</span>
-                <span class="subcard-item">👥 Customers</span>
-            </div>
-        </div>
-
-        <div class="dashboard-card" onclick="openModal('Human Resources')">
-            <div class="card-icon" style="background: #e9d5ff;">👨‍💼</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">Human Resources</div>
-                    <div class="card-description">Employee management & attendance tracking</div>
-                </div>
-                <span class="card-badge badge-purple">3 Metrics</span>
-            </div>
-            <div class="subcards-preview">
-                <span class="subcard-item">👥 Employees</span>
-                <span class="subcard-item">📅 Attendance</span>
-                <span class="subcard-item">💼 Payroll</span>
-            </div>
-        </div>
-
-        <div class="dashboard-card" onclick="openModal('Software & IT')">
-            <div class="card-icon" style="background: #ccfbf1;">💻</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">Software & IT</div>
-                    <div class="card-description">Generate reports and view analytics</div>
-                </div>
-                <span class="card-badge badge-teal">12 Items</span>
-            </div>
-            <div class="subcards-preview">
-                <span class="subcard-item">🖥️ Systems</span>
-                <span class="subcard-item">🔧 Maintenance</span>
-                <span class="subcard-item">📊 Analytics</span>
+                <span class="subcard-item">📈 Stock Levels</span>
+                <span class="subcard-item">💰 Valuation</span>
             </div>
         </div>
 
         <div class="dashboard-card" onclick="openModal('Purchase')">
-            <div class="card-icon" style="background: #1e3a5f; color: white;">🛒</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">Purchase</div>
-                    <div class="card-description">Generate reports and view analytics</div>
-                </div>
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #1e3a5f; color: white;">🛒</div>
                 <span class="card-badge badge-indigo">0 Metrics</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">Purchase</div>
+                <div class="card-description">Generate reports and view analytics</div>
             </div>
             <div class="subcards-preview">
                 <span class="subcard-item">🛍️ Orders</span>
@@ -797,14 +846,46 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
             </div>
         </div>
 
-        <div class="dashboard-card" onclick="openModal('Pricing')">
-            <div class="card-icon" style="background: #fef3c7;">💵</div>
+        <div class="dashboard-card" onclick="openModal('Operations')">
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #fce7f3;">⏰</div>
+                <span class="card-badge badge-pink">3 Metrics</span>
+            </div>
             <div class="card-header">
-                <div>
-                    <div class="card-title">Pricing</div>
-                    <div class="card-description">Get Pricing reports and view analytics</div>
-                </div>
+                <div class="card-title">Operations</div>
+                <div class="card-description">Track customer, Shipping & Reviews analyze</div>
+            </div>
+            <div class="subcards-preview">
+                <span class="subcard-item">🚚 Shipping</span>
+                <span class="subcard-item">⭐ Reviews</span>
+                <span class="subcard-item">👥 Customers</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card" onclick="openModal('Logistics')">
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #1e3a5f; color: white;">🚚</div>
+                <span class="card-badge badge-indigo">0 Metrics</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">Logistics</div>
+                <div class="card-description">Get Logistics Track Reports</div>
+            </div>
+            <div class="subcards-preview">
+                <span class="subcard-item">📦 Shipments</span>
+                <span class="subcard-item">🚛 Tracking</span>
+                <span class="subcard-item">📍 Delivery</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card" onclick="openModal('Pricing')">
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #fef3c7;">💵</div>
                 <span class="card-badge badge-yellow">79%</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">Pricing</div>
+                <div class="card-description">Get Pricing reports and view analytics</div>
             </div>
             <div class="subcards-preview">
                 <span class="subcard-item">💰 Price Lists</span>
@@ -812,46 +893,15 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
             </div>
         </div>
 
-        <div class="dashboard-card" onclick="openModal('Advertisements')">
-            <div class="card-icon" style="background: #e5e7eb;">📢</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">Advertisements</div>
-                    <div class="card-description">Get Advertisments reports and view analytics</div>
-                </div>
-                <span class="card-badge badge-gray">9 Metrics</span>
-            </div>
-            <div class="subcards-preview">
-                <span class="subcard-item">📱 Digital Ads</span>
-                <span class="subcard-item">📺 Campaigns</span>
-                <span class="subcard-item">📊 ROI</span>
-            </div>
-        </div>
-
-        <div class="dashboard-card" onclick="openModal('Content')">
-            <div class="card-icon" style="background: #7c2d12; color: white;">📝</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">Content</div>
-                    <div class="card-description">Get Content reports</div>
-                </div>
-                <span class="card-badge badge-red">0 Metrics</span>
-            </div>
-            <div class="subcards-preview">
-                <span class="subcard-item">✍️ Articles</span>
-                <span class="subcard-item">🎨 Media</span>
-                <span class="subcard-item">📅 Schedule</span>
-            </div>
-        </div>
-
+        <!-- Marketing & Content -->
         <div class="dashboard-card" onclick="openModal('Marketing')">
-            <div class="card-icon" style="background: #dbeafe;">🎯</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">Marketing</div>
-                    <div class="card-description">Get Marketing analytics</div>
-                </div>
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #dbeafe;">🎯</div>
                 <span class="card-badge badge-blue">6 Metrics</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">Marketing</div>
+                <div class="card-description">Get Marketing analytics</div>
             </div>
             <div class="subcards-preview">
                 <span class="subcard-item">📧 Email</span>
@@ -861,13 +911,13 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
         </div>
 
         <div class="dashboard-card" onclick="openModal('Social Media')">
-            <div class="card-icon" style="background: #fef3c7;">📱</div>
-            <div class="card-header">
-                <div>
-                    <div class="card-title">Social Media</div>
-                    <div class="card-description">Get Social Media analytics</div>
-                </div>
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #fef3c7;">📱</div>
                 <span class="card-badge badge-yellow">0 Metrics</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">Social Media</div>
+                <div class="card-description">Get Social Media analytics</div>
             </div>
             <div class="subcards-preview">
                 <span class="subcard-item">📘 Facebook</span>
@@ -876,14 +926,46 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
             </div>
         </div>
 
-        <div class="dashboard-card" onclick="openModal('Videos')">
-            <div class="card-icon" style="background: #fed7aa;">🎬</div>
+        <div class="dashboard-card" onclick="openModal('Advertisements')">
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #e5e7eb;">📢</div>
+                <span class="card-badge badge-gray">9 Metrics</span>
+            </div>
             <div class="card-header">
-                <div>
-                    <div class="card-title">Videos</div>
-                    <div class="card-description">Get Videos details</div>
-                </div>
+                <div class="card-title">Advertisements</div>
+                <div class="card-description">Get Advertisments reports and view analytics</div>
+            </div>
+            <div class="subcards-preview">
+                <span class="subcard-item">📱 Digital Ads</span>
+                <span class="subcard-item">📺 Campaigns</span>
+                <span class="subcard-item">📊 ROI</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card" onclick="openModal('Content')">
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #7c2d12; color: white;">📝</div>
+                <span class="card-badge badge-red">0 Metrics</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">Content</div>
+                <div class="card-description">Get Content reports</div>
+            </div>
+            <div class="subcards-preview">
+                <span class="subcard-item">✍️ Articles</span>
+                <span class="subcard-item">🎨 Media</span>
+                <span class="subcard-item">📅 Schedule</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card" onclick="openModal('Videos')">
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #fed7aa;">🎬</div>
                 <span class="card-badge badge-orange">0 Metrics</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">Videos</div>
+                <div class="card-description">Get Videos details</div>
             </div>
             <div class="subcards-preview">
                 <span class="subcard-item">🎥 Library</span>
@@ -892,19 +974,36 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
             </div>
         </div>
 
-        <div class="dashboard-card" onclick="openModal('Logistics')">
-            <div class="card-icon" style="background: #1e3a5f; color: white;">🚚</div>
+        <!-- Support Functions -->
+        <div class="dashboard-card" onclick="openModal('Human Resources')">
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #e9d5ff;">👨‍💼</div>
+                <span class="card-badge badge-purple">3 Metrics</span>
+            </div>
             <div class="card-header">
-                <div>
-                    <div class="card-title">Logistics</div>
-                    <div class="card-description">Get Logistics Track Reports</div>
-                </div>
-                <span class="card-badge badge-indigo">0 Metrics</span>
+                <div class="card-title">Human Resources</div>
+                <div class="card-description">Employee management & attendance tracking</div>
             </div>
             <div class="subcards-preview">
-                <span class="subcard-item">📦 Shipments</span>
-                <span class="subcard-item">🚛 Tracking</span>
-                <span class="subcard-item">📍 Delivery</span>
+                <span class="subcard-item">👥 Employees</span>
+                <span class="subcard-item">📅 Attendance</span>
+                <span class="subcard-item">💼 Payroll</span>
+            </div>
+        </div>
+
+        <div class="dashboard-card" onclick="openModal('Software & IT')">
+            <div class="card-icon-badge-row">
+                <div class="card-icon" style="background: #ccfbf1;">💻</div>
+                <span class="card-badge badge-teal">12 Items</span>
+            </div>
+            <div class="card-header">
+                <div class="card-title">Software & IT</div>
+                <div class="card-description">Generate reports and view analytics</div>
+            </div>
+            <div class="subcards-preview">
+                <span class="subcard-item">🖥️ Systems</span>
+                <span class="subcard-item">🔧 Maintenance</span>
+                <span class="subcard-item">📊 Analytics</span>
             </div>
         </div>
     </div>
