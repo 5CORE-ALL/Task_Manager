@@ -3,6 +3,7 @@
 namespace Workdo\Taskly\Http\Controllers;
 
 use App\Models\EmailTemplate;
+use App\Models\FlagRaise;
 use App\Models\Invoice;
 use App\Models\User;
 use Workdo\Hrm\Entities\Employee;
@@ -996,6 +997,11 @@ public function taskStore(Request $request)
                             $postFile['user_type']  = 'User';
                             $TaskFile            = TaskFile::create($postFile);
                         }
+                        
+                        // Create flag if flag_raise is checked
+                        if ($request->filled('flag_raise')) {
+                            $this->createFlagForTask($task, $assign_to, $request);
+                        }
             }  
         } else {
             $post['status'] = $stage->name;
@@ -1030,6 +1036,15 @@ public function taskStore(Request $request)
                 $postFile['user_type']  = 'User';
                 $TaskFile            = TaskFile::create($postFile);
              }
+             
+             // Create flag if flag_raise is checked
+             if ($request->filled('flag_raise')) {
+                 // For grouped tasks, create flags for all assignees
+                 $assignees = explode(',', $post['assign_to']);
+                 foreach ($assignees as $assigneeEmail) {
+                     $this->createFlagForTask($task, trim($assigneeEmail), $request);
+                 }
+             }
         }
         
         // Rest of your file handling and activity logging code...
@@ -1048,6 +1063,127 @@ public function taskStore(Request $request)
         return redirect($returnUrl)->with('success', __('The task has been created successfully.'));
     } else {
         return redirect()->back()->with('error', __('Please add stages first.'));
+    }
+}
+
+/**
+ * Check if a task was created under flag raise management
+ * by checking if there's a matching flag in the flag_raises table
+ */
+private function isTaskFromFlagRaise($task)
+{
+    try {
+        // Get assignor user ID
+        $assignorEmails = explode(',', $task->assignor ?? '');
+        $assignorEmail = trim($assignorEmails[0] ?? '');
+        $assignorUser = null;
+        if (!empty($assignorEmail)) {
+            $assignorUser = User::where('email', $assignorEmail)->first();
+        }
+        $givenBy = $assignorUser ? $assignorUser->id : null;
+        
+        // Get assignee user IDs
+        $assigneeEmails = explode(',', $task->assign_to ?? '');
+        $assigneeUserIds = [];
+        foreach ($assigneeEmails as $email) {
+            $assigneeUser = User::where('email', trim($email))->first();
+            if ($assigneeUser) {
+                $assigneeUserIds[] = $assigneeUser->id;
+            }
+        }
+        
+        // Check if there's a flag matching this task
+        // Flag description typically starts with "Task: {title}"
+        $flagDescriptionPattern = "Task: {$task->title}%";
+        
+        $matchingFlag = FlagRaise::where(function($query) use ($givenBy, $assigneeUserIds, $flagDescriptionPattern) {
+            if ($givenBy) {
+                $query->where('given_by', $givenBy);
+            }
+            if (!empty($assigneeUserIds)) {
+                $query->whereIn('team_member_id', $assigneeUserIds);
+            }
+            $query->where('description', 'like', $flagDescriptionPattern);
+        })->first();
+        
+        return $matchingFlag !== null;
+    } catch (\Exception $e) {
+        Log::error("Error checking if task is from flag raise: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Create a flag for a task
+ * Maps task fields to flag fields:
+ * - assignor → given_by
+ * - assign_to (assignee) → team_member_id
+ * - description → description (includes task title)
+ * - priority → influences flag_type (urgent → red, normal → green)
+ */
+private function createFlagForTask($task, $assigneeEmail, $request)
+{
+    try {
+        // Get assignee user by email (team_member_id)
+        $assigneeUser = User::where('email', trim($assigneeEmail))->first();
+        
+        if (!$assigneeUser) {
+            Log::warning("User not found for email: {$assigneeEmail} when creating flag for task");
+            return;
+        }
+        
+        // Get assignor user(s) - use first one for given_by
+        $assignorEmails = explode(',', $task->assignor ?? '');
+        $assignorEmail = trim($assignorEmails[0] ?? '');
+        
+        $assignorUser = null;
+        if (!empty($assignorEmail)) {
+            $assignorUser = User::where('email', $assignorEmail)->first();
+        }
+        
+        // If no assignor found, use current user as fallback
+        $givenBy = $assignorUser ? $assignorUser->id : Auth::id();
+        
+        // Build flag description from task
+        $flagDescription = $request->input('flag_description');
+        if (empty($flagDescription)) {
+            // Combine task title and description
+            $flagDescription = "Task: {$task->title}";
+            if (!empty($task->description)) {
+                $flagDescription .= "\n\n{$task->description}";
+            }
+            // Add additional task context
+            if (!empty($task->group)) {
+                $flagDescription .= "\n\nGroup: {$task->group}";
+            }
+            if (!empty($task->priority)) {
+                $flagDescription .= "\nPriority: {$task->priority}";
+            }
+        }
+        
+        // Determine flag type based on priority and request
+        $flagType = $request->input('flag_type');
+        if (empty($flagType)) {
+            // Auto-determine based on task priority
+            $priority = strtolower($task->priority ?? 'normal');
+            if (in_array($priority, ['urgent', 'high', 'critical'])) {
+                $flagType = 'red';
+            } else {
+                $flagType = 'green';
+            }
+        }
+        
+        // Create flag with mapped task fields
+        FlagRaise::create([
+            'given_by' => $givenBy,
+            'team_member_id' => $assigneeUser->id,
+            'description' => $flagDescription,
+            'flag_type' => $flagType,
+        ]);
+        
+        Log::info("Flag created from task - Assignor: {$givenBy}, Assignee: {$assigneeUser->id}, Type: {$flagType}");
+    } catch (\Exception $e) {
+        Log::error("Error creating flag from task: " . $e->getMessage());
     }
 }
 
@@ -2538,6 +2674,21 @@ public function bulkUpdatePriority(Request $request)
     // Get task details before deletion for logging
     $task = Task::find($taskID);
     $taskTitle = $task ? $task->title : 'Unknown Task';
+    
+    // Check authorization for "Done" tasks created under flag raise management
+    if ($task && strtolower($task->status) === 'done') {
+        if ($this->isTaskFromFlagRaise($task)) {
+            $user = Auth::user();
+            // Only users with full access to flag raise management can delete
+            if (!$user || !in_array($user->email, ['president@5core.com', 'tech-support@5core.com'])) {
+                return response()->json([
+                    'status' => false,
+                    'response_code' => 403,
+                    'message' => __('Permission denied. Only users with full access to flag raise management can delete "Done" tasks created under flag raise management.'),
+                ], 403);
+            }
+        }
+    }
     
     // Check if this is a staging task and assign the next one
     if ($task) {

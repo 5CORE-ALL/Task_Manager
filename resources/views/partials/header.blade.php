@@ -174,61 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <!--</li>-->
 
 
-<!-- FLAG RAISE MODAL (ADDED) -->
-<div class="modal fade" id="flagRaiseModal" tabindex="-1" aria-labelledby="flagRaiseModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="flagRaiseModalLabel">Catch 🚩 Early, Win 🏆 Big, Unlock 🔓 Potential</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="flagRaiseForm">
-                    @csrf
-                    <!-- Flag Raise Given By (Readonly) -->
-                    <div class="mb-3">
-                        <label for="flag_given_by" class="form-label">Flag Raise Given By</label>
-                        <input type="text" class="form-control" id="flag_given_by" name="flag_given_by" value="{{ Auth::user()->name }}" readonly>
-                    </div>
-                    <!-- Team Member Dropdown -->
-                    <div class="mb-3">
-                        <label for="flag_team_member" class="form-label">Select Team Member <span class="text-danger">*</span></label>
-                        <div class="position-relative">
-                            <input type="text" class="form-control" id="flag_team_member" name="flag_team_member" placeholder="Type employee name..." autocomplete="off" required>
-                            <input type="hidden" id="flag_team_member_id" name="flag_team_member_id" required>
-                            <div id="flagEmployeeDropdown" class="dropdown-menu position-absolute w-100" style="max-height: 200px; overflow-y: auto; display: none;"></div>
-                        </div>
-                    </div>
-                    <!-- Flag Description -->
-                    <div class="mb-3">
-                        <label for="flag_description" class="form-label">Flag Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="flag_description" name="flag_description" rows="3" placeholder="Write flag description..." required></textarea>
-                    </div>
-                    <!-- Flag Type (Red/Green) -->
-                    <div class="mb-3">
-                        <label class="form-label">Flag Type <span class="text-danger">*</span></label>
-                        <div class="d-flex gap-3">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="flag_type" id="flag_red" value="red" required>
-                                <label class="form-check-label text-danger" for="flag_red">Red Flag</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="flag_type" id="flag_green" value="green" required>
-                                <label class="form-check-label text-success" for="flag_green">Green Flag</label>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Error/Success Messages -->
-                    <div id="flagRaiseMessage" class="alert d-none"></div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="submitFlagRaise">Submit</button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- FLAG RAISE MODAL - REMOVED: Flags are now created via task creation -->
 
 
                 @permission('user chat manage')
@@ -282,12 +228,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     <!-- Submenu -->
                                                     <div class="submenu position-absolute shadow bg-white rounded py-2" id="flagsMenu"
                                                         style="display:none; top: 60px; left: 0; z-index: 3000; min-width: 140px;">
-                                                        <div class="px-3 py-1 submenu-item">
-                                                            <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#flagRaiseModal">
-                                                            <i class="ti ti-plus"></i>
-                                                                <span>Create Flag</span>
-                                                            </a>
-                                                        </div>
                                                         <div class="px-3 py-1 submenu-item">
                                                             <a href="{{ route('flag-raise.history') }}" target="_blank" class="dropdown-item">
                                                                     <i class="ti ti-list"></i>
@@ -1265,24 +1205,6 @@ document.addEventListener('DOMContentLoaded', function() {
     gap: 5px;
     margin-bottom: 5px;
 }
-#flagEmployeeDropdown {
-    z-index: 1050;
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-#flagEmployeeDropdown .dropdown-item {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border: none;
-}
-#flagEmployeeDropdown .dropdown-item:hover {
-    background-color: #f8f9fa;
-}
-#flagEmployeeDropdown .dropdown-item-text {
-    padding: 0.5rem 1rem;
-    color: #6c757d;
-}
 .star-rating .star {
     font-size: 24px;
     color: #ddd;
@@ -1407,13 +1329,7 @@ document.addEventListener('DOMContentLoaded', function() {
     51%, 100% { opacity: 0; }
 }
 </style>
-</style>
-<!--# Make sure the flag raise modal is always fully visible and clickable-->
 <style>
-#flagRaiseModal {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-}
 .modal-backdrop.show {
     opacity: 0.3 !important;
 }
@@ -1651,10 +1567,6 @@ $(document).ready(function() {
     $('#reviewModal').on('show.bs.modal', function() {
         loadEmployees();
     });
-        // FLAG RAISE: Load employees when modal opens
-    $('#flagRaiseModal').on('show.bs.modal', function() {
-        loadFlagEmployees();
-    });
     // Star Rating System
     let selectedRating = 0;
     
@@ -1705,23 +1617,6 @@ $(document).ready(function() {
             }
         });
     }
-    // FLAG RAISE: Load employees for flag modal (reuse same endpoint)
-    let flagEmployees = [];
-    function loadFlagEmployees() {
-        $.ajax({
-            url: '{{ route("reviews.employees") }}',
-            method: 'GET',
-            success: function(response) {
-                flagEmployees = response.employees || response;
-                if (!flagEmployees || !Array.isArray(flagEmployees)) {
-                    showFlagRaiseMessage('Error loading employee data', 'danger');
-                }
-            },
-            error: function(xhr) {
-                showFlagRaiseMessage('Error loading employees', 'danger');
-            }
-        });
-    }
     // Searchable dropdown functionality
     $('#reviewee_name').on('input', function() {
         const searchTerm = $(this).val().toLowerCase();
@@ -1747,28 +1642,6 @@ $(document).ready(function() {
             dropdown.html('<span class="dropdown-item-text text-muted">No employees found</span>').show();
         }
     });
-    // FLAG RAISE: Searchable dropdown for flag modal
-    $('#flag_team_member').on('input', function() {
-        const searchTerm = $(this).val().toLowerCase();
-        const dropdown = $('#flagEmployeeDropdown');
-        if (searchTerm.length === 0) {
-            dropdown.hide();
-            $('#flag_team_member_id').val('');
-            return;
-        }
-        const filteredEmployees = flagEmployees.filter(employee => 
-            employee.name.toLowerCase().includes(searchTerm)
-        );
-        if (filteredEmployees.length > 0) {
-            let dropdownHtml = '';
-            filteredEmployees.forEach(employee => {
-                dropdownHtml += `<a class="dropdown-item flag-employee-item" href="#" data-id="${employee.id}" data-name="${employee.name}">${employee.name}</a>`;
-            });
-            dropdown.html(dropdownHtml).show();
-        } else {
-            dropdown.html('<span class="dropdown-item-text text-muted">No employees found</span>').show();
-        }
-    });
     // Handle employee selection
     $(document).on('click', '.employee-item', function(e) {
         e.preventDefault();
@@ -1779,23 +1652,10 @@ $(document).ready(function() {
         $('#reviewee_id').val(employeeId);
         $('#employeeDropdown').hide();
     });
-    // FLAG RAISE: Handle employee selection for flag modal
-    $(document).on('click', '.flag-employee-item', function(e) {
-        e.preventDefault();
-        const employeeId = $(this).data('id');
-        const employeeName = $(this).data('name');
-        $('#flag_team_member').val(employeeName);
-        $('#flag_team_member_id').val(employeeId);
-        $('#flagEmployeeDropdown').hide();
-    });
     // Hide dropdown when clicking outside
     $(document).on('click', function(e) {
         if (!$(e.target).closest('#reviewee_name, #employeeDropdown').length) {
             $('#employeeDropdown').hide();
-        }
-                // FLAG RAISE: Hide flag dropdown
-        if (!$(e.target).closest('#flag_team_member, #flagEmployeeDropdown').length) {
-            $('#flagEmployeeDropdown').hide();
         }
     });
 
@@ -1805,12 +1665,6 @@ $(document).ready(function() {
             $('#reviewee_id').val('');
         }
         
-    });
-        // FLAG RAISE: Clear hidden field when input is manually cleared
-    $('#flag_team_member').on('keyup', function() {
-        if ($(this).val() === '') {
-            $('#flag_team_member_id').val('');
-        }
     });
 
     // Screenshot preview functionality
@@ -1912,80 +1766,6 @@ $(document).ready(function() {
     $('#reviewModal').on('hidden.bs.modal', function() {
         resetForm();
     });
-    // FLAG RAISE: Submit flag raise
-    $('#submitFlagRaise').on('click', function() {
-        const formData = {
-            _token: $('input[name="_token"]').val(),
-            team_member_id: $('#flag_team_member_id').val(),
-            description: $('#flag_description').val(),
-            flag_type: $('input[name="flag_type"]:checked').val()
-        };
-        // Basic validation
-        if (!formData.team_member_id) {
-            showFlagRaiseMessage('Please select a team member', 'danger');
-            return;
-        }
-        if (!formData.description.trim()) {
-            showFlagRaiseMessage('Please enter a flag description', 'danger');
-            return;
-        }
-        if (!formData.flag_type) {
-            showFlagRaiseMessage('Please select a flag type', 'danger');
-            return;
-        }
-        // Submit the flag raise
-        $.ajax({
-            url: '{{ route("flag-raise.store") }}',
-            method: 'POST',
-            data: formData,
-            beforeSend: function() {
-                $('#submitFlagRaise').prop('disabled', true).text('Submitting...');
-            },
-            success: function(response) {
-                showFlagRaiseMessage('Flag raised successfully!', 'success');
-                setTimeout(function() {
-                    $('#flagRaiseModal').modal('hide');
-                    resetFlagRaiseForm();
-                }, 1500);
-            },
-            error: function(xhr) {
-                let message = 'Error raising flag';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    message = xhr.responseJSON.message;
-                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    const errors = Object.values(xhr.responseJSON.errors).flat();
-                    message = errors.join(', ');
-                }
-                showFlagRaiseMessage(message, 'danger');
-            },
-            complete: function() {
-                $('#submitFlagRaise').prop('disabled', false).text('Submit');
-            }
-        });
-    });
-
-    // FLAG RAISE: Reset form when modal is hidden
-    $('#flagRaiseModal').on('hidden.bs.modal', function() {
-        resetFlagRaiseForm();
-    });
-
-    function resetFlagRaiseForm() {
-        $('#flagRaiseForm')[0].reset();
-        $('#flag_team_member_id').val('');
-        $('#flagEmployeeDropdown').hide();
-        hideFlagRaiseMessage();
-    }
-
-    function showFlagRaiseMessage(message, type) {
-        const messageDiv = $('#flagRaiseMessage');
-        messageDiv.removeClass('d-none alert-success alert-danger alert-info')
-                  .addClass(`alert-${type}`)
-                  .text(message);
-    }
-
-    function hideFlagRaiseMessage() {
-        $('#flagRaiseMessage').addClass('d-none');
-    }
     function resetForm() {
         $('#reviewForm')[0].reset();
         $('#reviewee_id').val('');

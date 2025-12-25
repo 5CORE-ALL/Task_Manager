@@ -65,6 +65,35 @@
                 </div>
                 <small class="text-muted">{{ __('When enabled, each assignee will get their own copy of this task') }}</small>
             </div>
+            
+            <!-- Flag Raise Option -->
+            <div class="form-group col-md-6">
+                <label class="form-label">{{ __('Flag Raise') }}</label>
+                <div class="d-flex align-items-center">
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" id="flagRaiseToggle" name="flag_raise">
+                        <label class="form-check-label ms-2" for="flagRaiseToggle">{{ __('Create flag for this task') }}</label>
+                    </div>
+                </div>
+                <small class="text-muted">{{ __('When enabled, this task will be synced to flag management') }}</small>
+            </div>
+            
+            <!-- Flag Raise Details (shown when checkbox is checked) -->
+            <div id="flagRaiseDetails" class="d-none" style="width: 100%; margin-top: 15px;">
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label class="form-label">{{ __('Flag Type') }}</label>
+                        <select class="form-control form-control-light" name="flag_type" id="flag_type">
+                            <option value="red">{{ __('Red Flag') }}</option>
+                            <option value="green">{{ __('Green Flag') }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="form-label">{{ __('Flag Description') }}</label>
+                        <textarea class="form-control form-control-light" id="flag_description" name="flag_description" rows="2" placeholder="{{ __('Enter flag description (optional)') }}"></textarea>
+                    </div>
+                </div>
+            </div>
                <div class="form-group col-md-6">
                     <label class="form-label">{{ __('Assign To')}}</label><x-required></x-required>
 
@@ -306,6 +335,17 @@
         $('input[name="start_date"]').val(start.format('YYYY-MM-DD HH:mm:ss'));
         $('input[name="due_date"]').val(end.format('YYYY-MM-DD HH:mm:ss'));
     }
+
+    // Toggle flag raise details visibility
+    $(document).ready(function() {
+        $('#flagRaiseToggle').change(function() {
+            if ($(this).is(':checked')) {
+                $('#flagRaiseDetails').removeClass('d-none');
+            } else {
+                $('#flagRaiseDetails').addClass('d-none');
+            }
+        });
+    });
 
     $(document).ready(function() {
         const durationPicker = $('#duration').daterangepicker({

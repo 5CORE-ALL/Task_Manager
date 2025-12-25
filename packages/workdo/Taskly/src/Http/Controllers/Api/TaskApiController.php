@@ -14,6 +14,8 @@ use Workdo\Taskly\Entities\UserProject;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Notification;
 use App\Models\User;
+use App\Models\FlagRaise;
+use Illuminate\Support\Facades\Log;
 use Workdo\Taskly\Entities\ActivityLog;
 use Workdo\Taskly\Entities\SubTask;
 use Workdo\Taskly\Entities\Comment;
@@ -459,6 +461,20 @@ class TaskApiController extends Controller
         if(!$task){
             return response()->json(['status'=>0,'message'=>'Task Not Found!']);
         }
+        
+        // Check authorization for "Done" tasks created under flag raise management
+        if (strtolower($task->status) === 'done') {
+            if ($this->isTaskFromFlagRaise($task)) {
+                // Only users with full access to flag raise management can delete
+                if (!$objUser || !in_array($objUser->email, ['president@5core.com', 'tech-support@5core.com'])) {
+                    return response()->json([
+                        'status' => 0,
+                        'message' => 'Permission denied. Only users with full access to flag raise management can delete "Done" tasks created under flag raise management.'
+                    ], 403);
+                }
+            }
+        }
+        
         Comment::where('task_id', '=', $task->id)->delete();
         SubTask::where('task_id', '=', $task->id)->delete();
         $TaskFiles = TaskFile::where('task_id', '=', $task->id)->get();
@@ -470,6 +486,53 @@ class TaskApiController extends Controller
         $task->delete();
         return response()->json(['status'=>1, 'message' => 'Task Deleted Successfully!']);
 
+    }
+
+    /**
+     * Check if a task was created under flag raise management
+     * by checking if there's a matching flag in the flag_raises table
+     */
+    private function isTaskFromFlagRaise($task)
+    {
+        try {
+            // Get assignor user ID
+            $assignorEmails = explode(',', $task->assignor ?? '');
+            $assignorEmail = trim($assignorEmails[0] ?? '');
+            $assignorUser = null;
+            if (!empty($assignorEmail)) {
+                $assignorUser = User::where('email', $assignorEmail)->first();
+            }
+            $givenBy = $assignorUser ? $assignorUser->id : null;
+            
+            // Get assignee user IDs
+            $assigneeEmails = explode(',', $task->assign_to ?? '');
+            $assigneeUserIds = [];
+            foreach ($assigneeEmails as $email) {
+                $assigneeUser = User::where('email', trim($email))->first();
+                if ($assigneeUser) {
+                    $assigneeUserIds[] = $assigneeUser->id;
+                }
+            }
+            
+            // Check if there's a flag matching this task
+            // Flag description typically starts with "Task: {title}"
+            $flagDescriptionPattern = "Task: {$task->title}%";
+            
+            $matchingFlag = FlagRaise::where(function($query) use ($givenBy, $assigneeUserIds, $flagDescriptionPattern) {
+                if ($givenBy) {
+                    $query->where('given_by', $givenBy);
+                }
+                if (!empty($assigneeUserIds)) {
+                    $query->whereIn('team_member_id', $assigneeUserIds);
+                }
+                $query->where('description', 'like', $flagDescriptionPattern);
+            })->first();
+            
+            return $matchingFlag !== null;
+        } catch (\Exception $e) {
+            Log::error("Error checking if task is from flag raise: " . $e->getMessage());
+            return false;
+        }
     }
 
 }
