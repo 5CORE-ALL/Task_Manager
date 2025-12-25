@@ -1615,7 +1615,13 @@
             console.log(isAddEnable);
             $(document).ready(function () {
                 if (isAddEnable === "true" || isAddEnable === true) {
-                    $('.add-task').trigger('click');
+                    // Directly open the task creation modal, bypassing the task choice modal
+                    setTimeout(function() {
+                        var hiddenLink = document.getElementById('hidden-create-task-link');
+                        if (hiddenLink) {
+                            hiddenLink.click();
+                        }
+                    }, 500);
                 }
                 getTaskCount();
                 loadRatingData();

@@ -900,7 +900,10 @@
             console.log(isAddEnable);
             $(document).ready(function () {
                 if (isAddEnable === "true" || isAddEnable === true) {
-                    $('.add-task').trigger('click');
+                    // Add a small delay to ensure the button is fully initialized
+                    setTimeout(function() {
+                        $('.add-task').trigger('click');
+                    }, 500);
                 }
                 getTaskCount();
                 loadRatingData();
