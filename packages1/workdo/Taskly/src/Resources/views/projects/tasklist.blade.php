@@ -1552,6 +1552,7 @@
             
             // Filter tasks based on toggle selection
             function filterTasksByToggle(filterType) {
+                saveFilters(); // Save filters when toggle changes
                 if ($.fn.DataTable.isDataTable('#projects-task-table')) {
                     var table = $('#projects-task-table').DataTable();
                     
@@ -2360,7 +2361,121 @@
             });
         </script>
         <script>
+            // Filter persistence using localStorage
+            var FILTER_STORAGE_KEY = 'task_list_filters_{{ $project->id ?? "default" }}';
+            
+            // Function to save filters to localStorage
+            function saveFilters() {
+                var filters = {
+                    assignee_name: $('#assignee_name').val() || [],
+                    assignor_name: $('#assignor_name').val() || [],
+                    status_name: $('#status_name').val() || '',
+                    priority: $('#priority').val() || '',
+                    group_name: $('#group_name').val() || '',
+                    task_name: $('#task_name').val() || '',
+                    toggle_filter: $('#taskToggle').attr('data-state') || 'all'
+                };
+                
+                try {
+                    localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filters));
+                } catch (e) {
+                    console.error('Error saving filters to localStorage:', e);
+                }
+            }
+            
+            // Function to restore filters from localStorage
+            function restoreFilters() {
+                try {
+                    var savedFilters = localStorage.getItem(FILTER_STORAGE_KEY);
+                    if (savedFilters) {
+                        var filters = JSON.parse(savedFilters);
+                        
+                        // Restore text inputs
+                        if (filters.group_name) {
+                            $('#group_name').val(filters.group_name);
+                        }
+                        if (filters.task_name) {
+                            $('#task_name').val(filters.task_name);
+                        }
+                        
+                        // Restore single select dropdowns
+                        if (filters.status_name) {
+                            $('#status_name').val(filters.status_name).trigger('change');
+                        }
+                        if (filters.priority) {
+                            $('#priority').val(filters.priority).trigger('change');
+                        }
+                        
+                        // Restore multi-select dropdowns (Choices.js)
+                        // Wait for Choices.js to initialize
+                        setTimeout(function() {
+                            if (filters.assignee_name && filters.assignee_name.length > 0) {
+                                var assigneeChoices = $('#assignee_name')[0].choices;
+                                if (assigneeChoices) {
+                                    assigneeChoices.setChoiceByValue(filters.assignee_name);
+                                } else {
+                                    // Fallback if Choices.js not ready
+                                    $('#assignee_name').val(filters.assignee_name).trigger('change');
+                                }
+                            }
+                            
+                            if (filters.assignor_name && filters.assignor_name.length > 0) {
+                                var assignorChoices = $('#assignor_name')[0].choices;
+                                if (assignorChoices) {
+                                    assignorChoices.setChoiceByValue(filters.assignor_name);
+                                } else {
+                                    // Fallback if Choices.js not ready
+                                    $('#assignor_name').val(filters.assignor_name).trigger('change');
+                                }
+                            }
+                        }, 500);
+                        
+                        // Restore toggle filter
+                        if (filters.toggle_filter && filters.toggle_filter !== 'all') {
+                            setTimeout(function() {
+                                if ($('#taskToggle').length) {
+                                    $('#taskToggle').attr('data-state', filters.toggle_filter);
+                                    $('#taskToggle .toggle-option[data-value="' + filters.toggle_filter + '"]').trigger('click');
+                                }
+                            }, 1000);
+                        }
+                        
+                        // Apply filters to DataTable after a short delay to ensure all elements are ready
+                        setTimeout(function() {
+                            applyFiltersToDataTable();
+                        }, 800);
+                    }
+                } catch (e) {
+                    console.error('Error restoring filters from localStorage:', e);
+                }
+            }
+            
+            // Function to apply restored filters to DataTable
+            function applyFiltersToDataTable() {
+                if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                    var table = $('#projects-task-table').DataTable();
+                    // Update the ajax data parameters
+                    table.settings()[0].ajax.data = function(d) {
+                        d.assignee_name = $('#assignee_name').val();
+                        d.assignor_name = $('#assignor_name').val();
+                        d.status_name = $('#status_name').val();
+                        d.priority = $('#priority').val();
+                        d.group_name = $('#group_name').val();
+                        d.task_name = $('#task_name').val();
+                        var toggleState = $('#taskToggle').attr('data-state') || 'all';
+                        if (toggleState !== 'all') {
+                            d.toggle_filter = toggleState;
+                        }
+                        return d;
+                    };
+                    table.ajax.reload();
+                }
+            }
+            
             $(document).ready(function () {
+                // Restore filters on page load
+                restoreFilters();
+                
                  $('#select-all').on('change', function () {
                     let isChecked = $(this).is(':checked');
                     $('.task-checkbox').prop('checked', isChecked);
@@ -2370,8 +2485,9 @@
                
                 // initializeDataTable();
 
-                // Reload DataTable when filter values change
+                // Reload DataTable when filter values change and save to localStorage
                 $('#assignee_name, #assignor_name,#status_name,#group_name,#task_name,#priority').on('change', function () {
+                    saveFilters(); // Save filters when they change
                     getTaskCount();
                     // Reload the DataTable with new parameters
                     if ($.fn.DataTable.isDataTable('#projects-task-table')) {
@@ -2389,8 +2505,18 @@
                         table.ajax.reload();
                     }
                 });
+                
+                // Save filters when text inputs change (with debounce)
+                var filterSaveTimeout;
+                $('#group_name, #task_name').on('keyup', function () {
+                    clearTimeout(filterSaveTimeout);
+                    filterSaveTimeout = setTimeout(function() {
+                        saveFilters();
+                    }, 500); // Save after 500ms of no typing
+                });
 
                  $('#group_name').on('blur', function () {
+                    saveFilters(); // Save filters when they change
                     getTaskCount();
                     // Reload the DataTable with new parameters
                     if ($.fn.DataTable.isDataTable('#projects-task-table')) {
@@ -2408,6 +2534,7 @@
                     }
                 });
                   $('#task_name').on('blur', function () {
+                    saveFilters(); // Save filters when they change
                     getTaskCount();
                     // Reload the DataTable with new parameters
                     if ($.fn.DataTable.isDataTable('#projects-task-table')) {
