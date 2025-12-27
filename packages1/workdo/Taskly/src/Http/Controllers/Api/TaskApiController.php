@@ -313,6 +313,26 @@ class TaskApiController extends Controller
 				$post['milestone_id']   = !empty($request->milestone_id) ? $request->milestone_id : 0;
                 $post['assign_to'] = implode(",", $request->assign_to);
                 $task              = Task::where('workspace',$currentWorkspace)->where('project_id',$projectID)->where('id',$taskID)->first();
+                
+                // Merge assignors if provided
+                if($request->assignor && $task) {
+                    // Get existing assignors from the task
+                    $existingAssignors = [];
+                    if ($task->assignor) {
+                        $existingAssignors = array_filter(array_map('trim', explode(',', $task->assignor)));
+                    }
+                    
+                    // Get new assignors from request
+                    $newAssignors = is_array($request->assignor) ? $request->assignor : [$request->assignor];
+                    $newAssignors = array_filter(array_map('trim', $newAssignors));
+                    
+                    // Merge existing and new assignors, remove duplicates
+                    $mergedAssignors = array_unique(array_merge($existingAssignors, $newAssignors));
+                    
+                    // Convert back to comma-separated string
+                    $post['assignor'] = implode(',', $mergedAssignors);
+                }
+                
                 $task->update($post);
 
                 return response()->json(['status' => 1, 'message' => 'Task Updated Successfully.'] , 200);

@@ -2338,6 +2338,9 @@ public function bulkUpdatePriority(Request $request)
         $objUser          = Auth::user();
         $currentWorkspace = getActiveWorkSpace();
 
+            // Get the existing task first to preserve existing assignors
+            $task = Task::find($taskID);
+            
             $post              = $request->all();
              if(!empty($request->stage_id))
             {
@@ -2349,8 +2352,21 @@ public function bulkUpdatePriority(Request $request)
             $post['status']    = $stage->name;
             if($request->assignor)
             {
-                // $post['assignor'] = $request->assignor;
-                $post['assignor'] = is_array($request->assignor) ? implode(',', $request->assignor) : $request->assignor;
+                // Get existing assignors from the task
+                $existingAssignors = [];
+                if ($task && $task->assignor) {
+                    $existingAssignors = array_filter(array_map('trim', explode(',', $task->assignor)));
+                }
+                
+                // Get new assignors from request
+                $newAssignors = is_array($request->assignor) ? $request->assignor : [$request->assignor];
+                $newAssignors = array_filter(array_map('trim', $newAssignors));
+                
+                // Merge existing and new assignors, remove duplicates
+                $mergedAssignors = array_unique(array_merge($existingAssignors, $newAssignors));
+                
+                // Convert back to comma-separated string
+                $post['assignor'] = implode(',', $mergedAssignors);
             }
              if($request->eta_time)
             {
@@ -2374,7 +2390,6 @@ public function bulkUpdatePriority(Request $request)
             {
                 $post['assign_to'] = is_array($request->assign_to) ? implode(',', $request->assign_to) : $request->assign_to;
             }
-            $task = Task::find($taskID);
             $oldTask = clone $task; // Clone before update
             $task->update($post);
             
