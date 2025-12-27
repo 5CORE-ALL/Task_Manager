@@ -53,8 +53,27 @@ class ProjectTaskDatatable extends DataTable
 
                 $html = '';
 
+                // Replace status text values
+                $displayStatus = $task->stage_name;
+                if ($displayStatus === 'Need Help') {
+                    $displayStatus = 'Help';
+                } elseif ($displayStatus === 'Need Approval') {
+                    $displayStatus = 'Need App';
+                } elseif ($displayStatus === 'Not Applicable') {
+                    $displayStatus = 'Inapplicable';
+                }
+
                 $color = $stage ? $stage->color : '#6c757d';
-                $html .= '<div> <span class="editable" data-id="' . $task->id . '" data-column="status" style="padding: 5px 10px;border-radius: 5px;color:white;cursor:pointer;background-color:' . $color . '"> ' . $task->stage_name . '</div>';
+                $html .= '<div> <span class="editable" data-id="' . $task->id . '" data-column="status" style="padding: 5px 10px;border-radius: 5px;color:white;cursor:pointer;background-color:' . $color . ';display:inline-block;min-width:100px;text-align:center;"> ' . $displayStatus . '</span></div>';
+                
+                // Show rework reason if status is Rework and rework_reason exists
+                if ($displayStatus === 'Rework' && !empty($task->rework_reason)) {
+                    $reworkReason = htmlspecialchars($task->rework_reason, ENT_QUOTES);
+                    $html .= '<div style="margin-top: 5px; font-size: 11px; color: #6c757d; max-width: 200px; word-wrap: break-word;" title="' . $reworkReason . '" data-bs-toggle="tooltip" data-bs-placement="top">';
+                    $html .= '<i class="fas fa-info-circle" style="color: #ffc107;"></i> ';
+                    $html .= '<span style="font-style: italic;">' . (strlen($reworkReason) > 50 ? substr($reworkReason, 0, 50) . '...' : $reworkReason) . '</span>';
+                    $html .= '</div>';
+                }
 
                 return $html;
 
