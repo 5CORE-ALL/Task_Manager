@@ -3266,6 +3266,75 @@ $('#etcForm').on('submit', function(e) {
         }
     });
 });
+
+// Handle rework form submission
+$('#reworkForm').on('submit', function(e) {
+    e.preventDefault();
+    var reworkReason = $('input[name="rework_reason"]').val();
+    var taskId = $('#reworkTaskId').val();
+    var $submitButton = $(this).find('button[type="submit"]');
+    var originalButtonHtml = $submitButton.html();
+    
+    // Validate input
+    if(!reworkReason || !reworkReason.trim()) {
+        showToast("error", "5Core", "Please enter rework reason");
+        return;
+    }
+    
+    // Disable button and show loading
+    $submitButton.prop("disabled", true);
+    $submitButton.html('<span class="spinner-border spinner-border-sm" style="color: #ffffff" role="status" aria-hidden="true"></span><span style="color: #ffffff"> Processing...</span>');
+    
+    $.ajax({
+        url: "{{route('tasks.save.rework')}}",
+        method: 'POST',
+        data: {
+            rework_reason: reworkReason,
+            task_id: taskId,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            console.log(response);
+            if(response.is_success) {
+                // Close modal
+                var reworkModal = bootstrap.Modal.getInstance(document.getElementById('reworkModal'));
+                if(reworkModal) {
+                    reworkModal.hide();
+                }
+                
+                // Reset form
+                $('#reworkForm')[0].reset();
+                
+                // Show success message
+                showToast("success", "5Core", response.message || "Rework reason saved successfully");
+                
+                // Reload page after a short delay to reflect changes
+                setTimeout(function() {
+                    location.reload();
+                }, 1500);
+            } else {
+                showToast("error", "5Core", response.message || "Failed to save rework reason");
+                $submitButton.prop("disabled", false);
+                $submitButton.html(originalButtonHtml);
+            }
+        },
+        error: function(xhr) {
+            console.error(xhr);
+            var errorMessage = "An error occurred while saving rework reason";
+            
+            if(xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            } else if(xhr.responseJSON && xhr.responseJSON.errors) {
+                var errors = xhr.responseJSON.errors;
+                errorMessage = Object.values(errors).flat().join(', ');
+            }
+            
+            showToast("error", "5Core", errorMessage);
+            $submitButton.prop("disabled", false);
+            $submitButton.html(originalButtonHtml);
+        }
+    });
+});
 // Show ETC modal only when status is set to "Done"
 </script>
 <script>

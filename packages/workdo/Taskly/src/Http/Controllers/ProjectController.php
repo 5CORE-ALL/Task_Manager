@@ -2278,22 +2278,68 @@ public function bulkUpdatePriority(Request $request)
     // update rework reason
     public function saveReworkReason(Request $request)
     {
-        $taskId = $request->task_id;
-        $status = 'Rework';
-        $value = $request->rework_reason;
-        if(!empty($taskId) && !empty($status) && !empty($value))
-        {
-          $task = Task::find($taskId);
-          $task->status = $status;
-          $task->rework_reason = $value;
-          $task->save();
-          $taskUpdated = Task::find($taskId);
-          $this->sendATRSms($taskUpdated);
-          return redirect()->back()->with('success', __('The task Status are updated successfully.'));
+        try {
+            $taskId = $request->task_id;
+            $status = 'Rework';
+            $value = $request->rework_reason;
+            
+            // Validate required fields
+            if(empty($taskId) || empty($value) || empty(trim($value)))
+            {
+                return response()->json([
+                    'is_success' => false,
+                    'message' => __('Task ID and rework reason are required.')
+                ], 400);
+            }
+            
+            // Find the task
+            $task = Task::find($taskId);
+            
+            // Check if task exists
+            if(!$task)
+            {
+                return response()->json([
+                    'is_success' => false,
+                    'message' => __('Task not found.')
+                ], 404);
+            }
+            
+            // Update task
+            $task->status = $status;
+            $task->rework_reason = trim($value);
+            
+            if(!$task->save())
+            {
+                return response()->json([
+                    'is_success' => false,
+                    'message' => __('Failed to save task. Please try again.')
+                ], 500);
+            }
+            
+            // Reload task to get updated data
+            $taskUpdated = Task::find($taskId);
+            
+            // Send SMS notification
+            try {
+                $this->sendATRSms($taskUpdated);
+            } catch (\Exception $smsException) {
+                // Log SMS error but don't fail the request
+                \Log::error('Failed to send rework SMS: ' . $smsException->getMessage());
+            }
+            
+            return response()->json([
+                'is_success' => true,
+                'message' => __('The task Status are updated successfully.'),
+                "data" => $taskUpdated
+            ], 200);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error saving rework reason: ' . $e->getMessage());
+            return response()->json([
+                'is_success' => false,
+                'message' => __('An error occurred while saving rework reason. Please try again.')
+            ], 500);
         }
-        else{
-        return redirect()->back()->with('warning', __('Something wrong please try again.'));   
-        }    
     }
 
     public function updateEtcDone(Request $request)
