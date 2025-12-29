@@ -74,7 +74,7 @@ Route::middleware(['web','auth','verified','PlanModuleCheck:Taskly'])->group(fun
     Route::post('project/task-board/{tid}/update',[ProjectController::class,'taskUpdate'])->name('tasks.update');
     Route::delete('project/task-board-delete/{tid}',[ProjectController::class,'taskDestroy'])->name('tasks.destroy');
     Route::get('projects/task-board/{tid}/{cid?}',[ProjectController::class,'taskShow'])->name('tasks.show');
-    Route::get('project/task-board-list', [ProjectController::class,'TaskList'])->name('projecttask.list'); 
+    Route::get('project/task-board-list', [ProjectController::class,'TaskList'])->name('projecttask.list');
     Route::get('project/task-missed-list', [MissedTaskController::class,'missedTaskList'])->name('missedTaskList.list');
 
     Route::get('project/task-done-list', [ProjectController::class,'doneTasklist'])->name('projecttask.done.list');

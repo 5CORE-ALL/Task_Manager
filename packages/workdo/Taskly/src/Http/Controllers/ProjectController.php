@@ -3330,7 +3330,7 @@ public function bulkUpdatePriority(Request $request)
                         ->where('deleted_at',NULL)
                         ->count();
                         
-                     $overdueTask = Task::whereNotIn('status', [''])
+                     $overdueTask = Task::whereNotIn('status', ['', 'Done'])
                         ->where(function($q) {
                             $q->where('is_missed', 0)
                               ->orWhere(function($sub) {
@@ -3378,7 +3378,7 @@ public function bulkUpdatePriority(Request $request)
                         ->where('deleted_at',NULL)
                         ->count();
                         
-                       $overdueTask = Task::whereNotIn('status', [''])
+                       $overdueTask = Task::whereNotIn('status', ['', 'Done'])
                         ->where(function($q) {
                             $q->where('is_missed', 0)
                               ->orWhere(function($sub) {
@@ -4253,7 +4253,7 @@ public function bulkUpdatePriority(Request $request)
                  
                     $overdueTask = (clone $taskBaseQuery)
                         ->where('tasks.status', '!=', '')
-                        ->where('tasks.status', '!=', '')
+                        ->where('tasks.status', '!=', 'Done')
                         ->where('tasks.due_date', '<', now());
                     $totalTask = (clone $taskBaseQuery);
                      $totalETAmin = (clone $taskBaseQuery);
@@ -4345,7 +4345,7 @@ public function bulkUpdatePriority(Request $request)
                     // Overdue Tasks
                     $overdueTask = (clone $taskBaseQuery)
                         ->where('tasks.status', '!=', '')
-                        ->where('tasks.status', '!=', '')
+                        ->where('tasks.status', '!=', 'Done')
                         ->where('tasks.due_date', '<', now())
                         ->count('tasks.id');
                         
