@@ -275,18 +275,24 @@ class AutomateTaskController extends Controller
             $post['group'] = $request->group;
             $post['link2'] = $request->link2;
             $post['link3'] = $request->link3;
-            $post['link4'] = $request->link4;
             $post['link5'] = $request->link5;
+            $post['link6'] = $request->link6;
+            $post['link7'] = $request->link7;
+            $post['eta_time'] = $request->eta_time;
+            $post['split_tasks'] = $request->has('split_tasks') ? 1 : 0;
+            $post['start_date'] = $request->start_date;
+            $post['due_date'] = $request->due_date;
             $post['schedule_time'] = $request->schedule_time;
-            $post['schedule_type'] = $request->schedule_type;
             $post['schedule_type'] = $request->schedule_type;
                 if ($request->schedule_type == 'monthly') {
                     $post['schedule_days'] = is_array($request->schedule_days) 
                         ? $request->schedule_days[0] 
-                        : $request->schedule_days;
+                        : (is_string($request->schedule_days) && strpos($request->schedule_days, ',') !== false
+                            ? trim(explode(',', $request->schedule_days)[0])
+                            : $request->schedule_days);
                 } elseif ($request->schedule_type == 'weekly') {
                     $post['schedule_days'] = is_array($request->schedule_days) 
-                        ? $request->schedule_days[0] 
+                        ? (is_array($request->schedule_days[0]) ? implode(',', $request->schedule_days[0]) : $request->schedule_days[0])
                         : $request->schedule_days;
                 } else {
                     $post['schedule_days'] = 0;
@@ -297,7 +303,7 @@ class AutomateTaskController extends Controller
             
             $task = AutomateTask::with(['stage'])->find($taskID);
             $message = "The task details are updated successfully.";
-            $returnUrl =route('projecttask.list');
+            $returnUrl =route('projecttask.automate.list');
             return response()->json([
                 'status'        =>  true,
                 'response_code' =>  200,
@@ -305,8 +311,6 @@ class AutomateTaskController extends Controller
                 'data'          =>  ['task'=>$task,'redirect_url'=>$returnUrl]
             ], 200);
             // event(new UpdateTask($request, $task));
-
-            return redirect()->back()->with('success', __('The task details are updated successfully.'));
        
     }
     public function taskDestroy($taskID)
