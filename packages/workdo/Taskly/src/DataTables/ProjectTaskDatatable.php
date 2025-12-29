@@ -1389,7 +1389,7 @@ if ($toggleFilter === 'overdue') {
 
             Column::make('start_date')->title('<span title="Task Initiation Date">TID</span>')->html()->exportable(false)->searchable(false),
 
-            Column::make('due_date')->title('<span title="Due Date">DUE</span>')->html()->exportable(false)->searchable(false),
+            Column::make('due_date')->title('<span title="Overdue Date">OVERDUE</span>')->html()->exportable(false)->searchable(false),
 
             Column::make('eta_time')->title('<span title="Estimate Time Count">ETC</span>')->html()->exportable(false)->searchable(false),
 

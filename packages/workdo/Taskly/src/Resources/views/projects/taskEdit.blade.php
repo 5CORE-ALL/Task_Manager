@@ -61,10 +61,12 @@
                 <div class="form-group col-md-6">
                     <label class="form-label">{{ __('Assignor')}}</label><x-required></x-required>
                 
-                    <select class="multi-select choices" id="assignor" multiple="multiple" name="assignor" data-placeholder="{{ __('Select Users ...') }}" required
-                        @if(Auth::user()->email != $task->assignor && in_array(Auth::user()->email, $task->assign_to)) disabled @endif>
+                    <select class="multi-select choices" id="assignor" multiple="multiple" name="assignor[]" data-placeholder="{{ __('Select Users ...') }}" required>
+                        @php
+                            $existingAssignors = $task->assignor ? array_filter(array_map('trim', explode(',', $task->assignor))) : [];
+                        @endphp
                         @foreach($users as $ur)
-                            <option value="{{$ur->email}}" @if($ur->email==$task->assignor) selected @endif>{{ formatUserName($ur->name) }}</option>
+                            <option value="{{$ur->email}}" @if(in_array($ur->email, $existingAssignors)) selected @endif>{{ formatUserName($ur->name) }}</option>
                         @endforeach
                     </select>
                     <p class="text-danger d-none" id="user_validation">{{__('Assignor field is required.')}}</p>
