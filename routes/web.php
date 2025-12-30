@@ -43,6 +43,7 @@ use App\Http\Controllers\DosController;
 use App\Http\Controllers\DontsController;
 use App\Http\Controllers\FlagRaiseController;
 use App\Http\Controllers\TutorialController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\TaskActivityReportController;
 use App\Http\Controllers\DailyShippingChecklistController;
 use App\Http\Controllers\PayroleController;
@@ -132,6 +133,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/tutorials/by-category', [TutorialController::class, 'getByCategory'])->name('tutorials.byCategory');
 Route::post('/tutorials/update/{id}', [TutorialController::class, 'update'])->name('tutorials.update');
 Route::delete('/tutorials/delete/{id}', [TutorialController::class, 'destroy'])->name('tutorials.destroy');
+
+    // Blog route
+    Route::get('/blog', [App\Http\Controllers\BlogController::class, 'index'])->name('blog'); 
+    Route::post('/blogs/store', [App\Http\Controllers\BlogController::class, 'store'])->name('blogs.store');
+    Route::get('/blogs/by-category', [App\Http\Controllers\BlogController::class, 'getByCategory'])->name('blogs.byCategory');
+    Route::post('/blogs/update/{id}', [App\Http\Controllers\BlogController::class, 'update'])->name('blogs.update');
+    Route::delete('/blogs/delete/{id}', [App\Http\Controllers\BlogController::class, 'destroy'])->name('blogs.destroy');
 
 
     //ebay external link

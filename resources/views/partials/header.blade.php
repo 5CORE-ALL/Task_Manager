@@ -271,6 +271,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <a class="header-app-item" href="{{ route('tutorial') }}" target="_blank" rel="noopener noreferrer" title="Tutorial">
                                             <img src="https://cdn-icons-png.flaticon.com/512/0/375.png" alt="Tutorial" class="header-app-icon" />
                                         </a>
+                                        <!-- Blog -->
+                                        <a class="header-app-item" href="{{ route('blog') }}" target="_blank" rel="noopener noreferrer" title="Blog">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/1157/1157460.png" alt="Blog" class="header-app-icon" />
+                                        </a>
                                         <!-- Google Chat -->
                                         <a class="header-app-item" href="https://chat.google.com/" target="_blank" rel="noopener noreferrer" title="Chat">
                                             <img src="https://www.gstatic.com/images/branding/product/1x/chat_2020q4_48dp.png" alt="Chat" class="header-app-icon" />
