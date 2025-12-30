@@ -1525,8 +1525,11 @@
           <input type="hidden" id="selected-task-ids-date" name="task_ids">
           <div class="row mb-3">
             <div class="col-md-6" id="start_date">
-              <label for="start-date-input" class="form-label">Start Date</label>
-              <input type="date" class="form-control" id="start-date-input" name="start_date">
+              <label for="start-date-input" class="form-label">Start Date (TID)@if(Auth::user()->email !== 'president@5core.com') <span class="text-danger">*</span>@endif</label>
+              <input type="date" class="form-control" id="start-date-input" name="start_date" @if(Auth::user()->email !== 'president@5core.com') disabled title="You do not have permission to update TID (Task Initiation Date)" @endif>
+              @if(Auth::user()->email !== 'president@5core.com')
+                <small class="text-muted">Only authorized users can update TID</small>
+              @endif
             </div>
             <div class="col-md-6">
               <label for="end-date-input" class="form-label">End Date</label>
@@ -1534,7 +1537,7 @@
             </div>
           </div>
           <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="update-due-date-only" onclick="disabled_start_date()" name="update_due_date_only">
+            <input class="form-check-input" type="checkbox" id="update-due-date-only" onclick="disabled_start_date()" name="update_due_date_only" @if(Auth::user()->email !== 'president@5core.com') disabled @endif>
             <label class="form-check-label" for="update-due-date-only">
               Update due date only (ignore start date)
             </label>

@@ -107,12 +107,16 @@
                         <div class='input-group'>
                                 <input type='text' class=" form-control pc-daterangepicker-3" id="duration" name="duration" value="{{__('Select Date Range')}}"
                                     placeholder="Select date range" 
+                                    @if(Auth::user()->email !== 'president@5core.com') disabled title="You do not have permission to update TID (Task Initiation Date)" @endif
                                    />
                                     <input type="hidden" name="start_date"  id="start_date1">
                                     <input type="hidden" name="due_date" id="end_date1">
                                     <span class="input-group-text"><i
                                         class="feather icon-calendar"></i></span>
                             </div>
+                            @if(Auth::user()->email !== 'president@5core.com')
+                                <small class="text-muted">{{ __('Only authorized users can update TID (Task Initiation Date)') }}</small>
+                            @endif
                 </div>
    <div class="form-group col-md-6">
                     <label class="form-label">{{ __('L1')}}</label>

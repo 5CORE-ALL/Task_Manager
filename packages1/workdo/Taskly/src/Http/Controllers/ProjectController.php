@@ -808,6 +808,19 @@ class ProjectController extends Controller
         if ($project) {
             $id               = trim($request->task_id, 'task_');
             $task             = Task::find($id);
+            
+            // Restrict TID (start_date) updates to president@5core.com only
+            if($request->has('start') && $request->start != $task->start_date && $objUser->email !== 'president@5core.com')
+            {
+                return response()->json(
+                    [
+                        'is_success' => false,
+                        'message' => __("You do not have permission to update TID (Task Initiation Date)."),
+                    ],
+                    403
+                );
+            }
+            
             $task->start_date = $request->start;
             $task->due_date   = $request->end;
             $task->save();
@@ -1628,6 +1641,19 @@ public function bulkUpdatePriority(Request $request)
         $taskId = $request->task_id;
         $column = $request->column;
         $value = $request->value;
+        
+        // Restrict TID (start_date) updates to president@5core.com only
+        if($column == 'start_date' && Auth::user()->email !== 'president@5core.com')
+        {
+            return response()->json(
+                [
+                    'is_success' => false,
+                    'message' => "You do not have permission to update TID (Task Initiation Date).",
+                ],
+                403
+            );
+        }
+        
         if(!empty($taskId) && !empty($column) && !empty($value))
         {
             $post[$column] = $value;
@@ -1740,7 +1766,7 @@ public function bulkUpdatePriority(Request $request)
     public function taskUpdate(Request $request, $taskID)
     {
        
-       
+        
         $request->validate(
             [
                 'title' => 'required',
@@ -1756,6 +1782,17 @@ public function bulkUpdatePriority(Request $request)
 
             // Get the existing task first to preserve existing assignors
             $task = Task::find($taskID);
+            
+            // Restrict TID (start_date) updates to president@5core.com only
+            if($request->has('start_date') && $request->start_date != $task->start_date && $objUser->email !== 'president@5core.com')
+            {
+                return response()->json([
+                    'status'        =>  false,
+                    'response_code' =>  403,
+                    'message'       =>  "You do not have permission to update TID (Task Initiation Date).",
+                    'data'          =>  []
+                ], 403);
+            }
             
             $post              = $request->all();
              if(!empty($request->stage_id))
