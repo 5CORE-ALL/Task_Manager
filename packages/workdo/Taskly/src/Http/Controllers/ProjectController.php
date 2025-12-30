@@ -2396,23 +2396,14 @@ public function bulkUpdatePriority(Request $request)
              $stage = Stage::where('workspace_id', '=', $currentWorkspace)->orderBy('order')->first();
             }
             $post['status']    = $stage->name;
-            if($request->assignor)
+            if($request->has('assignor'))
             {
-                // Get existing assignors from the task
-                $existingAssignors = [];
-                if ($task && $task->assignor) {
-                    $existingAssignors = array_filter(array_map('trim', explode(',', $task->assignor)));
-                }
-                
-                // Get new assignors from request
+                // Replace assignors with what's provided in the request (allows removal by deselecting)
                 $newAssignors = is_array($request->assignor) ? $request->assignor : [$request->assignor];
                 $newAssignors = array_filter(array_map('trim', $newAssignors));
                 
-                // Merge existing and new assignors, remove duplicates
-                $mergedAssignors = array_unique(array_merge($existingAssignors, $newAssignors));
-                
-                // Convert back to comma-separated string
-                $post['assignor'] = implode(',', $mergedAssignors);
+                // Convert to comma-separated string (empty string if no assignors selected)
+                $post['assignor'] = implode(',', $newAssignors);
             }
              if($request->eta_time)
             {

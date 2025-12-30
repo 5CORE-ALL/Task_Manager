@@ -316,23 +316,13 @@ class TaskApiController extends Controller
                 $post['assign_to'] = implode(",", $request->assign_to);
                 $task              = Task::where('workspace',$currentWorkspace)->where('project_id',$projectID)->where('id',$taskID)->first();
                 
-                // Merge assignors if provided
-                if($request->assignor && $task) {
-                    // Get existing assignors from the task
-                    $existingAssignors = [];
-                    if ($task->assignor) {
-                        $existingAssignors = array_filter(array_map('trim', explode(',', $task->assignor)));
-                    }
-                    
-                    // Get new assignors from request
+                // Replace assignors with what's provided in the request (allows removal by deselecting)
+                if($request->has('assignor')) {
                     $newAssignors = is_array($request->assignor) ? $request->assignor : [$request->assignor];
                     $newAssignors = array_filter(array_map('trim', $newAssignors));
                     
-                    // Merge existing and new assignors, remove duplicates
-                    $mergedAssignors = array_unique(array_merge($existingAssignors, $newAssignors));
-                    
-                    // Convert back to comma-separated string
-                    $post['assignor'] = implode(',', $mergedAssignors);
+                    // Convert to comma-separated string (empty string if no assignors selected)
+                    $post['assignor'] = implode(',', $newAssignors);
                 }
                 
                 $task->update($post);
