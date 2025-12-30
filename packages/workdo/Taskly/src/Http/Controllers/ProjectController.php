@@ -4255,6 +4255,8 @@ public function bulkUpdatePriority(Request $request)
                         ->where('tasks.status', '!=', '')
                         ->where('tasks.status', '!=', 'Done')
                         ->where('tasks.due_date', '<', now());
+                    // Total task count should include ALL tasks including Done tasks
+                    // Do NOT apply status_name filter to totalTask to ensure done tasks are included
                     $totalTask = (clone $taskBaseQuery);
                      $totalETAmin = (clone $taskBaseQuery);
                       $totalATCMin = (clone $taskBaseQuery);
@@ -4301,6 +4303,8 @@ public function bulkUpdatePriority(Request $request)
                         $totalATCMin->where('assign_to', 'like', "%$assignee_name[0]%");
 
                     }
+                    // Explicitly ensure status_name filter is NOT applied to totalTask
+                    // so that done tasks are always included in the total count
                    
                     $completedTask = $completedTask->count();
                     $pendingTask =$pendingTask->count();
@@ -4328,7 +4332,8 @@ public function bulkUpdatePriority(Request $request)
                         ->select('tasks.*', 'stages.name as stage_name', 'assignor_users.name as assigner_name','eta_time','etc_done')
                         ->distinct('tasks.id');
                     
-                    // Total Tasks
+                    // Total Tasks - includes ALL tasks including Done tasks
+                    // Note: status_name filter should NOT be applied to totalTask to ensure done tasks are included
                     $totalTask = (clone $taskBaseQuery)->count('tasks.id');
                     
                     // Completed Tasks
