@@ -142,7 +142,7 @@ class ProjectTaskDatatable extends DataTable
 
             // })
             ->editColumn('start_date', function (Task $task) {
-                $dateStr = $task->start_date ? date('d-M', strtotime($task->start_date)) : "";
+                $dateStr = $task->start_date ? date('d-M-Y', strtotime($task->start_date)) : "";
                 return $dateStr ? '<span style="color: black; font-weight: bold;">' . $dateStr . '</span>' : "";
             })
             ->addColumn('checkbox', function (Task $task) {
@@ -685,14 +685,24 @@ class ProjectTaskDatatable extends DataTable
 
             ->distinct() // Remove duplicate rows
 
-            ->orderByRaw("STR_TO_DATE(tasks.start_date, '%d-%m-%Y') ASC") // Convert text date to proper date for sorting - oldest first
-
-            ->orderBy('tasks.created_at', 'asc'); // Then by created_at as secondary sort
+            ->orderByRaw("
+                CASE
+                    WHEN tasks.start_date IS NULL OR tasks.start_date = '' THEN '9999-99-99'
+                    WHEN tasks.start_date REGEXP '^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$' THEN
+                        tasks.start_date  -- Already in Y-m-d format
+                    WHEN tasks.start_date REGEXP '^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$' THEN
+                        CONCAT(
+                            RIGHT(tasks.start_date, 4),
+                            '-',
+                            LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(tasks.start_date, '-', 2), '-', -1), 2, '0'),
+                            '-',
+                            LPAD(SUBSTRING_INDEX(tasks.start_date, '-', 1), 2, '0')
+                        )
+                    ELSE '9999-99-99'
+                END ASC
+            ");
 
         $objUser = Auth::user();
-
-        // Default filtering removed - show all tasks by default when no filters are applied
-        // if (!Auth::user()->hasRole('client') && !Auth::user()->hasRole('company') && !Auth::user()->hasRole('Manager All Access') && !Auth::user()->hasRole('hr')) {
         //     if (isset($objUser) && $objUser) {
         //         $task->where(function ($query) use ($objUser) {
         //             $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
@@ -941,8 +951,6 @@ if ($toggleFilter === 'overdue') {
             ->columns($this->getColumns())
 
             ->minifiedAjax()
-
-            ->orderBy(5, 'asc') // TID column - oldest first
 
             ->searching(false) // Disable DataTable's built-in search box
 
@@ -1292,7 +1300,6 @@ if ($toggleFilter === 'overdue') {
             "scrollCollapse" => true,
             "serverSide" => true,
             "processing" => true,
-            "order" => [[5, 'asc']], // Force ordering by column 5 (TID) ascending
             "dom" =>  "
 
         
@@ -1418,7 +1425,7 @@ if ($toggleFilter === 'overdue') {
 
             Column::make('assign_to')->title(__('Assignee'))->printable(false),
 
-            Column::make('start_date')->title('<span title="Task Initiation Date">TID</span>')->html()->exportable(false)->searchable(false),
+            Column::make('start_date')->title('<span title="Task Initiation Date (with year)">TID</span>')->html()->exportable(false)->searchable(false)->name('start_date'),
 
             Column::make('due_date')->title('<span title="Overdue Date">OVERDUE</span>')->html()->exportable(false)->searchable(false),
 
