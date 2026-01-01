@@ -142,7 +142,7 @@ class ProjectTaskDatatable extends DataTable
 
             // })
             ->editColumn('start_date', function (Task $task) {
-                $dateStr = $task->start_date ? date('d-M-Y', strtotime($task->start_date)) : "";
+                $dateStr = $task->start_date ? date('d-M', strtotime($task->start_date)) : "";
                 return $dateStr ? '<span style="color: black; font-weight: bold;">' . $dateStr . '</span>' : "";
             })
             ->addColumn('checkbox', function (Task $task) {
@@ -688,15 +688,15 @@ class ProjectTaskDatatable extends DataTable
             ->orderByRaw("
                 CASE
                     WHEN tasks.start_date IS NULL OR tasks.start_date = '' THEN '9999-99-99'
-                    WHEN tasks.start_date REGEXP '^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$' THEN
-                        tasks.start_date  -- Already in Y-m-d format
-                    WHEN tasks.start_date REGEXP '^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$' THEN
+                    WHEN tasks.start_date REGEXP '^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}' THEN
+                        LEFT(tasks.start_date, 10)  -- Extract date part from datetime
+                    WHEN tasks.start_date REGEXP '^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}' THEN
                         CONCAT(
-                            RIGHT(tasks.start_date, 4),
+                            RIGHT(LEFT(tasks.start_date, 10), 4),
                             '-',
-                            LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(tasks.start_date, '-', 2), '-', -1), 2, '0'),
+                            LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(LEFT(tasks.start_date, 10), '-', 2), '-', -1), 2, '0'),
                             '-',
-                            LPAD(SUBSTRING_INDEX(tasks.start_date, '-', 1), 2, '0')
+                            LPAD(SUBSTRING_INDEX(LEFT(tasks.start_date, 10), '-', 1), 2, '0')
                         )
                     ELSE '9999-99-99'
                 END ASC
@@ -1425,7 +1425,7 @@ if ($toggleFilter === 'overdue') {
 
             Column::make('assign_to')->title(__('Assignee'))->printable(false),
 
-            Column::make('start_date')->title('<span title="Task Initiation Date (with year)">TID</span>')->html()->exportable(false)->searchable(false)->name('start_date'),
+            Column::make('start_date')->title('<span title="Task Initiation Date">TID</span>')->html()->exportable(false)->searchable(false)->name('start_date'),
 
             Column::make('due_date')->title('<span title="Overdue Date">OVERDUE</span>')->html()->exportable(false)->searchable(false),
 

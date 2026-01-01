@@ -623,9 +623,22 @@ class ProjectMissedTaskDatatable extends DataTable
                                ->where('tasks.status', '!=', 'Done');
                   });
         })
-        // Put urgent first then other priorities; keep due_date ordering
-        ->orderByRaw("CASE WHEN LOWER(tasks.priority) = 'urgent' THEN 0 ELSE 1 END")
-        ->orderBy('tasks.due_date', 'asc')
+        ->orderByRaw("
+            CASE
+                WHEN tasks.start_date IS NULL OR tasks.start_date = '' THEN '9999-99-99'
+                WHEN tasks.start_date REGEXP '^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}' THEN
+                    LEFT(tasks.start_date, 10)  -- Extract date part from datetime
+                WHEN tasks.start_date REGEXP '^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}' THEN
+                    CONCAT(
+                        RIGHT(LEFT(tasks.start_date, 10), 4),
+                        '-',
+                        LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(LEFT(tasks.start_date, 10), '-', 2), '-', -1), 2, '0'),
+                        '-',
+                        LPAD(SUBSTRING_INDEX(LEFT(tasks.start_date, 10), '-', 1), 2, '0')
+                    )
+                ELSE '9999-99-99'
+            END DESC
+        ")
         ->where('tasks.workspace', getActiveWorkSpace());
 
     // Removed problematic groupBy - use distinct if needed to avoid duplicates
@@ -1178,7 +1191,7 @@ class ProjectMissedTaskDatatable extends DataTable
 
             Column::make('assign_to')->title(__('Assignee'))->printable(false),
 
-            Column::make('start_date')->title('<span title="Task Initiation Date">TID</span>')->html()->exportable(false)->searchable(false),
+            Column::make('start_date')->title('<span title="Task Initiation Date">TID</span>')->html()->exportable(false)->searchable(false)->name('start_date'),
 
             Column::make('due_date')->title('<span title="Due Date">DUE</span>')->html()->exportable(false)->searchable(false),
 
