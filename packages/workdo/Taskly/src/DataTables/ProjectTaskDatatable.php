@@ -858,9 +858,10 @@ class ProjectTaskDatatable extends DataTable
 
         // Add a condition to search by assignee names
 
-        if (request()->has('search.value') && !empty(request()->input('search.value'))) {
+        if ((request()->has('search.value') && !empty(request()->input('search.value'))) ||
+            (request()->has('search_value') && !empty(request()->input('search_value')))) {
 
-            $searchValue = request()->input('search.value');
+            $searchValue = request()->input('search.value') ?: request()->input('search_value');
 
             $task->where(function ($query) use ($searchValue) {
 
@@ -870,7 +871,29 @@ class ProjectTaskDatatable extends DataTable
 
                      ->orWhere('tasks.title', 'like', "%$searchValue%") // Search by task name
 
-                    ->orWhere('tasks.group', 'like', "%$searchValue%"); // Search by group name
+                    ->orWhere('tasks.group', 'like', "%$searchValue%") // Search by group name
+
+                    ->orWhere('tasks.description', 'like', "%$searchValue%") // Search by description
+
+                    ->orWhere('tasks.priority', 'like', "%$searchValue%") // Search by priority
+
+                    ->orWhere('stages.name', 'like', "%$searchValue%") // Search by status
+
+                    ->orWhere('tasks.start_date', 'like', "%$searchValue%") // Search by start date
+
+                    ->orWhere('tasks.due_date', 'like', "%$searchValue%") // Search by due date
+
+                    ->orWhere('tasks.eta_time', 'like', "%$searchValue%") // Search by ETA time
+
+                    ->orWhere('tasks.etc_done', 'like', "%$searchValue%") // Search by ETC done
+
+                    ->orWhere('tasks.completion_date', 'like', "%$searchValue%") // Search by completion date
+
+                    ->orWhere('tasks.completion_day', 'like', "%$searchValue%") // Search by completion day
+
+                    ->orWhere('tasks.assign_to', 'like', "%$searchValue%") // Search by assign_to emails
+
+                    ->orWhere('tasks.assignor', 'like', "%$searchValue%"); // Search by assignor emails
 
             });
 
@@ -920,6 +943,8 @@ if ($toggleFilter === 'overdue') {
             ->minifiedAjax()
 
             ->orderBy(5, 'asc') // TID column - oldest first
+
+            ->searching(false) // Disable DataTable's built-in search box
 
             ->language([
 

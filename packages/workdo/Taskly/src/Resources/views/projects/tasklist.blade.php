@@ -585,6 +585,10 @@
                         
                         <form class="d-flex gap-2 align-items-center">
                             <div class="flex-grow-1">
+                                <label class="form-label">{{ __('Search')}}</label>
+                                <input type="text" class="form-control form-control-light" id="global_search" name="global_search" placeholder="{{ __('Search all columns...') }}">
+                            </div>
+                            <div class="flex-grow-1">
                                 <label class="form-label">{{ __('Group')}}</label>
                                 <input type="text" class="form-control form-control-light" id="group_name" name="group_name" placeholder="{{ __('Enter Group') }}">
                             </div>
@@ -1499,7 +1503,7 @@
           @csrf
           <input type="hidden" id="selected-task-ids-etc" name="task_ids">
           <div class="mb-3">
-            <label for="etc-input" class="form-label">Enter New ETC Value (hours)</label>
+            <label for="etc-input" class="form-label">Enter New ETC Value (minutes)</label>
             <input type="number" class="form-control" id="etc-input" name="etc_value" min="0" step="0.5" required placeholder="Enter ETC hours">
           </div>
           <div class="alert alert-info">
@@ -1685,7 +1689,12 @@
                 // Initialize task toggle
                 initializeTaskToggle();
                 // Bind filter change events
-                $('#assignor_name, #assignee_name, #status_name, #group_name, #task_name,#priority').on('change keyup', function() {
+                $('#assignor_name, #assignee_name, #status_name, #group_name, #task_name, #priority, #global_search').on('change keyup', function() {
+                    // Reload the DataTable
+                    var table = $('#projects-task-table').DataTable();
+                    if (table && typeof table.ajax === 'object' && typeof table.ajax.reload === 'function') {
+                        table.ajax.reload();
+                    }
                     getTaskCount();
                     getDoneTaskData();
                 });
@@ -2706,11 +2715,16 @@
                         table.ajax.reload();
                     }
                 });
-                $('#projects-task-table_filter input').on('keyup', function () {
-                    console.log("input",$('.dataTables_filter input').val());
+                // Make global search input control DataTable search
+                $('#global_search').on('keyup', function () {
+                    // Try to reload the DataTable - Laravel DataTables creates a client-side instance
+                    var table = $('#projects-task-table').DataTable();
+                    if (table && typeof table.ajax === 'object' && typeof table.ajax.reload === 'function') {
+                        table.ajax.reload();
+                    }
                     getTaskCount();
                 });
-                
+
             });
              $(document).on("click", ".task-checkbox", function() {
                 let selectedIds = $(".task-checkbox:checked").map(function() {
@@ -2823,13 +2837,17 @@
             }
         ],
         ajax: {
-            url: "route('projecttask.list')",
+            url: "{{ route('projecttask.list') }}",
             data: function(d) {
                 d.assignee_name = $('#assignee_name').val();
                 d.assignor_name = $('#assignor_name').val();
                  d.group_name = $('#group_name').val();
                  d.task_name = $('#task_name').val();
                 d.status_name = $('#status_name').val();
+                d.priority = $('#priority').val();
+                // Send global search as the DataTable's built-in search parameter
+                d['search[value]'] = $('#global_search').val();
+                console.log('AJAX data being sent:', d);
             }
         },
         columns: [
@@ -2904,7 +2922,7 @@
                             priority: $('#priority').val(),
                             group_name: $('#group_name').val(),
                             task_name: $('#task_name').val(),
-                            search_value:$('#projects-task-table_filter input').val(),
+                            search_value:$('#global_search').val(),
                         },
                         dataType: 'JSON',
                         success: function(data) {
@@ -3019,7 +3037,7 @@ function checkOverdueAndNotify(forceShow = false) {
             priority: $('#priority').val(),
             group_name: $('#group_name').val(),
             task_name: $('#task_name').val(),
-            search_value: $('.dataTables_filter input').val(),
+            search_value: $('#global_search').val(),
         },
         dataType: 'JSON',
         success: function(data) {
