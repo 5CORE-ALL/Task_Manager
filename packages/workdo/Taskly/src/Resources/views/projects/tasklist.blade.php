@@ -596,6 +596,7 @@
                                 <label class="form-label">{{ __('Assignor')}}</label>
                                 <select class=" multi-select choices" id="assignor_name" name="assignor_name"  multiple="multiple" data-placeholder="{{ __('Select Users ...') }}" required>
                                     <option value="">{{__('Select assignor')}}</option>
+                                    <option value="NULL">{{__('No Assignor (NULL)')}}</option>
                                     @foreach($users as $u)
                                         <option value="{{$u->email}}">{{ formatUserName($u->name) }}</option>
                                     @endforeach
@@ -605,6 +606,7 @@
                                 <label class="form-label">{{ __('Assignee')}}</label>
                                 <select class=" multi-select choices" id="assignee_name" name="assignee_name"  multiple="multiple" data-placeholder="{{ __('Select Users ...') }}" required>
                                     <option value="">{{__('Select Assignee')}}</option>
+                                    <option value="NULL">{{__('No Assignee (NULL)')}}</option>
                                     @foreach($users as $u)
                                         <option value="{{$u->email}}">{{ formatUserName($u->name) }}</option>
                                     @endforeach

@@ -238,10 +238,22 @@ public function query(AutomateTask $model)
     //     });
     // }
     if (request()->has('assignee_name') && !empty(request()->input('assignee_name'))) {
-        $assigneeNames = request()->input('assignee_name');
-        $automateTask->where(function ($query) use ($assigneeNames) {
-            foreach ($assigneeNames as $name) {
-                $query->orWhereRaw("FIND_IN_SET(?, assign_to)", [$name]);
+        $assigneeEmails = request()->input('assignee_name');
+        $automateTask->where(function ($query) use ($assigneeEmails) {
+            foreach ($assigneeEmails as $email) {
+                if ($email === 'NULL') {
+                    // Check for NULL, empty, or tasks where no valid users exist for the assign_to emails
+                    $query->orWhere(function ($q) {
+                        $q->whereNull('assign_to')
+                          ->orWhere('assign_to', '')
+                          ->orWhereRaw("LENGTH(assign_to) > 0 AND (
+                              SELECT COUNT(*) FROM users
+                              WHERE FIND_IN_SET(users.email, automate_tasks.assign_to)
+                          ) = 0");
+                    });
+                } else {
+                    $query->orWhereRaw("FIND_IN_SET(?, assign_to)", [$email]);
+                }
             }
         });
     }
@@ -252,10 +264,22 @@ public function query(AutomateTask $model)
     //     });
     // }
     if (request()->has('assignor_name') && !empty(request()->input('assignor_name'))) {
-        $assignorNames = request()->input('assignor_name');
-        $automateTask->where(function ($query) use ($assignorNames) {
-            foreach ($assignorNames as $name) {
-                $query->orWhereRaw("FIND_IN_SET(?, assignor)", [$name]);
+        $assignorEmails = request()->input('assignor_name');
+        $automateTask->where(function ($query) use ($assignorEmails) {
+            foreach ($assignorEmails as $email) {
+                if ($email === 'NULL') {
+                    // Check for NULL, empty, or tasks where no valid users exist for the assignor emails
+                    $query->orWhere(function ($q) {
+                        $q->whereNull('assignor')
+                          ->orWhere('assignor', '')
+                          ->orWhereRaw("LENGTH(assignor) > 0 AND (
+                              SELECT COUNT(*) FROM users
+                              WHERE FIND_IN_SET(users.email, automate_tasks.assignor)
+                          ) = 0");
+                    });
+                } else {
+                    $query->orWhereRaw("FIND_IN_SET(?, assignor)", [$email]);
+                }
             }
         });
     }
@@ -277,14 +301,15 @@ public function query(AutomateTask $model)
                 $query->where('title', 'like', "%$task_name%");
             });
     }
-    if (!Auth::user()->hasRole('client') && !Auth::user()->hasRole('company') && !Auth::user()->hasRole('Manager All Access') && !Auth::user()->hasRole('hr')) {
-        if (isset($objUser) && $objUser) {
-            $automateTask->where(function ($query) use ($objUser) {
-                $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                    ->orWhere('assignor', $objUser->email);
-            });
-        }
-    }
+    // Default filtering removed - show all tasks by default when no filters are applied
+    // if (!Auth::user()->hasRole('client') && !Auth::user()->hasRole('company') && !Auth::user()->hasRole('Manager All Access') && !Auth::user()->hasRole('hr')) {
+    //     if (isset($objUser) && $objUser) {
+    //         $automateTask->where(function ($query) use ($objUser) {
+    //             $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+    //                 ->orWhere('assignor', $objUser->email);
+    //         });
+    //     }
+    // }
 
     // Add a condition to search by assignee names
     if (request()->has('search.value') && !empty(request()->input('search.value'))) {

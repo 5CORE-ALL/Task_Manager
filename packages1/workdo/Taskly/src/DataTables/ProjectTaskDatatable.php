@@ -695,21 +695,15 @@ class ProjectTaskDatatable extends DataTable
 
         $objUser = Auth::user();
 
-        if (!Auth::user()->hasRole('client') && !Auth::user()->hasRole('company') && !Auth::user()->hasRole('Manager All Access') && !Auth::user()->hasRole('hr')) {
-
-            if (isset($objUser) && $objUser) {
-
-                $task->where(function ($query) use ($objUser) {
-
-                    $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-
-                        ->orWhereRaw("FIND_IN_SET(?, assignor)", [$objUser->email]);
-
-                });
-
-            }
-
-        }
+        // Default filtering removed - show all tasks by default when no filters are applied
+        // if (!Auth::user()->hasRole('client') && !Auth::user()->hasRole('company') && !Auth::user()->hasRole('Manager All Access') && !Auth::user()->hasRole('hr')) {
+        //     if (isset($objUser) && $objUser) {
+        //         $task->where(function ($query) use ($objUser) {
+        //             $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+        //                 ->orWhereRaw("FIND_IN_SET(?, assignor)", [$objUser->email]);
+        //         });
+        //     }
+        // }
 
         // code change for assignee and assignor override 
 
@@ -737,7 +731,27 @@ class ProjectTaskDatatable extends DataTable
 
                 foreach ($assigneeEmails as $email) {
 
-                    $query->orWhereRaw("FIND_IN_SET(?, assign_to)", [$email]);
+                    if ($email === 'NULL') {
+
+                        // Check for NULL, empty, or tasks where no valid users exist for the assign_to emails
+                        $query->orWhere(function ($q) {
+
+                            $q->whereNull('assign_to')
+
+                              ->orWhere('assign_to', '')
+
+                              ->orWhereRaw("LENGTH(assign_to) > 0 AND (
+                                  SELECT COUNT(*) FROM users
+                                  WHERE FIND_IN_SET(users.email, tasks.assign_to)
+                              ) = 0");
+
+                        });
+
+                    } else {
+
+                        $query->orWhereRaw("FIND_IN_SET(?, assign_to)", [$email]);
+
+                    }
 
                 }
 
@@ -771,7 +785,27 @@ class ProjectTaskDatatable extends DataTable
 
                 foreach ($assignorEmails as $email) {
 
-                    $query->orWhereRaw("FIND_IN_SET(?, assignor)", [$email]);
+                    if ($email === 'NULL') {
+
+                        // Check for NULL, empty, or tasks where no valid users exist for the assignor emails
+                        $query->orWhere(function ($q) {
+
+                            $q->whereNull('assignor')
+
+                              ->orWhere('assignor', '')
+
+                              ->orWhereRaw("LENGTH(assignor) > 0 AND (
+                                  SELECT COUNT(*) FROM users
+                                  WHERE FIND_IN_SET(users.email, tasks.assignor)
+                              ) = 0");
+
+                        });
+
+                    } else {
+
+                        $query->orWhereRaw("FIND_IN_SET(?, assignor)", [$email]);
+
+                    }
 
                 }
 
