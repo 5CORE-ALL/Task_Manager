@@ -80,11 +80,12 @@ Route::middleware(['web','auth','verified','PlanModuleCheck:Taskly'])->group(fun
     Route::get('project/today-completed-tasks', [ProjectController::class,'getTodayCompletedTasks'])->name('projecttask.today.completed');
     Route::get('project/urgent-etc-data', [ProjectController::class,'getUrgentETCData'])->name('projecttask.urgent.etc');
     Route::get('project/task-list/bulk-action', [ProjectController::class,'bulkAction'])->name('projecttask.bulkAction');
-    Route::match(['get', 'post'], 'project/task-list/bulk-update-assignor', [ProjectController::class,'bulkUpdateAssignor'])->name('projecttask.bulkUpdateAssignor');
-    Route::match(['get', 'post'], 'project/task-list/bulk-update-assignee', [ProjectController::class,'bulkUpdateAssignee'])->name('projecttask.bulkUpdateAssignee');
-    Route::match(['get', 'post'], 'project/task-list/bulk-update-etc', [ProjectController::class,'bulkUpdateETC'])->name('projecttask.bulkUpdateETC');
-    Route::match(['get', 'post'], 'project/task-list/bulk-update-date', [ProjectController::class, 'bulkUpdateDate'])->name('projecttask.bulkUpdateDate');
-    Route::match(['get', 'post'], 'project/task-list/bulk-update-priority', [ProjectController::class, 'bulkUpdatePriority'])->name('projecttask.bulkUpdatePriority');
+    // Bulk update routes removed as per user request
+    // Route::match(['get', 'post'], 'project/task-list/bulk-update-assignor', [ProjectController::class,'bulkUpdateAssignor'])->name('projecttask.bulkUpdateAssignor');
+    // Route::match(['get', 'post'], 'project/task-list/bulk-update-assignee', [ProjectController::class,'bulkUpdateAssignee'])->name('projecttask.bulkUpdateAssignee');
+    // Route::match(['get', 'post'], 'project/task-list/bulk-update-etc', [ProjectController::class,'bulkUpdateETC'])->name('projecttask.bulkUpdateETC');
+    // Route::match(['get', 'post'], 'project/task-list/bulk-update-date', [ProjectController::class, 'bulkUpdateDate'])->name('projecttask.bulkUpdateDate');
+    // Route::match(['get', 'post'], 'project/task-list/bulk-update-priority', [ProjectController::class, 'bulkUpdatePriority'])->name('projecttask.bulkUpdatePriority');
     Route::get('project/task-list/inline-edit', [ProjectController::class,'inlineUpdate'])->name('projecttask.inlineEdit');
     Route::post('projects/task-member/{cid?}', [ProjectController::class,'TaskMember'])->name('tasks.members');
     Route::get('project/task-count', [ProjectController::class,'taskCountData'])->name('projecttask.count');

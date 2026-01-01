@@ -1380,262 +1380,263 @@ public function bulkAction(Request $request)
     ], 200);
 }
 
-    public function bulkUpdateAssignor(Request $request)
-    {
-        try {
-            $taskIds = $request->input('task_ids');
-            $assignorEmail = $request->input('assignor_email');
+    // Bulk update methods removed as per user request
+    // public function bulkUpdateAssignor(Request $request)
+    // {
+    //     try {
+    //         $taskIds = $request->input('task_ids');
+    //         $assignorEmail = $request->input('assignor_email');
 
-            if (empty($taskIds) || empty($assignorEmail)) {
-                return response()->json([
-                    'is_success' => false,
-                    'message' => 'Missing required data'
-                ], 400);
-            }
+    //         if (empty($taskIds) || empty($assignorEmail)) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'Missing required data'
+    //             ], 400);
+    //         }
 
-            // Parse task IDs if they come as JSON string
-            if (is_string($taskIds)) {
-                $taskIds = json_decode($taskIds, true);
-            }
+    //         // Parse task IDs if they come as JSON string
+    //         if (is_string($taskIds)) {
+    //             $taskIds = json_decode($taskIds, true);
+    //         }
 
-            // Validate assignor exists
-            $assignor = User::where('email', $assignorEmail)->first();
-            if (!$assignor) {
-                return response()->json([
-                    'is_success' => false,
-                    'message' => 'Assignor not found'
-                ], 404);
-            }
+    //         // Validate assignor exists
+    //         $assignor = User::where('email', $assignorEmail)->first();
+    //         if (!$assignor) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'Assignor not found'
+    //             ], 404);
+    //         }
 
-            // Update assignor for all selected tasks
-            $updatedCount = Task::whereIn('id', $taskIds)
-                ->where('workspace', getActiveWorkSpace())
-                ->update(['assignor' => $assignorEmail]);
+    //         // Update assignor for all selected tasks
+    //         $updatedCount = Task::whereIn('id', $taskIds)
+    //             ->where('workspace', getActiveWorkSpace())
+    //             ->update(['assignor' => $assignorEmail]);
 
-            return response()->json([
-                'is_success' => true,
-                'message' => "Assignor updated successfully for {$updatedCount} task(s)",
-                'updated_count' => $updatedCount
-            ], 200);
+    //         return response()->json([
+    //             'is_success' => true,
+    //             'message' => "Assignor updated successfully for {$updatedCount} task(s)",
+    //             'updated_count' => $updatedCount
+    //         ], 200);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'is_success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage()
-            ], 500);
-        }
-    }
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'is_success' => false,
+    //             'message' => 'An error occurred: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
-    public function bulkUpdateAssignee(Request $request)
-    {
-        try {
-            $taskIds = $request->input('task_ids');
-            $assigneeEmail = $request->input('assignee_email');
+    // public function bulkUpdateAssignee(Request $request)
+    // {
+    //     try {
+    //         $taskIds = $request->input('task_ids');
+    //         $assigneeEmail = $request->input('assignee_email');
 
-            if (empty($taskIds) || empty($assigneeEmail)) {
-                return response()->json([
-                    'is_success' => false,
-                    'message' => 'Missing required data'
-                ], 400);
-            }
+    //         if (empty($taskIds) || empty($assigneeEmail)) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'Missing required data'
+    //             ], 400);
+    //         }
 
-            // Parse task IDs if they come as JSON string
-            if (is_string($taskIds)) {
-                $taskIds = json_decode($taskIds, true);
-            }
+    //         // Parse task IDs if they come as JSON string
+    //         if (is_string($taskIds)) {
+    //             $taskIds = json_decode($taskIds, true);
+    //         }
 
-            // Validate assignee exists
-            $assignee = User::where('email', $assigneeEmail)->first();
-            if (!$assignee) {
-                return response()->json([
-                    'is_success' => false,
-                    'message' => 'Assignee not found'
-                ], 404);
-            }
+    //         // Validate assignee exists
+    //         $assignee = User::where('email', $assigneeEmail)->first();
+    //         if (!$assignee) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'Assignee not found'
+    //             ], 404);
+    //         }
 
-            // Update assignee for all selected tasks
-            $updatedCount = Task::whereIn('id', $taskIds)
-                ->where('workspace', getActiveWorkSpace())
-                ->update(['assign_to' => $assigneeEmail]);
+    //         // Update assignee for all selected tasks
+    //         $updatedCount = Task::whereIn('id', $taskIds)
+    //             ->where('workspace', getActiveWorkSpace())
+    //             ->update(['assign_to' => $assigneeEmail]);
 
-            return response()->json([
-                'is_success' => true,
-                'message' => "Assignee updated successfully for {$updatedCount} task(s)",
-                'updated_count' => $updatedCount
-            ], 200);
+    //         return response()->json([
+    //             'is_success' => true,
+    //             'message' => "Assignee updated successfully for {$updatedCount} task(s)",
+    //             'updated_count' => $updatedCount
+    //         ], 200);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'is_success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-    public function bulkUpdateETC(Request $request)
-{
-    try {
-        $taskIds = $request->input('task_ids');
-        $etcValue = $request->input('etc_value');
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'is_success' => false,
+    //             'message' => 'An error occurred: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+    // public function bulkUpdateETC(Request $request)
+    // {
+    //     try {
+    //         $taskIds = $request->input('task_ids');
+    //         $etcValue = $request->input('etc_value');
 
-        if (empty($taskIds) || empty($etcValue)) {
-            return response()->json([
-                'is_success' => false,
-                'message' => 'Missing required data'
-            ], 400);
-        }
+    //         if (empty($taskIds) || empty($etcValue)) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'Missing required data'
+    //             ], 400);
+    //         }
 
-        // Parse task IDs if they come as JSON string
-        if (is_string($taskIds)) {
-            $taskIds = json_decode($taskIds, true);
-        }
+    //         // Parse task IDs if they come as JSON string
+    //         if (is_string($taskIds)) {
+    //             $taskIds = json_decode($taskIds, true);
+    //         }
 
-        // Validate ETC value
-        if (!is_numeric($etcValue) || $etcValue < 0) {
-            return response()->json([
-                'is_success' => false,
-                'message' => 'Invalid ETC value. Please enter a positive number.'
-            ], 400);
-        }
+    //         // Validate ETC value
+    //         if (!is_numeric($etcValue) || $etcValue < 0) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'Invalid ETC value. Please enter a positive number.'
+    //             ], 400);
+    //         }
 
-        // Update ETC for all selected tasks
-        $updatedCount = Task::whereIn('id', $taskIds)
-            ->where('workspace', getActiveWorkSpace())
-            ->update(['eta_time' => $etcValue]);
+    //         // Update ETC for all selected tasks
+    //         $updatedCount = Task::whereIn('id', $taskIds)
+    //             ->where('workspace', getActiveWorkSpace())
+    //             ->update(['eta_time' => $etcValue]);
 
-        return response()->json([
-            'is_success' => true,
-            'message' => "ETC updated successfully for {$updatedCount} task(s)",
-            'updated_count' => $updatedCount
-        ], 200);
+    //         return response()->json([
+    //             'is_success' => true,
+    //             'message' => "ETC updated successfully for {$updatedCount} task(s)",
+    //             'updated_count' => $updatedCount
+    //         ], 200);
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'is_success' => false,
-            'message' => 'An error occurred: ' . $e->getMessage()
-        ], 500);
-    }
-}
-public function bulkUpdateDate(Request $request)
-{
-   try {
-        $taskIds = $request->input('task_ids');
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        $updateDueDateOnly = $request->input('update_due_date_only', false);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'is_success' => false,
+    //             'message' => 'An error occurred: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+    // public function bulkUpdateDate(Request $request)
+    // {
+    //    try {
+    //         $taskIds = $request->input('task_ids');
+    //         $startDate = $request->input('start_date');
+    //         $endDate = $request->input('end_date');
+    //         $updateDueDateOnly = $request->input('update_due_date_only', false);
 
-        if (empty($taskIds)) {
-            return response()->json([
-                'is_success' => false,
-                'message' => 'No tasks selected'
-            ], 400);
-        }
+    //         if (empty($taskIds)) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'No tasks selected'
+    //             ], 400);
+    //         }
 
-        // Parse task IDs if they come as JSON string
-        if (is_string($taskIds)) {
-            $taskIds = json_decode($taskIds, true);
-        }
+    //         // Parse task IDs if they come as JSON string
+    //         if (is_string($taskIds)) {
+    //             $taskIds = json_decode($taskIds, true);
+    //         }
 
-        // Validate dates
-        if ($startDate && !strtotime($startDate)) {
-            return response()->json([
-                'is_success' => false,
-                'message' => 'Invalid start date format'
-            ], 400);
-        }
+    //         // Validate dates
+    //         if ($startDate && !strtotime($startDate)) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'Invalid start date format'
+    //             ], 400);
+    //         }
 
-        if ($endDate && !strtotime($endDate)) {
-            return response()->json([
-                'is_success' => false,
-                'message' => 'Invalid end date format'
-            ], 400);
-        }
+    //         if ($endDate && !strtotime($endDate)) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'Invalid end date format'
+    //             ], 400);
+    //         }
 
-        // Prepare update data
-        $updateData = [];
+    //         // Prepare update data
+    //         $updateData = [];
         
-        // Only update start date if it's provided AND we're not in "due date only" mode
-        if ($startDate) {
-            $updateData['start_date'] = $startDate;
-        }
+    //         // Only update start date if it's provided AND we're not in "due date only" mode
+    //         if ($startDate) {
+    //             $updateData['start_date'] = $startDate;
+    //         }
         
-        // Always update end date if provided
-        if ($endDate) {
-            $updateData['due_date'] = $endDate;
-        }
+    //         // Always update end date if provided
+    //         if ($endDate) {
+    //             $updateData['due_date'] = $endDate;
+    //         }
 
-        // If no data to update
-        if (empty($updateData)) {
-            return response()->json([
-                'is_success' => false,
-                'message' => 'No date values provided for update'
-            ], 400);
-        }
+    //         // If no data to update
+    //         if (empty($updateData)) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'No date values provided for update'
+    //             ], 400);
+    //         }
 
-        // Update dates for all selected tasks
-        $updatedCount = Task::whereIn('id', $taskIds)
-            ->where('workspace', getActiveWorkSpace())
-            ->update($updateData);
+    //         // Update dates for all selected tasks
+    //         $updatedCount = Task::whereIn('id', $taskIds)
+    //             ->where('workspace', getActiveWorkSpace())
+    //             ->update($updateData);
 
-        return response()->json([
-            'is_success' => true,
-            'message' => "Dates updated successfully for {$updatedCount} task(s)",
-            'updated_count' => $updatedCount,
-            'updated_fields' => array_keys($updateData)
-        ], 200);
+    //         return response()->json([
+    //             'is_success' => true,
+    //             'message' => "Dates updated successfully for {$updatedCount} task(s)",
+    //             'updated_count' => $updatedCount,
+    //             'updated_fields' => array_keys($updateData)
+    //         ], 200);
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'is_success' => false,
-            'message' => 'An error occurred: ' . $e->getMessage()
-        ], 500);
-    }
-}
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'is_success' => false,
+    //             'message' => 'An error occurred: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
-public function bulkUpdatePriority(Request $request)
-{
-    try {
-        $taskIds = $request->input('task_ids');
-        $priority = $request->input('priority');
+    // public function bulkUpdatePriority(Request $request)
+    // {
+    //     try {
+    //         $taskIds = $request->input('task_ids');
+    //         $priority = $request->input('priority');
 
-        if (empty($taskIds) || empty($priority)) {
-            return response()->json([
-                'is_success' => false,
-                'message' => 'Missing required data'
-            ], 400);
-        }
+    //         if (empty($taskIds) || empty($priority)) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'Missing required data'
+    //             ], 400);
+    //         }
 
-        // Parse task IDs if they come as JSON string
-        if (is_string($taskIds)) {
-            $taskIds = json_decode($taskIds, true);
-        }
+    //         // Parse task IDs if they come as JSON string
+    //         if (is_string($taskIds)) {
+    //             $taskIds = json_decode($taskIds, true);
+    //         }
 
-        // Validate priority value
-        $validPriorities = ['urgent', 'high', 'normal', 'low'];
-        if (!in_array($priority, $validPriorities)) {
-            return response()->json([
-                'is_success' => false,
-                'message' => 'Invalid priority value. Valid options are: ' . implode(', ', $validPriorities)
-            ], 400);
-        }
+    //         // Validate priority value
+    //         $validPriorities = ['urgent', 'high', 'normal', 'low'];
+    //         if (!in_array($priority, $validPriorities)) {
+    //             return response()->json([
+    //                 'is_success' => false,
+    //                 'message' => 'Invalid priority value. Valid options are: ' . implode(', ', $validPriorities)
+    //             ], 400);
+    //         }
 
-        // Update priority for all selected tasks
-        $updatedCount = Task::whereIn('id', $taskIds)
-            ->where('workspace', getActiveWorkSpace())
-            ->update(['priority' => $priority]);
+    //         // Update priority for all selected tasks
+    //         $updatedCount = Task::whereIn('id', $taskIds)
+    //             ->where('workspace', getActiveWorkSpace())
+    //             ->update(['priority' => $priority]);
 
-        return response()->json([
-            'is_success' => true,
-            'message' => "Priority updated successfully for {$updatedCount} task(s)",
-            'updated_count' => $updatedCount
-        ], 200);
+    //         return response()->json([
+    //             'is_success' => true,
+    //             'message' => "Priority updated successfully for {$updatedCount} task(s)",
+    //             'updated_count' => $updatedCount
+    //         ], 200);
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'is_success' => false,
-            'message' => 'An error occurred: ' . $e->getMessage()
-        ], 500);
-    }
-}
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'is_success' => false,
+    //             'message' => 'An error occurred: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
     public function inlineUpdate(Request $request)
     {
         $taskId = $request->task_id;

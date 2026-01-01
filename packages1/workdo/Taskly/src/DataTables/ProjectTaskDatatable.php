@@ -957,11 +957,11 @@ if ($toggleFilter === 'overdue') {
 
                     if ($(".task-checkbox:checked").length > 0) {
 
-                        $("#delete-btn, #duplicate-btn, #change-assignor-btn, #change-assignee-btn, #change-etc-btn, #change-date-btn, #change-priority-btn").prop("disabled", false);
+                        $("#delete-btn, #duplicate-btn").prop("disabled", false);
 
                     } else {
 
-                        $("#delete-btn, #duplicate-btn, #change-assignor-btn, #change-assignee-btn, #change-etc-btn, #change-date-btn, #change-priority-btn").prop("disabled", true);
+                        $("#delete-btn, #duplicate-btn").prop("disabled", true);
 
                     }
 
@@ -1123,144 +1123,107 @@ if ($toggleFilter === 'overdue') {
             }'
 
         ],
-        [
-
-                'text' => '<i class="fas fa-user-edit" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Change Assignor" style="background: #ffae00ff !important;color:black !important;">&nbsp; Assignor</i>',
-
-                'className' => 'btn btn-light-info change-assignor-btn',
-
-                'attr' => ['id' => 'change-assignor-btn', 'disabled' => 'disabled'],
-
-                'action' => 'function(e, dt, node, config) {
-
-                    if (!$(node).attr("disabled")) {
-
-                        let selectedIds = $(".task-checkbox:checked").map(function() { 
-
-                            return this.value; 
-
-                        }).get();
-
-                        console.log("Button clicked - Selected IDs:", selectedIds);
-
-                        if (selectedIds.length > 0) {
-
-                            $("#selected-task-ids").val(JSON.stringify(selectedIds));
-
-                            console.log("Setting hidden field value:", JSON.stringify(selectedIds));
-
-                            $("#change-assignor-modal").modal("show");
-
-                        } else {
-
-                            alert("Please select at least one task");
-
-                        }
-
-                    }
-
-                }'
-
-            ],
-            [
-
-                'text' => '<i class="fas fa-user-plus" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Change Assignee" style="background: #28a745 !important;color:white !important;">&nbsp; Assignee</i>',
-
-                'className' => 'btn btn-light-success change-assignee-btn',
-
-                'attr' => ['id' => 'change-assignee-btn', 'disabled' => 'disabled'],
-
-                'action' => 'function(e, dt, node, config) {
-
-                    if (!$(node).attr("disabled")) {
-
-                        let selectedIds = $(".task-checkbox:checked").map(function() { 
-
-                            return this.value; 
-
-                        }).get();
-
-                        console.log("Assignee Button clicked - Selected IDs:", selectedIds);
-
-                        if (selectedIds.length > 0) {
-
-                            $("#selected-task-ids-assignee").val(JSON.stringify(selectedIds));
-
-                            console.log("Setting assignee hidden field value:", JSON.stringify(selectedIds));
-
-                            $("#change-assignee-modal").modal("show");
-
-                        } else {
-
-                            alert("Please select at least one task");
-
-                        }
-
-                    }
-
-                }'
-
-            ],
-             [
-    'text' => '<i class="fas fa-clock" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Update ETC" style="background: #ff6b00 !important;color:white !important;">&nbsp; ETC</i>',
-    'className' => 'btn btn-light-warning change-etc-btn',
-    'attr' => ['id' => 'change-etc-btn', 'disabled' => 'disabled'],
-    'action' => 'function(e, dt, node, config) {
-        if (!$(node).attr("disabled")) {
-            let selectedIds = $(".task-checkbox:checked").map(function() { 
-                return this.value; 
-            }).get();
-            console.log("ETC Button clicked - Selected IDs:", selectedIds);
-            if (selectedIds.length > 0) {
-                $("#selected-task-ids-etc").val(JSON.stringify(selectedIds));
-                console.log("Setting ETC hidden field value:", JSON.stringify(selectedIds));
-                $("#change-etc-modal").modal("show");
-            } else {
-                alert("Please select at least one task");
-            }
-        }
-    }'
-],
-[
-    'text' => '<i class="fas fa-calendar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Update Dates" style="background: #6610f2 !important;color:white !important;">&nbsp; Date</i>',
-    'className' => 'btn btn-light-purple change-date-btn',
-    'attr' => ['id' => 'change-date-btn', 'disabled' => 'disabled'],
-    'action' => 'function(e, dt, node, config) {
-        if (!$(node).attr("disabled")) {
-            let selectedIds = $(".task-checkbox:checked").map(function() { 
-                return this.value; 
-            }).get();
-            console.log("Date Button clicked - Selected IDs:", selectedIds);
-            if (selectedIds.length > 0) {
-                $("#selected-task-ids-date").val(JSON.stringify(selectedIds));
-                console.log("Setting date hidden field value:", JSON.stringify(selectedIds));
-                $("#change-date-modal").modal("show");
-            } else {
-                alert("Please select at least one task");
-            }
-        }
-    }'
-],
-[
-    'text' => '<i class="fas fa-flag" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Update Priority" style="background: #dc3545 !important;color:white !important;">&nbsp; Priority</i>',
-    'className' => 'btn btn-light-danger change-priority-btn',
-    'attr' => ['id' => 'change-priority-btn', 'disabled' => 'disabled'],
-    'action' => 'function(e, dt, node, config) {
-        if (!$(node).attr("disabled")) {
-            let selectedIds = $(".task-checkbox:checked").map(function() { 
-                return this.value; 
-            }).get();
-            console.log("Priority Button clicked - Selected IDs:", selectedIds);
-            if (selectedIds.length > 0) {
-                $("#selected-task-ids-priority").val(JSON.stringify(selectedIds));
-                console.log("Setting priority hidden field value:", JSON.stringify(selectedIds));
-                $("#change-priority-modal").modal("show");
-            } else {
-                alert("Please select at least one task");
-            }
-        }
-    }'
-],
+        // Bulk update buttons removed as per user request
+        // [
+        //     'text' => '<i class="fas fa-user-edit" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Change Assignor" style="background: #ffae00ff !important;color:black !important;">&nbsp; Assignor</i>',
+        //     'className' => 'btn btn-light-info change-assignor-btn',
+        //     'attr' => ['id' => 'change-assignor-btn', 'disabled' => 'disabled'],
+        //     'action' => 'function(e, dt, node, config) {
+        //         if (!$(node).attr("disabled")) {
+        //             let selectedIds = $(".task-checkbox:checked").map(function() { 
+        //                 return this.value; 
+        //             }).get();
+        //             console.log("Button clicked - Selected IDs:", selectedIds);
+        //             if (selectedIds.length > 0) {
+        //                 $("#selected-task-ids").val(JSON.stringify(selectedIds));
+        //                 console.log("Setting hidden field value:", JSON.stringify(selectedIds));
+        //                 $("#change-assignor-modal").modal("show");
+        //             } else {
+        //                 alert("Please select at least one task");
+        //             }
+        //         }
+        //     }'
+        // ],
+        // [
+        //     'text' => '<i class="fas fa-user-plus" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Change Assignee" style="background: #28a745 !important;color:white !important;">&nbsp; Assignee</i>',
+        //     'className' => 'btn btn-light-success change-assignee-btn',
+        //     'attr' => ['id' => 'change-assignee-btn', 'disabled' => 'disabled'],
+        //     'action' => 'function(e, dt, node, config) {
+        //         if (!$(node).attr("disabled")) {
+        //             let selectedIds = $(".task-checkbox:checked").map(function() { 
+        //                 return this.value; 
+        //             }).get();
+        //             console.log("Assignee Button clicked - Selected IDs:", selectedIds);
+        //             if (selectedIds.length > 0) {
+        //                 $("#selected-task-ids-assignee").val(JSON.stringify(selectedIds));
+        //                 console.log("Setting assignee hidden field value:", JSON.stringify(selectedIds));
+        //                 $("#change-assignee-modal").modal("show");
+        //             } else {
+        //                 alert("Please select at least one task");
+        //             }
+        //         }
+        //     }'
+        // ],
+        //  [
+        // 'text' => '<i class="fas fa-clock" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Update ETC" style="background: #ff6b00 !important;color:white !important;">&nbsp; ETC</i>',
+        // 'className' => 'btn btn-light-warning change-etc-btn',
+        // 'attr' => ['id' => 'change-etc-btn', 'disabled' => 'disabled'],
+        // 'action' => 'function(e, dt, node, config) {
+        //     if (!$(node).attr("disabled")) {
+        //         let selectedIds = $(".task-checkbox:checked").map(function() { 
+        //             return this.value; 
+        //         }).get();
+        //         console.log("ETC Button clicked - Selected IDs:", selectedIds);
+        //         if (selectedIds.length > 0) {
+        //             $("#selected-task-ids-etc").val(JSON.stringify(selectedIds));
+        //             console.log("Setting ETC hidden field value:", JSON.stringify(selectedIds));
+        //             $("#change-etc-modal").modal("show");
+        //         } else {
+        //             alert("Please select at least one task");
+        //         }
+        //     }
+        // }'
+        // ],
+        // [
+        // 'text' => '<i class="fas fa-calendar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Update Dates" style="background: #6610f2 !important;color:white !important;">&nbsp; Date</i>',
+        // 'className' => 'btn btn-light-purple change-date-btn',
+        // 'attr' => ['id' => 'change-date-btn', 'disabled' => 'disabled'],
+        // 'action' => 'function(e, dt, node, config) {
+        //     if (!$(node).attr("disabled")) {
+        //         let selectedIds = $(".task-checkbox:checked").map(function() { 
+        //             return this.value; 
+        //         }).get();
+        //         console.log("Date Button clicked - Selected IDs:", selectedIds);
+        //         if (selectedIds.length > 0) {
+        //             $("#selected-task-ids-date").val(JSON.stringify(selectedIds));
+        //             console.log("Setting date hidden field value:", JSON.stringify(selectedIds));
+        //             $("#change-date-modal").modal("show");
+        //         } else {
+        //             alert("Please select at least one task");
+        //         }
+        //     }
+        // }'
+        // ],
+        // [
+        // 'text' => '<i class="fas fa-flag" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Update Priority" style="background: #dc3545 !important;color:white !important;">&nbsp; Priority</i>',
+        // 'className' => 'btn btn-light-danger change-priority-btn',
+        // 'attr' => ['id' => 'change-priority-btn', 'disabled' => 'disabled'],
+        // 'action' => 'function(e, dt, node, config) {
+        //     if (!$(node).attr("disabled")) {
+        //         let selectedIds = $(".task-checkbox:checked").map(function() { 
+        //             return this.value; 
+        //         }).get();
+        //         console.log("Priority Button clicked - Selected IDs:", selectedIds);
+        //         if (selectedIds.length > 0) {
+        //             $("#selected-task-ids-priority").val(JSON.stringify(selectedIds));
+        //             console.log("Setting priority hidden field value:", JSON.stringify(selectedIds));
+        //             $("#change-priority-modal").modal("show");
+        //         } else {
+        //             alert("Please select at least one task");
+        //         }
+        //     }
+        // }'
+        // ],
 
             // [
 

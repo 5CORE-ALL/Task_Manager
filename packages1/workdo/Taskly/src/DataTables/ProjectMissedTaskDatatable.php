@@ -764,11 +764,11 @@ class ProjectMissedTaskDatatable extends DataTable
 
                     if ($(".task-checkbox:checked").length > 0) {
 
-                        $("#delete-btn, #duplicate-btn, #change-assignor-btn, #change-assignee-btn").prop("disabled", false);
+                        $("#delete-btn, #duplicate-btn").prop("disabled", false);
 
                     } else {
 
-                        $("#delete-btn, #duplicate-btn, #change-assignor-btn, #change-assignee-btn").prop("disabled", true);
+                        $("#delete-btn, #duplicate-btn").prop("disabled", true);
 
                     }
 
@@ -930,84 +930,47 @@ class ProjectMissedTaskDatatable extends DataTable
             }'
 
         ],
-        [
-
-                'text' => '<i class="fas fa-user-edit" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Change Assignor" style="background: #ffae00ff !important;color:black !important;">&nbsp; Assignor</i>',
-
-                'className' => 'btn btn-light-info change-assignor-btn',
-
-                'attr' => ['id' => 'change-assignor-btn', 'disabled' => 'disabled'],
-
-                'action' => 'function(e, dt, node, config) {
-
-                    if (!$(node).attr("disabled")) {
-
-                        let selectedIds = $(".task-checkbox:checked").map(function() { 
-
-                            return this.value; 
-
-                        }).get();
-
-                        console.log("Button clicked - Selected IDs:", selectedIds);
-
-                        if (selectedIds.length > 0) {
-
-                            $("#selected-task-ids").val(JSON.stringify(selectedIds));
-
-                            console.log("Setting hidden field value:", JSON.stringify(selectedIds));
-
-                            $("#change-assignor-modal").modal("show");
-
-                        } else {
-
-                            alert("Please select at least one task");
-
-                        }
-
-                    }
-
-                }'
-
-            ],
-            [
-
-                'text' => '<i class="fas fa-user-plus" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Change Assignee" style="background: #28a745 !important;color:white !important;">&nbsp; Assignee</i>',
-
-                'className' => 'btn btn-light-success change-assignee-btn',
-
-                'attr' => ['id' => 'change-assignee-btn', 'disabled' => 'disabled'],
-
-                'action' => 'function(e, dt, node, config) {
-
-                    if (!$(node).attr("disabled")) {
-
-                        let selectedIds = $(".task-checkbox:checked").map(function() { 
-
-                            return this.value; 
-
-                        }).get();
-
-                        console.log("Assignee Button clicked - Selected IDs:", selectedIds);
-
-                        if (selectedIds.length > 0) {
-
-                            $("#selected-task-ids-assignee").val(JSON.stringify(selectedIds));
-
-                            console.log("Setting assignee hidden field value:", JSON.stringify(selectedIds));
-
-                            $("#change-assignee-modal").modal("show");
-
-                        } else {
-
-                            alert("Please select at least one task");
-
-                        }
-
-                    }
-
-                }'
-
-            ],
+        // Bulk update buttons removed as per user request
+        // [
+        //     'text' => '<i class="fas fa-user-edit" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Change Assignor" style="background: #ffae00ff !important;color:black !important;">&nbsp; Assignor</i>',
+        //     'className' => 'btn btn-light-info change-assignor-btn',
+        //     'attr' => ['id' => 'change-assignor-btn', 'disabled' => 'disabled'],
+        //     'action' => 'function(e, dt, node, config) {
+        //         if (!$(node).attr("disabled")) {
+        //             let selectedIds = $(".task-checkbox:checked").map(function() { 
+        //                 return this.value; 
+        //             }).get();
+        //             console.log("Button clicked - Selected IDs:", selectedIds);
+        //             if (selectedIds.length > 0) {
+        //                 $("#selected-task-ids").val(JSON.stringify(selectedIds));
+        //                 console.log("Setting hidden field value:", JSON.stringify(selectedIds));
+        //                 $("#change-assignor-modal").modal("show");
+        //             } else {
+        //                 alert("Please select at least one task");
+        //             }
+        //         }
+        //     }'
+        // ],
+        // [
+        //     'text' => '<i class="fas fa-user-plus" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Change Assignee" style="background: #28a745 !important;color:white !important;">&nbsp; Assignee</i>',
+        //     'className' => 'btn btn-light-success change-assignee-btn',
+        //     'attr' => ['id' => 'change-assignee-btn', 'disabled' => 'disabled'],
+        //     'action' => 'function(e, dt, node, config) {
+        //         if (!$(node).attr("disabled")) {
+        //             let selectedIds = $(".task-checkbox:checked").map(function() { 
+        //                 return this.value; 
+        //             }).get();
+        //             console.log("Assignee Button clicked - Selected IDs:", selectedIds);
+        //             if (selectedIds.length > 0) {
+        //                 $("#selected-task-ids-assignee").val(JSON.stringify(selectedIds));
+        //                 console.log("Setting assignee hidden field value:", JSON.stringify(selectedIds));
+        //                 $("#change-assignee-modal").modal("show");
+        //             } else {
+        //                 alert("Please select at least one task");
+        //             }
+        //         }
+        //     }'
+        // ],
 
             // [
 

@@ -783,11 +783,11 @@ class ProjectMissedTaskDatatable extends DataTable
 
                     if ($(".task-checkbox:checked").length > 0) {
 
-                        $("#delete-btn, #duplicate-btn, #change-assignor-btn, #change-assignee-btn").prop("disabled", false);
+                        $("#delete-btn, #duplicate-btn").prop("disabled", false);
 
                     } else {
 
-                        $("#delete-btn, #duplicate-btn, #change-assignor-btn, #change-assignee-btn").prop("disabled", true);
+                        $("#delete-btn, #duplicate-btn").prop("disabled", true);
 
                     }
 

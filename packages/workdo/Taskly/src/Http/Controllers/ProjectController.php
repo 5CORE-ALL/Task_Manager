@@ -2242,7 +2242,7 @@ public function bulkUpdatePriority(Request $request)
         }
 
         // Validate priority value
-        $validPriorities = ['urgent', 'high', 'normal', 'low'];
+        $validPriorities = ['urgent', 'normal', 'Take your time'];
         if (!in_array($priority, $validPriorities)) {
             return response()->json([
                 'is_success' => false,
@@ -2268,6 +2268,86 @@ public function bulkUpdatePriority(Request $request)
         ], 500);
     }
 }
+
+public function bulkUpdateStatus(Request $request)
+{
+    try {
+        $taskIds = $request->input('task_ids');
+        $status = $request->input('status');
+
+        if (empty($taskIds) || empty($status)) {
+            return response()->json([
+                'is_success' => false,
+                'message' => 'Missing required data'
+            ], 400);
+        }
+
+        // Parse task IDs - expect JSON string from JavaScript
+        if (is_string($taskIds)) {
+            $taskIds = json_decode($taskIds, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json([
+                    'is_success' => false,
+                    'message' => 'Invalid task IDs format'
+                ], 400);
+            }
+        }
+
+        // Ensure taskIds is an array and filter out empty/invalid values
+        if (!is_array($taskIds)) {
+            $taskIds = [];
+        }
+        $taskIds = array_filter($taskIds, function($id) {
+            return is_numeric($id) && $id > 0;
+        });
+        $taskIds = array_map('intval', $taskIds);
+
+        if (empty($taskIds)) {
+            return response()->json([
+                'is_success' => false,
+                'message' => 'No valid task IDs provided'
+            ], 400);
+        }
+
+        // Validate status exists in stages
+        $stage = \Workdo\Taskly\Entities\Stage::where('name', $status)
+            ->where('workspace_id', getActiveWorkSpace())
+            ->first();
+
+        if (!$stage) {
+            return response()->json([
+                'is_success' => false,
+                'message' => 'Invalid status. Status does not exist in the current workspace.'
+            ], 400);
+        }
+
+        // Final validation before database operation
+        if (!is_array($taskIds) || empty($taskIds)) {
+            return response()->json([
+                'is_success' => false,
+                'message' => 'Invalid task IDs format'
+            ], 400);
+        }
+
+        // Update status for all selected tasks
+        $updatedCount = Task::whereIn('id', $taskIds)
+            ->where('workspace', getActiveWorkSpace())
+            ->update(['status' => $status]);
+
+        return response()->json([
+            'is_success' => true,
+            'message' => "Status updated successfully for {$updatedCount} task(s)",
+            'updated_count' => $updatedCount
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'is_success' => false,
+            'message' => 'An error occurred: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
     public function inlineUpdate(Request $request)
     {
         $taskId = $request->task_id;
