@@ -381,6 +381,10 @@ class UserController extends Controller
                 ],
             ];
 
+            if(Auth::user()->email == 'president@5core.com') {
+                $validatorArray['overdue_duration_days'] = 'nullable|integer|min:0';
+            }
+
             $validator = Validator::make(
                 $request->all(), $validatorArray
             );
@@ -448,6 +452,9 @@ class UserController extends Controller
                 $user->name         = $request->name;
                 $user->email        = $request->email;
                 $user->mobile_no    = $request->mobile_no;
+                if(Auth::user()->email == 'president@5core.com') {
+                    $user->overdue_duration_days = $request->overdue_duration_days;
+                }
                 $user->save();
 
                 event(new UpdateUser($user,$request));

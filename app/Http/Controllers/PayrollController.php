@@ -2203,6 +2203,11 @@ public function index(Request $request)
         try {
             // Get active workspace ID
             $workspaceId = getActiveWorkSpace();
+
+            // Get user's overdue duration, default to 0
+            $user = \App\Models\User::where('email', $employeeEmail)->first();
+            $userOverdueDays = $user ? ($user->overdue_duration_days ?? 0) : 0;
+            $overdueThreshold = now()->subDays($userOverdueDays);
             
             // Count overdue tasks - EXACT same logic as Task Board "Overdue" filter
             // From ProjectController line 3157-3160:
@@ -2213,12 +2218,12 @@ public function index(Request $request)
             $overdueCount = Task::where('workspace', $workspaceId)
                 ->where('is_missed', 0)
                 ->where('status', '!=', '')
-                ->where('due_date', '<', now())
+                ->where('due_date', '<', $overdueThreshold)
                 ->whereNull('deleted_at')
                 ->where('assign_to', 'like', "%{$employeeEmail}%")
                 ->count();
             
-            \Log::info("Overdue Count Debug: email={$employeeEmail}, count={$overdueCount}");
+            \Log::info("Overdue Count Debug: email={$employeeEmail}, overdue_days={$userOverdueDays}, count={$overdueCount}");
             
             return $overdueCount;
         } catch (\Exception $e) {

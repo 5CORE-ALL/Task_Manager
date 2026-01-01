@@ -38,6 +38,17 @@
                     </div>
                 </div>
             @endif
+            @if(Auth::user()->email == 'president@5core.com')
+                <div class="col-md-12">
+                    <div class="form-group">
+                        {{Form::label('overdue_duration_days',__('Overdue Duration (Days)'),['class'=>'form-label'])}}
+                        {{Form::number('overdue_duration_days',null,array('class'=>'form-control','placeholder'=>__('Enter overdue duration in days (leave empty for default)'),'min'=>'0'))}}
+                        <div class="text-xs mt-1">
+                            <span class="text-muted">{{ __('Number of days after due date when tasks are considered overdue. Leave empty to use default (0 days).') }}</span>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
     <div class="modal-footer">

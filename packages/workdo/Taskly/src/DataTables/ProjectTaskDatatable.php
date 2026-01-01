@@ -207,7 +207,17 @@ class ProjectTaskDatatable extends DataTable
 
                 $dueDate = $task->due_date ? date('d-M', strtotime($task->due_date)) : "";
 
-                $color = (strtotime($task->due_date) < time()) ? 'red' : 'black'; // Blue if due date has passed, red otherwise
+                // Get user's overdue duration, default to 0 if not set
+                $userOverdueDays = 0;
+                if ($task->assign_to) {
+                    $user = \App\Models\User::where('email', $task->assign_to)->first();
+                    $userOverdueDays = $user ? ($user->overdue_duration_days ?? 0) : 0;
+                }
+
+                // Calculate overdue threshold: now minus user's overdue days
+                $overdueThreshold = time() - ($userOverdueDays * 86400);
+
+                $color = (strtotime($task->due_date) < $overdueThreshold) ? 'red' : 'black';
 
                 return $dueDate ? '<span style="color: ' . $color . '; font-weight: bold;">' . $dueDate . '</span>' : "";
 

@@ -3453,6 +3453,9 @@ public function bulkUpdateStatus(Request $request)
             }else
             { 
                 $email = $objUser->email;
+                // Get user's overdue duration, default to 0
+                $userOverdueDays = $objUser->overdue_duration_days ?? 0;
+                $overdueThreshold = now()->subDays($userOverdueDays);
                     // Exclude automate missed tasks (is_automate_task = 1 AND is_missed = 1)
                     $competeTask = Task::where('status','Done')
                         ->where(function($q) {
@@ -3495,7 +3498,7 @@ public function bulkUpdateStatus(Request $request)
                         })
                         ->where('status',"!=","")
                         ->where('workspace', getActiveWorkSpace())
-                        ->where('due_date', '<', now())
+                        ->where('due_date', '<', $overdueThreshold)
                         ->where(function ($query) use ($email) {
                                         $query->where('assignor', 'like', "%$email%")
                                               ->orWhere('assign_to', 'like', "%$email%");
@@ -4954,10 +4957,14 @@ public function taskTracklist(Request $request)
         $userTasks = (clone $taskBaseQuery)
             ->where('tasks.assign_to', 'like', "%$email%");
 
+        // Get user's overdue duration, default to 0
+        $userOverdueDays = $user->overdue_duration_days ?? 0;
+        $overdueThreshold = now()->subDays($userOverdueDays);
+
         // User counts
         $total = (clone $userTasks)->count();
         $pending = (clone $userTasks)->where('tasks.status', '!=', 'Done')->count();
-        $overdue = (clone $userTasks)->where('tasks.due_date', '<', now())->count();
+        $overdue = (clone $userTasks)->where('tasks.due_date', '<', $overdueThreshold)->count();
         $done = (clone $userTasks)->where('tasks.status', 'Done')->count();
 
         // ETA / ATC totals

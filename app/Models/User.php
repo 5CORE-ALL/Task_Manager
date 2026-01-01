@@ -71,6 +71,7 @@ class User extends Authenticatable implements LaratrustUser,MustVerifyEmail,JWTS
         'is_trial_done',
         'referral_code',
         'used_referral_code',
+        'overdue_duration_days',
     ];
 
     /**
