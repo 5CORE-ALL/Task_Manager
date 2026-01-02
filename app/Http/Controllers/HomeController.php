@@ -40,7 +40,9 @@ class HomeController extends Controller
         {
             if(Auth::user()->type == 'super admin')
             {
-                // Update wizard
+                // Update wizard - Temporarily disabled to allow access to roles management
+                // Uncomment below to re-enable migration check
+                /*
                 $ranMigrations = DB::table('migrations')->pluck('migration');
                 $modules = Module::allModules();
 
@@ -64,6 +66,7 @@ class HomeController extends Controller
                 {
                     return redirect()->route('LaravelUpdater::welcome');
                 }
+                */
 
 
                 $user                       = Auth::user();

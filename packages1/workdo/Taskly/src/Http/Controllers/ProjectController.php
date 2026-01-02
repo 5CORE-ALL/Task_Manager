@@ -862,12 +862,23 @@ class ProjectController extends Controller
                     $task = Task::query();
                     
                     // Check if user is privileged (can see all tasks)
-                    $isPrivileged = $objUser->hasRole('client') || 
-                                   $objUser->hasRole('company') || 
-                                   $objUser->hasRole('Manager All Access') || 
-                                   $objUser->hasRole('hr');
+                    // Only these specific roles should have full access to all tasks
+                    // Get all user roles and check against privileged role names (case-insensitive)
+                    $userRoles = $objUser->roles->pluck('name')->map(function($role) {
+                        return strtolower(trim($role));
+                    })->toArray();
+                    
+                    $privilegedRoles = ['client', 'company', 'manager all access', 'hr'];
+                    $isPrivileged = false;
+                    foreach ($privilegedRoles as $privilegedRole) {
+                        if (in_array(strtolower($privilegedRole), $userRoles)) {
+                            $isPrivileged = true;
+                            break;
+                        }
+                    }
                     
                     // If not privileged, filter to show only tasks where user is assignor OR assignee
+                    // This applies to all non-privileged roles including "software executive"
                     if (!$isPrivileged) {
                         if (isset($objUser) && $objUser) {
                             $task->where(function ($query) use ($objUser) {

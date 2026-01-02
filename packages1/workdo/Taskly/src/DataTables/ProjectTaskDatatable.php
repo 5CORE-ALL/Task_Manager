@@ -695,15 +695,32 @@ class ProjectTaskDatatable extends DataTable
 
         $objUser = Auth::user();
 
-        // Default filtering removed - show all tasks by default when no filters are applied
-        // if (!Auth::user()->hasRole('client') && !Auth::user()->hasRole('company') && !Auth::user()->hasRole('Manager All Access') && !Auth::user()->hasRole('hr')) {
-        //     if (isset($objUser) && $objUser) {
-        //         $task->where(function ($query) use ($objUser) {
-        //             $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-        //                 ->orWhereRaw("FIND_IN_SET(?, assignor)", [$objUser->email]);
-        //         });
-        //     }
-        // }
+        // Check if user is privileged (can see all tasks)
+        // Only these specific roles should have full access to all tasks
+        // Get all user roles and check against privileged role names (case-insensitive)
+        $userRoles = $objUser->roles->pluck('name')->map(function($role) {
+            return strtolower(trim($role));
+        })->toArray();
+        
+        $privilegedRoles = ['client', 'company', 'manager all access', 'hr'];
+        $isPrivileged = false;
+        foreach ($privilegedRoles as $privilegedRole) {
+            if (in_array(strtolower($privilegedRole), $userRoles)) {
+                $isPrivileged = true;
+                break;
+            }
+        }
+        
+        // If not privileged, filter to show only tasks where user is assignor OR assignee
+        // This applies to all non-privileged roles including "software executive"
+        if (!$isPrivileged) {
+            if (isset($objUser) && $objUser) {
+                $task->where(function ($query) use ($objUser) {
+                    $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                        ->orWhere('assignor', $objUser->email);
+                });
+            }
+        }
 
         // code change for assignee and assignor override 
 
