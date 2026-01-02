@@ -859,13 +859,27 @@ class ProjectController extends Controller
                 foreach ($stages as $status) {
                     $statusClass[] = 'task-list-' . str_replace(' ', '_', $status->id);
 
-                    $task          = Task::query();
-                    if (!Auth::user()->hasRole('client') && !Auth::user()->hasRole('company')) {
+                    $task = Task::query();
+                    
+                    // Check if user is privileged (can see all tasks)
+                    $isPrivileged = $objUser->hasRole('client') || 
+                                   $objUser->hasRole('company') || 
+                                   $objUser->hasRole('Manager All Access') || 
+                                   $objUser->hasRole('hr');
+                    
+                    // If not privileged, filter to show only tasks where user is assignor OR assignee
+                    if (!$isPrivileged) {
                         if (isset($objUser) && $objUser) {
-                            $task->whereRaw("find_in_set('" . $objUser->email . "',assign_to)");
+                            $task->where(function ($query) use ($objUser) {
+                                $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                                      ->orWhere('assignor', $objUser->email);
+                            });
                         }
                     }
-                    $task->orderBy('order');
+                    
+                    $task->where('workspace', $currentWorkspace)
+                         ->whereNull('deleted_at')
+                         ->orderBy('order');
                     $status['tasks'] = $task->where('status', '=', $status->id)->get();
                 }
                 $users = User::select('users.*')->get();
