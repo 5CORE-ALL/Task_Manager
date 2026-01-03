@@ -43,7 +43,7 @@ class ProjectTaskDatatable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
 
-        $rowcolumn = ['title', 'priority', 'status', 'assign_to', 'assigner_name', 'start_date', 'end_date', 'group', 'all_links','links','link_3','link_4','link_5','link_6','link_7','link_8','link_9','created_at', 'checkbox', 'due_date','completion_day','imagefile'];
+        $rowcolumn = ['title', 'priority', 'status', 'assign_to', 'assigner_name', 'start_date', 'end_date', 'group', 'all_links','links','link_3','link_4','link_5','link_6','link_7','link_8','link_9','created_at', 'checkbox', 'completion_day','imagefile'];
 
         $dataTable = (new EloquentDataTable($query))
 
@@ -143,7 +143,47 @@ class ProjectTaskDatatable extends DataTable
             // })
             ->editColumn('start_date', function (Task $task) {
                 $dateStr = $task->start_date ? date('d-M', strtotime($task->start_date)) : "";
-                return $dateStr ? '<span style="color: black; font-weight: bold;">' . $dateStr . '</span>' : "";
+                if (!$dateStr) {
+                    return "";
+                }
+                
+                // Calculate if task is overdue based on user's custom/default duration
+                $isOverdue = false;
+                if ($task->start_date) {
+                    try {
+                        $startDate = \Carbon\Carbon::parse($task->start_date)->startOfDay();
+                        $now = \Carbon\Carbon::now()->startOfDay();
+                        
+                        // Get duration from user's custom setting or use default 2 days
+                        $durationDays = 2; // Default duration
+                        
+                        // Get the first assignee to check their custom duration
+                        if ($task->assign_to) {
+                            $assigneeEmails = explode(',', $task->assign_to);
+                            $firstAssigneeEmail = trim($assigneeEmails[0]);
+                            if ($firstAssigneeEmail) {
+                                $user = \App\Models\User::where('email', $firstAssigneeEmail)->first();
+                                if ($user && $user->overdue_duration_days !== null) {
+                                    $durationDays = $user->overdue_duration_days;
+                                }
+                            }
+                        }
+                        
+                        // Calculate expected end date: start_date + duration days
+                        // If assigned on Jan 2 with 2 days duration, due date is Jan 4, overdue from Jan 5
+                        $expectedEndDate = $startDate->copy()->addDays($durationDays);
+                        
+                        // Task is overdue if current date is after the expected end date
+                        // Using startOfDay() ensures we compare dates, not times
+                        $isOverdue = $now->greaterThan($expectedEndDate);
+                    } catch (\Exception $e) {
+                        // If date parsing fails, don't mark as overdue
+                        $isOverdue = false;
+                    }
+                }
+                
+                $color = $isOverdue ? 'red' : 'black';
+                return '<span style="color: ' . $color . '; font-weight: bold;">' . $dateStr . '</span>';
             })
             ->addColumn('checkbox', function (Task $task) {
 
@@ -203,25 +243,6 @@ class ProjectTaskDatatable extends DataTable
 
             // })
 
-            ->editColumn('due_date', function (Task $task) {
-
-                $dueDate = $task->due_date ? date('d-M', strtotime($task->due_date)) : "";
-
-                // Get user's overdue duration, default to 0 if not set
-                $userOverdueDays = 0;
-                if ($task->assign_to) {
-                    $user = \App\Models\User::where('email', $task->assign_to)->first();
-                    $userOverdueDays = $user ? ($user->overdue_duration_days ?? 0) : 0;
-                }
-
-                // Calculate overdue threshold: now minus user's overdue days
-                $overdueThreshold = time() - ($userOverdueDays * 86400);
-
-                $color = (strtotime($task->due_date) < $overdueThreshold) ? 'red' : 'black';
-
-                return $dueDate ? '<span style="color: ' . $color . '; font-weight: bold;">' . $dueDate . '</span>' : "";
-
-            })
 
             // ->editColumn('due_date', function (Task $task) {
 
@@ -1456,8 +1477,6 @@ if ($toggleFilter === 'overdue') {
             Column::make('assign_to')->title(__('Assignee'))->printable(false),
 
             Column::make('start_date')->title('<span title="Task Initiation Date">TID</span>')->html()->exportable(false)->searchable(false)->name('start_date'),
-
-            Column::make('due_date')->title('<span title="Overdue Date">OVERDUE</span>')->html()->exportable(false)->searchable(false),
 
             Column::make('eta_time')->title('<span title="Estimate Time Count">ETC</span>')->html()->exportable(false)->searchable(false),
 
