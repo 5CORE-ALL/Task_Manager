@@ -121,6 +121,12 @@ Route::middleware(['web','auth','verified','PlanModuleCheck:Taskly'])->group(fun
         Route::get('project/automate-task-count', [AutomateTaskController::class,'taskCountData'])->name('projecttask.automate.count');
 
     Route::get('project/automate-task-list/bulk-action', [AutomateTaskController::class,'bulkAction'])->name('projecttask.automate.bulkAction');
+    Route::match(['get', 'post'], 'project/automate-task-list/bulk-update-assignor', [AutomateTaskController::class,'bulkUpdateAssignor'])->name('projecttask.automate.bulkUpdateAssignor');
+    Route::match(['get', 'post'], 'project/automate-task-list/bulk-update-assignee', [AutomateTaskController::class,'bulkUpdateAssignee'])->name('projecttask.automate.bulkUpdateAssignee');
+    Route::match(['get', 'post'], 'project/automate-task-list/bulk-update-etc', [AutomateTaskController::class,'bulkUpdateETC'])->name('projecttask.automate.bulkUpdateETC');
+    Route::match(['get', 'post'], 'project/automate-task-list/bulk-update-date', [AutomateTaskController::class, 'bulkUpdateDate'])->name('projecttask.automate.bulkUpdateDate');
+    Route::match(['get', 'post'], 'project/automate-task-list/bulk-update-priority', [AutomateTaskController::class, 'bulkUpdatePriority'])->name('projecttask.automate.bulkUpdatePriority');
+    Route::match(['get', 'post'], 'project/automate-task-list/bulk-update-status', [AutomateTaskController::class, 'bulkUpdateStatus'])->name('projecttask.automate.bulkUpdateStatus');
     Route::get('project/automate-task-pause/{tid}',[AutomateTaskController::class,'taskPauseResume'])->name('automate.tasks.pause');
     Route::match(['get', 'post'], '/project/automate-task-board/import', [AutomateTaskController::class,'autoMateTaskImport'])->name('automate.tasks.import');
     Route::get('project/automate-task-board/report', [AutomateTaskController::class,'taskReport'])->name('automate.tasks.report'); 

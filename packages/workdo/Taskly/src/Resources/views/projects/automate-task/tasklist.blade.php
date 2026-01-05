@@ -35,6 +35,46 @@
 @endsection
 
 @section('content')
+    {{-- Bulk Actions Bar --}}
+    <div id="bulk-actions-bar" class="card mb-3" style="display: none; position: sticky; top: 0; z-index: 1000; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3" style="font-weight: 600;">
+                        <i class="fas fa-tasks me-2"></i>
+                        <span id="selected-count">0</span> task(s) selected
+                    </span>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-light" id="bulk-status-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update Status">
+                        <i class="fas fa-tasks me-1"></i> Status
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light" id="bulk-assignor-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update Assignor">
+                        <i class="fas fa-user-edit me-1"></i> Assignor
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light" id="bulk-assignee-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update Assignee">
+                        <i class="fas fa-user-plus me-1"></i> Assignee
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light" id="bulk-etc-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update ETC">
+                        <i class="fas fa-clock me-1"></i> ETC
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light" id="bulk-date-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update Dates">
+                        <i class="fas fa-calendar me-1"></i> Dates
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light" id="bulk-priority-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update Priority">
+                        <i class="fas fa-flag me-1"></i> Priority
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light-danger" id="delete-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Selected">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light-secondary" id="clear-selection-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Clear Selection">
+                        <i class="fas fa-times me-1"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-xl-12">
             <div class="container mt-5">
@@ -470,10 +510,32 @@
             });
         </script>
         <script>
+            // Update button states based on task selection
+            function updateBulkActionButtons() {
+                let selectedIds = $(".task-checkbox:checked").map(function() {
+                    return this.value;
+                }).get();
+                
+                // Update selected count
+                $('#selected-count').text(selectedIds.length);
+                
+                // Show/hide bulk actions bar
+                if (selectedIds.length > 0) {
+                    $('#bulk-actions-bar').slideDown(200);
+                    $('#delete-btn, #bulk-status-update-btn, #bulk-assignor-update-btn, #bulk-assignee-update-btn, #bulk-etc-update-btn, #bulk-date-update-btn, #bulk-priority-update-btn').prop('disabled', false);
+                    $('#delete-btn-top, #bulk-status-update-btn-top, #bulk-assignor-update-btn-top, #bulk-assignee-update-btn-top, #bulk-etc-update-btn-top, #bulk-date-update-btn-top, #bulk-priority-update-btn-top').prop('disabled', false);
+                } else {
+                    $('#bulk-actions-bar').slideUp(200);
+                    $('#delete-btn, #bulk-status-update-btn, #bulk-assignor-update-btn, #bulk-assignee-update-btn, #bulk-etc-update-btn, #bulk-date-update-btn, #bulk-priority-update-btn').prop('disabled', true);
+                    $('#delete-btn-top, #bulk-status-update-btn-top, #bulk-assignor-update-btn-top, #bulk-assignee-update-btn-top, #bulk-etc-update-btn-top, #bulk-date-update-btn-top, #bulk-priority-update-btn-top').prop('disabled', true);
+                }
+            }
+
          $(document).ready(function () {
                  $('#select-all').on('change', function () {
                     let isChecked = $(this).is(':checked');
                     $('.task-checkbox').prop('checked', isChecked);
+                    updateBulkActionButtons();
                 });
 
                 // initializeDataTable();
@@ -544,6 +606,16 @@
                                 className: 'btn btn-light-warning'
                             }
                         ],
+                        drawCallback: function(settings) {
+                            // Update button states after table draw
+                            updateBulkActionButtons();
+                            
+                            // Reinitialize tooltips
+                            var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
+                            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                                return new bootstrap.Tooltip(tooltipTriggerEl);
+                            });
+                        },
                         ajax: {
                             url: "{{ route('projecttask.automate.list') }}",
                             data: function (d) {
@@ -659,6 +731,665 @@
                                 getTaskCount();
                             });
                         });
+        </script>
+    @endpush
+@endif
+
+{{-- Bulk Edit Modals --}}
+@if ($currentWorkspace)
+    {{-- Change Assignor Modal --}}
+    <div class="modal fade" id="change-assignor-modal" tabindex="-1" aria-labelledby="changeAssignorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-bottom: none; border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title" id="changeAssignorModalLabel">
+                        <i class="fas fa-user-edit me-2"></i>
+                        Update Assignor for Selected Tasks
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <form id="change-assignor-form">
+                        @csrf
+                        <input type="hidden" id="selected-task-ids-assignor" name="task_ids">
+                        <div class="mb-3">
+                            <label for="assignor-select" class="form-label">Select New Assignor</label>
+                            <select class="form-control" id="assignor-select" name="assignor_email" required>
+                                <option value="">Choose Assignor...</option>
+                                @if(isset($users))
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->email }}">{{ formatUserName($user->name) }} ({{ $user->email }})</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="alert alert-info">
+                            <small><i class="fas fa-info-circle me-1"></i> This will update the assignor for all selected tasks.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1rem 2rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="update-assignor-btn">
+                        <i class="fas fa-save me-1"></i>
+                        Update Assignor
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Change Assignee Modal --}}
+    <div class="modal fade" id="change-assignee-modal" tabindex="-1" aria-labelledby="changeAssigneeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border-bottom: none; border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title" id="changeAssigneeModalLabel">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Update Assignee for Selected Tasks
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <form id="change-assignee-form">
+                        @csrf
+                        <input type="hidden" id="selected-task-ids-assignee" name="task_ids">
+                        <div class="mb-3">
+                            <label for="assignee-select" class="form-label">Select New Assignee</label>
+                            <select class="form-control" id="assignee-select" name="assignee_email" required>
+                                <option value="">Choose Assignee...</option>
+                                @if(isset($users))
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->email }}">{{ formatUserName($user->name) }} ({{ $user->email }})</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="alert alert-info">
+                            <small><i class="fas fa-info-circle me-1"></i> This will update the assignee for all selected tasks.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1rem 2rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="update-assignee-btn">
+                        <i class="fas fa-save me-1"></i>
+                        Update Assignee
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Change ETC Modal --}}
+    <div class="modal fade" id="change-etc-modal" tabindex="-1" aria-labelledby="changeETCModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: white; border-bottom: none; border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title" id="changeETCModalLabel">
+                        <i class="fas fa-clock me-2"></i>
+                        Update ETC for Selected Tasks
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <form id="change-etc-form">
+                        @csrf
+                        <input type="hidden" id="selected-task-ids-etc" name="task_ids">
+                        <div class="mb-3">
+                            <label for="etc-input" class="form-label">Enter New ETC Value (minutes)</label>
+                            <input type="number" class="form-control" id="etc-input" name="etc_value" min="0" step="0.5" required placeholder="Enter ETC minutes">
+                        </div>
+                        <div class="alert alert-info">
+                            <small><i class="fas fa-info-circle me-1"></i> This will update the estimated time to complete for all selected tasks.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1rem 2rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="update-etc-btn">
+                        <i class="fas fa-save me-1"></i>
+                        Update ETC
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Change Date Modal --}}
+    <div class="modal fade" id="change-date-modal" tabindex="-1" aria-labelledby="changeDateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-bottom: none; border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title" id="changeDateModalLabel">
+                        <i class="fas fa-calendar me-2"></i>
+                        Update Dates for Selected Tasks
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <form id="change-date-form">
+                        @csrf
+                        <input type="hidden" id="selected-task-ids-date" name="task_ids">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="start-date-input" class="form-label">Start Date (TID)</label>
+                                <input type="date" class="form-control" id="start-date-input" name="start_date">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end-date-input" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="end-date-input" name="end_date">
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <small><i class="fas fa-info-circle me-1"></i> Leave a field empty if you don't want to update it. TID = Task Initiation Date.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1rem 2rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-purple" id="update-date-btn">
+                        <i class="fas fa-save me-1"></i>
+                        Update Dates
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Change Priority Modal --}}
+    <div class="modal fade" id="change-priority-modal" tabindex="-1" aria-labelledby="changePriorityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border-bottom: none; border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title" id="changePriorityModalLabel">
+                        <i class="fas fa-flag me-2"></i>
+                        Update Priority for Selected Tasks
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <form id="change-priority-form">
+                        @csrf
+                        <input type="hidden" id="selected-task-ids-priority" name="task_ids">
+                        <div class="mb-3">
+                            <label for="priority-select" class="form-label">Select New Priority</label>
+                            <select class="form-control" id="priority-select" name="priority" required>
+                                <option value="">Choose Priority...</option>
+                                <option value="urgent" style="color: #dc3545; font-weight: bold;">🔴 Urgent</option>
+                                <option value="normal" style="color: #198754; font-weight: bold;">🟢 Normal</option>
+                                <option value="Take your time" style="color: #fd7e14; font-weight: bold;">🟠 Take your time</option>
+                            </select>
+                        </div>
+                        <div class="alert alert-info">
+                            <small><i class="fas fa-info-circle me-1"></i> This will update the priority for all selected tasks.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1rem 2rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="update-priority-btn">
+                        <i class="fas fa-save me-1"></i>
+                        Update Priority
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Change Status Modal --}}
+    <div class="modal fade" id="change-status-modal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-bottom: none; border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title" id="changeStatusModalLabel">
+                        <i class="fas fa-tasks me-2"></i>
+                        Update Status for Selected Tasks
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <form id="change-status-form">
+                        @csrf
+                        <input type="hidden" id="selected-task-ids-status" name="task_ids">
+                        <div class="mb-3">
+                            <label for="status-select" class="form-label">Select New Status</label>
+                            <select class="form-control" id="status-select" name="status" required>
+                                <option value="">Choose Status...</option>
+                                @if(isset($stages))
+                                    @foreach($stages as $stage)
+                                        <option value="{{ $stage->name }}" data-color="{{ $stage->color }}">{{ $stage->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="alert alert-info">
+                            <small><i class="fas fa-info-circle me-1"></i> This will update the status for all selected tasks.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1rem 2rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-info" id="update-status-btn">
+                        <i class="fas fa-save me-1"></i>
+                        Update Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @push('scripts')
+        <script>
+            $(document).on("click", ".task-checkbox", function() {
+                updateBulkActionButtons();
+            });
+
+            // Clear selection button
+            $('#clear-selection-btn').on('click', function() {
+                $('.task-checkbox').prop('checked', false);
+                $('#select-all').prop('checked', false);
+                updateBulkActionButtons();
+            });
+
+            // Connect top buttons to modals (same functionality as DataTable buttons)
+            $('#bulk-status-update-btn-top').on('click', function() {
+                if (!$(this).prop('disabled')) {
+                    let selectedIds = $(".task-checkbox:checked").map(function() { 
+                        return this.value; 
+                    }).get();
+                    if (selectedIds.length > 0) {
+                        $("#selected-task-ids-status").val(selectedIds.join(","));
+                        $("#change-status-modal").modal("show");
+                    }
+                }
+            });
+
+            $('#bulk-assignor-update-btn-top').on('click', function() {
+                if (!$(this).prop('disabled')) {
+                    let selectedIds = $(".task-checkbox:checked").map(function() { 
+                        return this.value; 
+                    }).get();
+                    if (selectedIds.length > 0) {
+                        $("#selected-task-ids-assignor").val(selectedIds.join(","));
+                        $("#change-assignor-modal").modal("show");
+                    }
+                }
+            });
+
+            $('#bulk-assignee-update-btn-top').on('click', function() {
+                if (!$(this).prop('disabled')) {
+                    let selectedIds = $(".task-checkbox:checked").map(function() { 
+                        return this.value; 
+                    }).get();
+                    if (selectedIds.length > 0) {
+                        $("#selected-task-ids-assignee").val(selectedIds.join(","));
+                        $("#change-assignee-modal").modal("show");
+                    }
+                }
+            });
+
+            $('#bulk-etc-update-btn-top').on('click', function() {
+                if (!$(this).prop('disabled')) {
+                    let selectedIds = $(".task-checkbox:checked").map(function() { 
+                        return this.value; 
+                    }).get();
+                    if (selectedIds.length > 0) {
+                        $("#selected-task-ids-etc").val(selectedIds.join(","));
+                        $("#change-etc-modal").modal("show");
+                    }
+                }
+            });
+
+            $('#bulk-date-update-btn-top').on('click', function() {
+                if (!$(this).prop('disabled')) {
+                    let selectedIds = $(".task-checkbox:checked").map(function() { 
+                        return this.value; 
+                    }).get();
+                    if (selectedIds.length > 0) {
+                        $("#selected-task-ids-date").val(selectedIds.join(","));
+                        $("#change-date-modal").modal("show");
+                    }
+                }
+            });
+
+            $('#bulk-priority-update-btn-top').on('click', function() {
+                if (!$(this).prop('disabled')) {
+                    let selectedIds = $(".task-checkbox:checked").map(function() { 
+                        return this.value; 
+                    }).get();
+                    if (selectedIds.length > 0) {
+                        $("#selected-task-ids-priority").val(selectedIds.join(","));
+                        $("#change-priority-modal").modal("show");
+                    }
+                }
+            });
+
+            $('#delete-btn-top').on('click', function() {
+                if (!$(this).prop('disabled')) {
+                    if (confirm("Are you sure you want to delete selected tasks?")) {
+                        let selectedIds = $(".task-checkbox:checked").map(function() {
+                            return this.value;
+                        }).get();
+                        if (selectedIds.length > 0) {
+                            bulkAction(selectedIds, 'delete');
+                        }
+                    }
+                }
+            });
+
+            // Bulk Assignor Update
+            $('#update-assignor-btn').on('click', function() {
+                var selectedTaskIds = $('#selected-task-ids-assignor').val();
+                var assignorEmail = $('#assignor-select').val();
+
+                if (!selectedTaskIds || !assignorEmail) {
+                    toastr.error('Please select an assignor');
+                    return;
+                }
+
+                var $button = $(this);
+                var originalHtml = $button.html();
+                $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
+
+                $.ajax({
+                    url: '{{ route("projecttask.automate.bulkUpdateAssignor") }}',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        task_ids: JSON.stringify(selectedTaskIds.split(',').map(id => parseInt(id.trim())).filter(id => id > 0)),
+                        assignor_email: assignorEmail,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.is_success) {
+                            toastrs('Success', response.message, 'success');
+                            $('#change-assignor-modal').modal('hide');
+                            $('#change-assignor-form')[0].reset();
+                            $('.task-checkbox').prop('checked', false);
+                            $('#select-all').prop('checked', false);
+                            updateBulkActionButtons();
+                            if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                                $('#projects-task-table').DataTable().ajax.reload(null, false);
+                            }
+                            getTaskCount();
+                        } else {
+                            toastrs('Error', response.message, 'error');
+                        }
+                        $button.prop('disabled', false).html(originalHtml);
+                    },
+                    error: function(xhr) {
+                        var errorMsg = 'An error occurred';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        toastrs('Error', errorMsg, 'error');
+                        $button.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
+
+            // Bulk Assignee Update
+            $('#update-assignee-btn').on('click', function() {
+                var selectedTaskIds = $('#selected-task-ids-assignee').val();
+                var assigneeEmail = $('#assignee-select').val();
+
+                if (!selectedTaskIds || !assigneeEmail) {
+                    toastr.error('Please select an assignee');
+                    return;
+                }
+
+                var $button = $(this);
+                var originalHtml = $button.html();
+                $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
+
+                $.ajax({
+                    url: '{{ route("projecttask.automate.bulkUpdateAssignee") }}',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        task_ids: JSON.stringify(selectedTaskIds.split(',').map(id => parseInt(id.trim())).filter(id => id > 0)),
+                        assignee_email: assigneeEmail,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.is_success) {
+                            toastrs('Success', response.message, 'success');
+                            $('#change-assignee-modal').modal('hide');
+                            $('#change-assignee-form')[0].reset();
+                            $('.task-checkbox').prop('checked', false);
+                            $('#select-all').prop('checked', false);
+                            updateBulkActionButtons();
+                            if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                                $('#projects-task-table').DataTable().ajax.reload(null, false);
+                            }
+                            getTaskCount();
+                        } else {
+                            toastrs('Error', response.message, 'error');
+                        }
+                        $button.prop('disabled', false).html(originalHtml);
+                    },
+                    error: function(xhr) {
+                        var errorMsg = 'An error occurred';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        toastrs('Error', errorMsg, 'error');
+                        $button.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
+
+            // Bulk ETC Update
+            $('#update-etc-btn').on('click', function() {
+                var selectedTaskIds = $('#selected-task-ids-etc').val();
+                var etcValue = $('#etc-input').val();
+
+                if (!selectedTaskIds || !etcValue) {
+                    toastr.error('Please enter ETC value');
+                    return;
+                }
+
+                var $button = $(this);
+                var originalHtml = $button.html();
+                $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
+
+                $.ajax({
+                    url: '{{ route("projecttask.automate.bulkUpdateETC") }}',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        task_ids: JSON.stringify(selectedTaskIds.split(',').map(id => parseInt(id.trim())).filter(id => id > 0)),
+                        etc_value: etcValue,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.is_success) {
+                            toastrs('Success', response.message, 'success');
+                            $('#change-etc-modal').modal('hide');
+                            $('#change-etc-form')[0].reset();
+                            $('.task-checkbox').prop('checked', false);
+                            $('#select-all').prop('checked', false);
+                            updateBulkActionButtons();
+                            if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                                $('#projects-task-table').DataTable().ajax.reload(null, false);
+                            }
+                            getTaskCount();
+                        } else {
+                            toastrs('Error', response.message, 'error');
+                        }
+                        $button.prop('disabled', false).html(originalHtml);
+                    },
+                    error: function(xhr) {
+                        var errorMsg = 'An error occurred';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        toastrs('Error', errorMsg, 'error');
+                        $button.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
+
+            // Bulk Date Update
+            $('#update-date-btn').on('click', function() {
+                var selectedTaskIds = $('#selected-task-ids-date').val();
+                var startDate = $('#start-date-input').val();
+                var endDate = $('#end-date-input').val();
+
+                if (!selectedTaskIds || (!startDate && !endDate)) {
+                    toastr.error('Please select at least one date');
+                    return;
+                }
+
+                var $button = $(this);
+                var originalHtml = $button.html();
+                $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
+
+                $.ajax({
+                    url: '{{ route("projecttask.automate.bulkUpdateDate") }}',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        task_ids: JSON.stringify(selectedTaskIds.split(',').map(id => parseInt(id.trim())).filter(id => id > 0)),
+                        start_date: startDate,
+                        end_date: endDate,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.is_success) {
+                            toastrs('Success', response.message, 'success');
+                            $('#change-date-modal').modal('hide');
+                            $('#change-date-form')[0].reset();
+                            $('.task-checkbox').prop('checked', false);
+                            $('#select-all').prop('checked', false);
+                            updateBulkActionButtons();
+                            if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                                $('#projects-task-table').DataTable().ajax.reload(null, false);
+                            }
+                            getTaskCount();
+                        } else {
+                            toastrs('Error', response.message, 'error');
+                        }
+                        $button.prop('disabled', false).html(originalHtml);
+                    },
+                    error: function(xhr) {
+                        var errorMsg = 'An error occurred';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        toastrs('Error', errorMsg, 'error');
+                        $button.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
+
+            // Bulk Priority Update
+            $('#update-priority-btn').on('click', function() {
+                var selectedTaskIds = $('#selected-task-ids-priority').val();
+                var priority = $('#priority-select').val();
+
+                if (!selectedTaskIds || !priority) {
+                    toastr.error('Please select a priority');
+                    return;
+                }
+
+                var $button = $(this);
+                var originalHtml = $button.html();
+                $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
+
+                $.ajax({
+                    url: '{{ route("projecttask.automate.bulkUpdatePriority") }}',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        task_ids: JSON.stringify(selectedTaskIds.split(',').map(id => parseInt(id.trim())).filter(id => id > 0)),
+                        priority: priority,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.is_success) {
+                            toastrs('Success', response.message, 'success');
+                            $('#change-priority-modal').modal('hide');
+                            $('#change-priority-form')[0].reset();
+                            $('.task-checkbox').prop('checked', false);
+                            $('#select-all').prop('checked', false);
+                            updateBulkActionButtons();
+                            if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                                $('#projects-task-table').DataTable().ajax.reload(null, false);
+                            }
+                            getTaskCount();
+                        } else {
+                            toastrs('Error', response.message, 'error');
+                        }
+                        $button.prop('disabled', false).html(originalHtml);
+                    },
+                    error: function(xhr) {
+                        var errorMsg = 'An error occurred';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        toastrs('Error', errorMsg, 'error');
+                        $button.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
+
+            // Bulk Status Update
+            $('#update-status-btn').on('click', function() {
+                var selectedTaskIds = $('#selected-task-ids-status').val();
+                var status = $('#status-select').val();
+
+                if (!selectedTaskIds || !status) {
+                    toastr.error('Please select a status');
+                    return;
+                }
+
+                var $button = $(this);
+                var originalHtml = $button.html();
+                $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
+
+                $.ajax({
+                    url: '{{ route("projecttask.automate.bulkUpdateStatus") }}',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        task_ids: JSON.stringify(selectedTaskIds.split(',').map(id => parseInt(id.trim())).filter(id => id > 0)),
+                        status: status,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.is_success) {
+                            toastrs('Success', response.message, 'success');
+                            $('#change-status-modal').modal('hide');
+                            $('#change-status-form')[0].reset();
+                            $('.task-checkbox').prop('checked', false);
+                            $('#select-all').prop('checked', false);
+                            updateBulkActionButtons();
+                            if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                                $('#projects-task-table').DataTable().ajax.reload(null, false);
+                            }
+                            getTaskCount();
+                        } else {
+                            toastrs('Error', response.message, 'error');
+                        }
+                        $button.prop('disabled', false).html(originalHtml);
+                    },
+                    error: function(xhr) {
+                        var errorMsg = 'An error occurred';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        toastrs('Error', errorMsg, 'error');
+                        $button.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
+
+            // Reset modals when hidden
+            $('#change-assignor-modal, #change-assignee-modal, #change-etc-modal, #change-date-modal, #change-priority-modal, #change-status-modal').on('hidden.bs.modal', function () {
+                $(this).find('form')[0].reset();
+            });
         </script>
     @endpush
 @endif

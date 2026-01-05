@@ -427,6 +427,126 @@ public function query(AutomateTask $model)
                 }'
             ],
             [
+                'text' => '<i class="fas fa-tasks" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Update Status"></i>',
+                'className' => 'btn btn-light-info bulk-status-update-btn',
+                'attr' => ['id' => 'bulk-status-update-btn', 'disabled' => 'disabled'],
+                'action' => 'function(e, dt, node, config) {
+                    if (!$(node).attr("disabled")) {
+                        let selectedIds = $(".task-checkbox:checked").map(function() { 
+                            return this.value; 
+                        }).get();
+                        console.log("Bulk Status Update Button clicked - Selected IDs:", selectedIds);
+                        if (selectedIds.length > 0) {
+                            $("#selected-task-ids-status").val(selectedIds.join(","));
+                            console.log("Setting status hidden field value:", selectedIds.join(","));
+                            $("#change-status-modal").modal("show");
+                        } else {
+                            toastr.warning("Please select at least one task to update status.");
+                        }
+                    }
+                }'
+            ],
+            [
+                'text' => '<i class="fas fa-user-edit" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Bulk Update Assignor"></i>',
+                'className' => 'btn btn-light-warning bulk-assignor-update-btn',
+                'attr' => ['id' => 'bulk-assignor-update-btn', 'disabled' => 'disabled'],
+                'action' => 'function(e, dt, node, config) {
+                    if (!$(node).attr("disabled")) {
+                        let selectedIds = $(".task-checkbox:checked").map(function() { 
+                            return this.value; 
+                        }).get();
+                        console.log("Bulk Assignor Update Button clicked - Selected IDs:", selectedIds);
+                        if (selectedIds.length > 0) {
+                            $("#selected-task-ids-assignor").val(selectedIds.join(","));
+                            console.log("Setting assignor hidden field value:", selectedIds.join(","));
+                            $("#change-assignor-modal").modal("show");
+                        } else {
+                            toastr.warning("Please select at least one task to update assignor.");
+                        }
+                    }
+                }'
+            ],
+            [
+                'text' => '<i class="fas fa-user-plus" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Bulk Update Assignee"></i>',
+                'className' => 'btn btn-light-success bulk-assignee-update-btn',
+                'attr' => ['id' => 'bulk-assignee-update-btn', 'disabled' => 'disabled'],
+                'action' => 'function(e, dt, node, config) {
+                    if (!$(node).attr("disabled")) {
+                        let selectedIds = $(".task-checkbox:checked").map(function() { 
+                            return this.value; 
+                        }).get();
+                        console.log("Bulk Assignee Update Button clicked - Selected IDs:", selectedIds);
+                        if (selectedIds.length > 0) {
+                            $("#selected-task-ids-assignee").val(selectedIds.join(","));
+                            console.log("Setting assignee hidden field value:", selectedIds.join(","));
+                            $("#change-assignee-modal").modal("show");
+                        } else {
+                            toastr.warning("Please select at least one task to update assignee.");
+                        }
+                    }
+                }'
+            ],
+            [
+                'text' => '<i class="fas fa-clock" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Bulk Update ETC"></i>',
+                'className' => 'btn btn-light-secondary bulk-etc-update-btn',
+                'attr' => ['id' => 'bulk-etc-update-btn', 'disabled' => 'disabled'],
+                'action' => 'function(e, dt, node, config) {
+                    if (!$(node).attr("disabled")) {
+                        let selectedIds = $(".task-checkbox:checked").map(function() { 
+                            return this.value; 
+                        }).get();
+                        console.log("Bulk ETC Update Button clicked - Selected IDs:", selectedIds);
+                        if (selectedIds.length > 0) {
+                            $("#selected-task-ids-etc").val(selectedIds.join(","));
+                            console.log("Setting ETC hidden field value:", selectedIds.join(","));
+                            $("#change-etc-modal").modal("show");
+                        } else {
+                            toastr.warning("Please select at least one task to update ETC.");
+                        }
+                    }
+                }'
+            ],
+            [
+                'text' => '<i class="fas fa-calendar" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Bulk Update Dates/TID"></i>',
+                'className' => 'btn btn-light-purple bulk-date-update-btn',
+                'attr' => ['id' => 'bulk-date-update-btn', 'disabled' => 'disabled'],
+                'action' => 'function(e, dt, node, config) {
+                    if (!$(node).attr("disabled")) {
+                        let selectedIds = $(".task-checkbox:checked").map(function() { 
+                            return this.value; 
+                        }).get();
+                        console.log("Bulk Date Update Button clicked - Selected IDs:", selectedIds);
+                        if (selectedIds.length > 0) {
+                            $("#selected-task-ids-date").val(selectedIds.join(","));
+                            console.log("Setting date hidden field value:", selectedIds.join(","));
+                            $("#change-date-modal").modal("show");
+                        } else {
+                            toastr.warning("Please select at least one task to update date.");
+                        }
+                    }
+                }'
+            ],
+            [
+                'text' => '<i class="fas fa-flag" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Bulk Update Priority"></i>',
+                'className' => 'btn btn-light-danger bulk-priority-update-btn',
+                'attr' => ['id' => 'bulk-priority-update-btn', 'disabled' => 'disabled'],
+                'action' => 'function(e, dt, node, config) {
+                    if (!$(node).attr("disabled")) {
+                        let selectedIds = $(".task-checkbox:checked").map(function() { 
+                            return this.value; 
+                        }).get();
+                        console.log("Bulk Priority Update Button clicked - Selected IDs:", selectedIds);
+                        if (selectedIds.length > 0) {
+                            $("#selected-task-ids-priority").val(selectedIds.join(","));
+                            console.log("Setting priority hidden field value:", selectedIds.join(","));
+                            $("#change-priority-modal").modal("show");
+                        } else {
+                            toastr.warning("Please select at least one task to update priority.");
+                        }
+                    }
+                }'
+            ],
+            [
                 'extend' => 'reset',
                 'className' => 'btn btn-light-danger',
             ],
