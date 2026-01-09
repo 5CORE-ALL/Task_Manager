@@ -175,11 +175,15 @@
                 </div>
                <div class="form-group col-md-12">
                 <label class="form-label">{{ __('Image') }}</label>
-                <div class="image-upload-preview" style="text-align: center; border: 1px dashed #ccc; padding: 10px; border-radius: 10px;">
-                    <span id="file-name" style="display: block; margin: 0 auto;"></span>
-                    <label for="file-upload" style="cursor: pointer; display: block; margin-top: 10px;" class="btn btn-sm btn-primary">
-                        {{ __('Choose File') }}
-                    </label>
+                <div class="image-upload-preview" id="upload-area" style="text-align: center; border: 2px dashed #ccc; padding: 20px; border-radius: 10px; position: relative; transition: all 0.3s ease; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div id="file-preview" style="margin-bottom: 10px;"></div>
+                    <span id="file-name" style="display: block; margin: 5px 0; color: #666;"></span>
+                    <div style="margin-top: 10px;">
+                        <label for="file-upload" style="cursor: pointer; display: inline-block; margin: 0 5px;" class="btn btn-sm btn-primary">
+                            {{ __('Choose File') }}
+                        </label>
+                        <span style="color: #999; font-size: 12px;">{{ __('or drag & drop, or paste image') }}</span>
+                    </div>
                     <input type="file" id="file-upload" name="file" accept="image/*,application/pdf" style="display: none;" />
                 </div>
             </div>
@@ -374,13 +378,108 @@
     });
 </script>
 <script>
-    document.getElementById('file-upload').addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        if (file) {
-            const fileName = document.getElementById('file-name');
+    (function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-upload');
+        const fileName = document.getElementById('file-name');
+        const filePreview = document.getElementById('file-preview');
+
+        // Handle file selection
+        function handleFile(file) {
+            if (!file) return;
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please select an image file (JPEG, PNG, GIF, WEBP) or PDF');
+                return;
+            }
+
+            // Update file input
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+
+            // Display file name
             fileName.textContent = file.name;
+
+            // Display preview for images
+            filePreview.innerHTML = '';
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '200px';
+                    img.style.maxHeight = '150px';
+                    img.style.borderRadius = '5px';
+                    img.style.margin = '0 auto';
+                    filePreview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type === 'application/pdf') {
+                const pdfIcon = document.createElement('div');
+                pdfIcon.innerHTML = '<i class="fas fa-file-pdf" style="font-size: 48px; color: #dc3545;"></i>';
+                filePreview.appendChild(pdfIcon);
+            }
         }
-    });
+
+        // File input change event
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            handleFile(file);
+        });
+
+        // Drag and drop events
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.style.borderColor = '#007bff';
+            uploadArea.style.backgroundColor = '#f0f8ff';
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = 'transparent';
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // Paste event (for images from clipboard)
+        document.addEventListener('paste', function(e) {
+            // Check if the paste happened in the upload area or if no input is focused
+            const activeElement = document.activeElement;
+            const isTextInput = activeElement && (
+                activeElement.tagName === 'INPUT' || 
+                activeElement.tagName === 'TEXTAREA' ||
+                activeElement.isContentEditable
+            );
+
+            if (isTextInput) return; // Don't interfere with normal text pasting
+
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    const blob = items[i].getAsFile();
+                    handleFile(blob);
+                    break;
+                }
+            }
+        });
+    })();
 </script>
 <script>
     $(document).ready(function() {
