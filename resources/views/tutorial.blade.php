@@ -537,20 +537,6 @@
 
               <div class="container mb-5">
                 <div class="row g-4" id="video-container">
-                  <!-- Card 1 - Task Manager -->
-                  <div class="col-md-4 video-item">
-                    <div class="card shadow-sm video-card" onclick="window.open('https://komododecks.com/recordings/6ofPL3Oo6O6hjvTOqwkY', '_blank')">
-                      <div class="video-thumb-container">
-                        <img class="video-fixed" src="{{asset('images/Understanding DAR or Daily Activity Reports at 5 Core.jpg')}}" alt="Daily Activity Reports">
-                        <div class="play-icon">
-                          <i class="fas fa-play-circle"></i>
-                        </div>
-                      </div>
-                      <div class="card-body text-center">
-                        <h5 class="card-title">Understanding DAR or Daily Activity Reports at 5 Core</h5>
-                      </div>
-                    </div>
-                  </div>
 
                   <!-- Card 2 - Task Manager -->
                   <div class="col-md-4 video-item">

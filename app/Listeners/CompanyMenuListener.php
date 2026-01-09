@@ -207,19 +207,6 @@ class CompanyMenuListener
         // ]);
 
 
-            $menu->add([
-                'category' => 'Reports',
-                'title' => __('DAR Reports'),
-                'icon' => 'ti ti-report',
-                'name' => 'dar-reports',
-                'parent' => null,
-                'order' => 1850,
-                'ignore_if' => [],
-                'depend_on' => [],
-                'route' => 'dar.reports',
-                'module' => $module,
-                'permission' => ''
-            ]);
             // Performance Management - Only for privileged users
             $privilegedEmails = [
                 'president@5core.com',

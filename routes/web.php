@@ -28,7 +28,6 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\DarController;
 use App\Http\Controllers\IncentiveController;
 use App\Http\Controllers\DeductionController;
 use App\Http\Controllers\WarehouseController;
@@ -650,19 +649,6 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/deductions/{id}', [DeductionController::class, 'destroy'])->name('deductions.destroy');
     Route::get('/check-deductions', [DeductionController::class, 'checkDeductions'])->name('check.deductions');
     Route::post('/mark-deduction-notification-read', [DeductionController::class, 'markNotificationRead'])->name('mark.deduction.notification.read');
-});
-
-// DAR (Daily Activity Report) routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dar', [DarController::class, 'index'])->name('dar.index');
-    Route::post('/dar', [DarController::class, 'store'])->name('dar.store');
-    Route::get('/dar/{id}', [DarController::class, 'show'])->name('dar.show');
-    Route::delete('/dar/{id}', [DarController::class, 'destroy'])->name('dar.destroy');
-    
-    // DAR Reports - Only for admin and specific users
-    Route::get('/dar/reports/view', [DarController::class, 'reports'])->name('dar.reports');
-    Route::post('/dar/reports/data', [DarController::class, 'getReportData'])->name('dar.reports.data');
-    Route::post('dar/reports/summary', [DarController::class, 'reportsSummary'])->name('dar.reports.summary');
 });
 
 // Performance Management routes

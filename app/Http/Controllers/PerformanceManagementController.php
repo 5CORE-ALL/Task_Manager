@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\PerformanceManagement;
 use App\Models\PerformanceFeedback;
 use App\Models\User;
-use App\Models\Dar;
-use App\Models\DarTask;
 use App\Models\Payroll;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -173,7 +171,7 @@ class PerformanceManagementController extends Controller
         // 2. Get total working hours from attendance
         $totalWorkingHours = $this->getTotalWorkingHours($employee->id, $start, $end);
         
-        // 3. Get productive hours from DAR
+        // 3. Get productive hours from payroll
         $productiveHours = $this->getProductiveHours($employee->id, $start, $end);
         
         // 4. Get tasks completed from Task table (status = Done)
@@ -309,12 +307,8 @@ class PerformanceManagementController extends Controller
             }
         }
         
-        // Fallback to DAR total_time
-        $dars = Dar::where('user_id', $employeeId)
-            ->whereBetween('report_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
-            ->get();
-        
-        return round($dars->sum('total_time'), 2);
+        // Return 0 if no payroll data available
+        return 0;
     }
 
     /**
