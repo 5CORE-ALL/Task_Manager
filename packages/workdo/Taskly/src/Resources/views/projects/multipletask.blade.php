@@ -700,7 +700,7 @@
                                         <option value="Take your time">{{ __('Take your time')}}</option>
                                     </select>
                                 </div>
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-6 d-none">
                                     <label class="form-label">{{ __('Status')}}</label>
                                     <select class="form-control form-control-light status-select" name="stage_id[]" id="task-stage">
                                         <option value="">{{__('Select Status')}}</option>

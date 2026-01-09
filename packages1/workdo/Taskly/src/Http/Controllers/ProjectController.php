@@ -1109,6 +1109,13 @@ $eta_times     = $request->eta_time ?? [];
 $stage_ids     = $request->stage_id ?? [];
 $links_data    = $request->links_data ?? [];
 
+// Get default stage
+$defaultStage = Stage::where('workspace_id', $currentWorkspace)->orderBy('order')->first();
+
+if (!$defaultStage) {
+    return back()->with('error', __('Please add stages first.'));
+}
+
 // Loop through each task index
 foreach ($titles as $index => $title) {
 
@@ -1119,14 +1126,18 @@ foreach ($titles as $index => $title) {
     $duration  = $durations[$index] ?? null;
     $description = $descriptions[$index] ?? null;
     $eta_time  = $eta_times[$index] ?? 0;
-    $stageName = $stage_ids[$index] ?? 'todo';
+    $stageName = $stage_ids[$index] ?? null;
     $links     = $links_data[$index] ?? null;
 
-    // Find the stage (default to first if not found)
-    $stage = Stage::where('workspace_id', $currentWorkspace)
-        ->where('name', $stageName)
-        ->orderBy('order')
-        ->first() ?? Stage::where('workspace_id', $currentWorkspace)->orderBy('order')->first();
+    // Find the stage (default to first if not provided)
+    if (!empty($stageName)) {
+        $stage = Stage::where('workspace_id', $currentWorkspace)
+            ->where('name', $stageName)
+            ->orderBy('order')
+            ->first() ?? $defaultStage;
+    } else {
+        $stage = $defaultStage;
+    }
 
     if (!$stage) {
         return back()->with('error', __('Please add stages first.'));

@@ -31,7 +31,7 @@
                     <label class="form-label">{{ __('Task')}}</label><x-required></x-required>
                     <input type="text" class="form-control form-control-light" id="task-title" placeholder="{{ __('Enter Task')}}" name="title" required>
                 </div>
-                 <div class="form-group col-md-6">
+                 <div class="form-group col-md-6 d-none">
                     <label class="form-label">{{ __('Status')}}</label>
                     <select class="form-control form-control-light" name="stage_id" id="task-stage">
                         <option value="">{{__('Select Status')}}</option>
