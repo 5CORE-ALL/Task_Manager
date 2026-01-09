@@ -35,7 +35,7 @@
 
     {{-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" /> --}}
 
-    <!-- Favicon icon -->
+    <!-- Favicon icon - MUST be same for all pages -->
     @php
         // Get favicon from settings - try multiple sources
         $favicon_url = null;
@@ -50,12 +50,39 @@
         } else {
             $favicon_url = asset('favicon.ico');
         }
-        $favicon_url_with_cache = $favicon_url . '?' . time();
+        // Use a unique cache-busting parameter
+        $favicon_url_with_cache = $favicon_url . '?v=' . time() . '&t=' . md5($favicon_url);
     @endphp
     <link rel="icon" href="{{ $favicon_url_with_cache }}" type="image/x-icon" />
     <link rel="shortcut icon" href="{{ $favicon_url_with_cache }}" type="image/x-icon" />
     <link rel="apple-touch-icon" href="{{ $favicon_url_with_cache }}" />
     <link rel="icon" type="image/png" href="{{ $favicon_url_with_cache }}" />
+    <script>
+    // Force favicon update for all pages
+    (function() {
+        var faviconUrl = '{{ $favicon_url_with_cache }}';
+        var updateFavicon = function() {
+            var links = document.querySelectorAll("link[rel*='icon']");
+            links.forEach(function(link) {
+                if (link.href !== faviconUrl) {
+                    link.href = faviconUrl;
+                }
+            });
+            if (links.length === 0) {
+                var link = document.createElement('link');
+                link.rel = 'icon';
+                link.href = faviconUrl;
+                document.head.appendChild(link);
+            }
+        };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateFavicon);
+        } else {
+            updateFavicon();
+        }
+        setTimeout(updateFavicon, 100);
+    })();
+    </script>
 
     <!-- font css -->
     <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}">

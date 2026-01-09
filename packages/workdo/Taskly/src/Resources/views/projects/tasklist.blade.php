@@ -196,6 +196,25 @@
 
 </style>
 
+@php
+    // Get favicon URL - same logic as head partial
+    $admin_settings = getAdminAllSetting();
+    $company_settings = getCompanyAllSetting(creatorId());
+    $favicon = isset($company_settings['favicon']) ? $company_settings['favicon'] : (isset($admin_settings['favicon']) ? $admin_settings['favicon'] : 'uploads/logo/favicon.png');
+    $favicon_url = null;
+    if (check_file($favicon)) {
+        $favicon_url = get_file($favicon);
+    } elseif (check_file('uploads/logo/favicon.png')) {
+        $favicon_url = get_file('uploads/logo/favicon.png');
+    } elseif (file_exists(public_path('images/favicon.png'))) {
+        $favicon_url = asset('images/favicon.png');
+    } elseif (file_exists(public_path('favicon.ico'))) {
+        $favicon_url = asset('favicon.ico');
+    } else {
+        $favicon_url = asset('favicon.ico');
+    }
+    $favicon_url_with_cache = $favicon_url . '?v=' . time() . '&t=' . md5($favicon_url);
+@endphp
 @extends('layouts.main')
 @section('page-title')
     {{ __('Task Board') }}
@@ -207,6 +226,60 @@
     {{ __('Project') }},{{ __('Project Details') }},{{ __('Task Board') }}
 @endsection
 @push('css')
+<!-- Force favicon for Task Board page - override any cached version -->
+<link rel="icon" href="{{ $favicon_url_with_cache }}" type="image/x-icon" id="taskboard-favicon-icon" />
+<link rel="shortcut icon" href="{{ $favicon_url_with_cache }}" type="image/x-icon" id="taskboard-favicon-shortcut" />
+<link rel="apple-touch-icon" href="{{ $favicon_url_with_cache }}" id="taskboard-favicon-apple" />
+<script>
+(function() {
+    var faviconUrl = '{{ $favicon_url_with_cache }}';
+    function forceFavicon() {
+        // Remove all existing favicon links
+        var allLinks = document.querySelectorAll("link[rel*='icon']");
+        allLinks.forEach(function(link) {
+            if (!link.id || !link.id.startsWith('taskboard-favicon')) {
+                link.remove();
+            }
+        });
+        
+        // Ensure our favicon links exist
+        if (!document.getElementById('taskboard-favicon-icon')) {
+            var link1 = document.createElement('link');
+            link1.id = 'taskboard-favicon-icon';
+            link1.rel = 'icon';
+            link1.href = faviconUrl;
+            link1.type = 'image/x-icon';
+            document.head.insertBefore(link1, document.head.firstChild);
+        }
+        if (!document.getElementById('taskboard-favicon-shortcut')) {
+            var link2 = document.createElement('link');
+            link2.id = 'taskboard-favicon-shortcut';
+            link2.rel = 'shortcut icon';
+            link2.href = faviconUrl;
+            document.head.insertBefore(link2, document.head.firstChild);
+        }
+        
+        // Update existing links
+        document.querySelectorAll("link[rel*='icon']").forEach(function(link) {
+            if (link.href !== faviconUrl) {
+                link.href = faviconUrl;
+            }
+        });
+    }
+    
+    // Run immediately
+    forceFavicon();
+    // Run on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', forceFavicon);
+    }
+    // Run multiple times to override browser caching
+    setTimeout(forceFavicon, 50);
+    setTimeout(forceFavicon, 200);
+    setTimeout(forceFavicon, 500);
+    setTimeout(forceFavicon, 1000);
+})();
+</script>
     @include('layouts.includes.datatable-css')
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
