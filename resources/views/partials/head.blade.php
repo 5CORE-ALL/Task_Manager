@@ -36,7 +36,7 @@
     {{-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" /> --}}
 
     <!-- Favicon icon -->
-    <link rel="icon" href="{{ asset('images/favicon.png') }}{{'?'.time()}}" type="image/x-icon" />
+    <link rel="icon" href="{{ check_file($favicon) ? get_file($favicon) : get_file('uploads/logo/favicon.png') }}{{ '?' . time() }}" type="image/x-icon" />
 
     <!-- font css -->
     <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}">
