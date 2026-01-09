@@ -50,37 +50,43 @@
         } else {
             $favicon_url = asset('favicon.ico');
         }
-        // Use a unique cache-busting parameter
-        $favicon_url_with_cache = $favicon_url . '?v=' . time() . '&t=' . md5($favicon_url);
+        // Use a unique cache-busting parameter - force new load every time
+        $favicon_url_with_cache = $favicon_url . '?v=' . time() . '&r=' . rand(1000,9999);
     @endphp
     <link rel="icon" href="{{ $favicon_url_with_cache }}" type="image/x-icon" />
     <link rel="shortcut icon" href="{{ $favicon_url_with_cache }}" type="image/x-icon" />
     <link rel="apple-touch-icon" href="{{ $favicon_url_with_cache }}" />
     <link rel="icon" type="image/png" href="{{ $favicon_url_with_cache }}" />
     <script>
-    // Force favicon update for all pages
+    // AGGRESSIVE favicon update - runs immediately before page renders
     (function() {
         var faviconUrl = '{{ $favicon_url_with_cache }}';
-        var updateFavicon = function() {
-            var links = document.querySelectorAll("link[rel*='icon']");
-            links.forEach(function(link) {
-                if (link.href !== faviconUrl) {
-                    link.href = faviconUrl;
-                }
-            });
-            if (links.length === 0) {
-                var link = document.createElement('link');
-                link.rel = 'icon';
-                link.href = faviconUrl;
-                document.head.appendChild(link);
-            }
-        };
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', updateFavicon);
-        } else {
-            updateFavicon();
+        function setFavicon() {
+            // Remove ALL existing favicon links first
+            var existing = document.querySelectorAll("link[rel*='icon']");
+            existing.forEach(function(link) { link.remove(); });
+            
+            // Add new favicon links at the START of head
+            var link1 = document.createElement('link');
+            link1.rel = 'icon';
+            link1.href = faviconUrl;
+            link1.type = 'image/x-icon';
+            document.head.insertBefore(link1, document.head.firstChild);
+            
+            var link2 = document.createElement('link');
+            link2.rel = 'shortcut icon';
+            link2.href = faviconUrl;
+            document.head.insertBefore(link2, document.head.firstChild);
         }
-        setTimeout(updateFavicon, 100);
+        // Run IMMEDIATELY - don't wait for anything
+        setFavicon();
+        // Also run on DOM ready and multiple times
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setFavicon);
+        }
+        setTimeout(setFavicon, 10);
+        setTimeout(setFavicon, 100);
+        setTimeout(setFavicon, 500);
     })();
     </script>
 
