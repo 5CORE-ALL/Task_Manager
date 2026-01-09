@@ -207,28 +207,6 @@
     {{ __('Project') }},{{ __('Project Details') }},{{ __('Task Board') }}
 @endsection
 @push('css')
-@php
-    $admin_settings = getAdminAllSetting();
-    $company_settings = getCompanyAllSetting(creatorId());
-    $favicon = isset($company_settings['favicon']) ? $company_settings['favicon'] : (isset($admin_settings['favicon']) ? $admin_settings['favicon'] : 'uploads/logo/favicon.png');
-    $favicon_url = check_file($favicon) ? get_file($favicon) : get_file('uploads/logo/favicon.png');
-@endphp
-<script>
-(function() {
-    // Remove all existing favicon links
-    var existingLinks = document.querySelectorAll("link[rel*='icon']");
-    existingLinks.forEach(function(link) {
-        link.parentNode.removeChild(link);
-    });
-    
-    // Create and add the correct favicon
-    var link = document.createElement('link');
-    link.type = 'image/x-icon';
-    link.rel = 'icon';
-    link.href = '{{ $favicon_url }}{{ '?' . time() }}';
-    document.getElementsByTagName('head')[0].appendChild(link);
-})();
-</script>
     @include('layouts.includes.datatable-css')
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
