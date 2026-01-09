@@ -36,7 +36,13 @@
     {{-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" /> --}}
 
     <!-- Favicon icon -->
-    <link rel="icon" href="{{ check_file($favicon) ? get_file($favicon) : get_file('uploads/logo/favicon.png') }}{{ '?' . time() }}" type="image/x-icon" />
+    @php
+        $favicon_url = check_file($favicon) ? get_file($favicon) : get_file('uploads/logo/favicon.png');
+        $favicon_url_with_cache = $favicon_url . '?' . time();
+    @endphp
+    <link rel="icon" href="{{ $favicon_url_with_cache }}" type="image/x-icon" />
+    <link rel="shortcut icon" href="{{ $favicon_url_with_cache }}" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="{{ $favicon_url_with_cache }}" />
 
     <!-- font css -->
     <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}">
