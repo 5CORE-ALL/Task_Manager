@@ -82,9 +82,63 @@ class ProjectController extends Controller
      * Display a listing of the resource.
      * @return Renderable
      */
-     use TaskTraits;
-     use SendSmsTraits;
-     use LogsTaskActivity;
+    use TaskTraits;
+    use SendSmsTraits;
+    use LogsTaskActivity;
+    
+    /**
+     * Calculate overdue tasks count based on TID (start_date + duration_days) logic
+     * This EXACTLY matches the logic used to turn TID column red in the datatable
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query The query builder with filters applied
+     * @return int Count of overdue tasks
+     */
+    private function calculateOverdueTaskCount($query)
+    {
+        $now = Carbon::now()->startOfDay();
+        $tasks = $query->get();
+        
+        $overdueCount = 0;
+        foreach ($tasks as $task) {
+            if (!$task->start_date) {
+                continue; // Skip tasks without start_date
+            }
+            
+            try {
+                $startDate = Carbon::parse($task->start_date)->startOfDay();
+                
+                // Get duration from FIRST assignee's custom setting or use default 2 days
+                // This EXACTLY matches the datatable logic which always uses the first assignee
+                $durationDays = 2; // Default duration
+                
+                if ($task->assign_to) {
+                    $assigneeEmails = explode(',', $task->assign_to);
+                    $firstAssigneeEmail = trim($assigneeEmails[0]);
+                    if ($firstAssigneeEmail) {
+                        $user = User::where('email', $firstAssigneeEmail)->first();
+                        if ($user && $user->overdue_duration_days !== null) {
+                            $durationDays = $user->overdue_duration_days;
+                        }
+                    }
+                }
+                
+                // Calculate expected end date: start_date + duration days
+                $expectedEndDate = $startDate->copy()->addDays($durationDays);
+                
+                // Task is overdue if current date is AFTER the expected end date
+                // This EXACTLY matches: $isOverdue = $now->greaterThan($expectedEndDate);
+                if ($now->greaterThan($expectedEndDate)) {
+                    $overdueCount++;
+                }
+            } catch (\Exception $e) {
+                // If date parsing fails, don't count as overdue
+                continue;
+            }
+        }
+        
+        return $overdueCount;
+    }
+    
     public function index(Request $request)
     {
         if (Auth::user()->isAbleTo('project manage')) {
@@ -3462,7 +3516,8 @@ public function bulkUpdateStatus(Request $request)
                         ->where('deleted_at',NULL)
                         ->count();
                         
-                     $overdueTask = Task::whereNotIn('status', ['', 'Done'])
+                     // Overdue query - must include ALL tasks with red TID (including Done tasks)
+                     $overdueTaskQuery = Task::whereNotIn('status', [''])
                         ->where(function($q) {
                             $q->where('is_missed', 0)
                               ->orWhere(function($sub) {
@@ -3471,9 +3526,10 @@ public function bulkUpdateStatus(Request $request)
                         })
                         ->where('status',"!=","")
                         ->where('workspace', getActiveWorkSpace())
-                        ->where('due_date', '<', now())
-                        ->where('deleted_at',NULL)
-                        ->count();
+                        ->whereNotNull('start_date')
+                        ->where('start_date', '!=', '')
+                        ->where('deleted_at',NULL);
+                     $overdueTask = $this->calculateOverdueTaskCount($overdueTaskQuery);
             }else
             { 
                 $email = $objUser->email;
@@ -3491,9 +3547,9 @@ public function bulkUpdateStatus(Request $request)
                         ->where('status',"!=","")
                         ->where('workspace', getActiveWorkSpace())
                         ->where(function ($query) use ($email) {
-                                $query->where('assignor', 'like', "%$email%")
-                                    ->orWhere('assign_to', 'like', "%$email%");
-                            })
+                            $query->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
+                                  ->orWhere('assignor', $email);
+                        })
                         ->where('deleted_at',NULL)
                         ->count();
                         
@@ -3507,13 +3563,15 @@ public function bulkUpdateStatus(Request $request)
                         ->where('status',"!=","")
                         ->where('workspace', getActiveWorkSpace())
                         ->where(function ($query) use ($email) {
-                                   $query->where('assignor', 'like', "%$email%")
-                                        ->orWhere('assign_to', 'like', "%$email%");
-                                    })
+                            $query->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
+                                  ->orWhere('assignor', $email);
+                        })
                         ->where('deleted_at',NULL)
                         ->count();
                         
-                       $overdueTask = Task::whereNotIn('status', ['', 'Done'])
+                       // Overdue query - must include ALL tasks with red TID (including Done tasks)
+                       // The datatable shows red TID for ALL tasks regardless of status
+                       $overdueTaskQuery = Task::whereNotIn('status', [''])
                         ->where(function($q) {
                             $q->where('is_missed', 0)
                               ->orWhere(function($sub) {
@@ -3522,13 +3580,14 @@ public function bulkUpdateStatus(Request $request)
                         })
                         ->where('status',"!=","")
                         ->where('workspace', getActiveWorkSpace())
-                        ->where('due_date', '<', $overdueThreshold)
+                        ->whereNotNull('start_date')
+                        ->where('start_date', '!=', '')
                         ->where(function ($query) use ($email) {
-                                        $query->where('assignor', 'like', "%$email%")
-                                              ->orWhere('assign_to', 'like', "%$email%");
-                                    })
-                        ->where('deleted_at',NULL)
-                        ->count();
+                            $query->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
+                                  ->orWhere('assignor', $email);
+                        })
+                        ->where('deleted_at',NULL);
+                       $overdueTask = $this->calculateOverdueTaskCount($overdueTaskQuery);
             }
                 // Calculate total tasks
         $totalTask = $competeTask + $pendingTask;
@@ -4355,12 +4414,19 @@ public function bulkUpdateStatus(Request $request)
             $workspaceId = getActiveWorkSpace();
             if($objUser->hasRole('company') || $objUser->hasRole('Manager All Access') || $objUser->hasRole('hr') )
             {
-                    $taskBaseQuery = Task::join('stages', 'stages.name', '=', 'tasks.status')
+                    // Base query must EXACTLY match datatable query structure
+                    $taskBaseQuery = Task::select('tasks.*', 'stages.name as stage_name', 'assignor_users.name as assigner_name','eta_time','etc_done')
+                        ->join('stages', 'stages.name', '=', 'tasks.status')
                         ->leftJoin('users as assignor_users', 'assignor_users.email', '=', 'tasks.assignor')
-                        ->where('tasks.workspace', $workspaceId)->where('is_missed',0)
-                        ->whereNull('tasks.deleted_at')
-                        ->select('tasks.*', 'stages.name as stage_name', 'assignor_users.name as assigner_name','eta_time','etc_done')
-                        ->distinct('tasks.id');
+                        ->where('tasks.deleted_at', NULL)
+                        // Exclude automate missed tasks (is_automate_task = 1 AND is_missed = 1)
+                        // Keep: manual tasks (is_automate_task = 0) OR automate tasks that are not missed (is_missed = 0)
+                        ->where(function($query) {
+                            $query->where('is_missed', 0)
+                                  ->orWhere('is_automate_task', 0);
+                        })
+                        ->where('tasks.workspace', $workspaceId)
+                        ->distinct();
                         if (!empty($searchValue)) {
                             $taskBaseQuery->where(function ($query) use ($searchValue) {
                                 // Search by assignor name
@@ -4386,10 +4452,12 @@ public function bulkUpdateStatus(Request $request)
                         ->where('tasks.status', '!=', 'Done')
                         ->where('tasks.status', '!=', '');
                  
-                    $overdueTask = (clone $taskBaseQuery)
+                    // Overdue query - must include ALL tasks with red TID (including Done tasks)
+                    // The datatable shows red TID for ALL tasks regardless of status
+                    $overdueTaskQuery = (clone $taskBaseQuery)
                         ->where('tasks.status', '!=', '')
-                        ->where('tasks.status', '!=', 'Done')
-                        ->where('tasks.due_date', '<', now());
+                        ->whereNotNull('tasks.start_date')
+                        ->where('tasks.start_date', '!=', '');
                     // Total task count should include ALL tasks including Done tasks
                     // Do NOT apply status_name filter to totalTask to ensure done tasks are included
                     $totalTask = (clone $taskBaseQuery);
@@ -4397,18 +4465,37 @@ public function bulkUpdateStatus(Request $request)
                       $totalATCMin = (clone $taskBaseQuery);
                   
                     if($assignor_name && count($assignor_name) ){
-                        $completedTask->where('assignor', 'like', "%$assignor_name[0]%");
-                        $pendingTask->where('assignor', 'like', "%$assignor_name[0]%");
-                         $overdueTask->where('assignor', 'like', "%$assignor_name[0]%");
-                        $totalTask->where('assignor', 'like', "%$assignor_name[0]%");
-                        $totalETAmin->where('assignor', 'like', "%$assignor_name[0]%");
-                        $totalATCMin->where('assignor', 'like', "%$assignor_name[0]%");
+                        $assignorEmails = $assignor_name;
+                        $assignorFilter = function ($query) use ($assignorEmails) {
+                            $query->where(function ($q) use ($assignorEmails) {
+                                foreach ($assignorEmails as $email) {
+                                    if ($email === 'NULL') {
+                                        $q->orWhere(function ($subQ) {
+                                            $subQ->whereNull('assignor')
+                                                ->orWhere('assignor', '')
+                                                ->orWhereRaw("LENGTH(assignor) > 0 AND (
+                                                    SELECT COUNT(*) FROM users
+                                                    WHERE FIND_IN_SET(users.email, tasks.assignor)
+                                                ) = 0");
+                                        });
+                                    } else {
+                                        $q->orWhereRaw("FIND_IN_SET(?, tasks.assignor)", [$email]);
+                                    }
+                                }
+                            });
+                        };
+                        $completedTask->where($assignorFilter);
+                        $pendingTask->where($assignorFilter);
+                        $overdueTaskQuery->where($assignorFilter);
+                        $totalTask->where($assignorFilter);
+                        $totalETAmin->where($assignorFilter);
+                        $totalATCMin->where($assignorFilter);
 
                     }
                     if($group_name && !empty($group_name) ){
                         $completedTask->where('group', 'like', "%$group_name%");
                         $pendingTask->where('group', 'like', "%$group_name%");
-                         $overdueTask->where('group', 'like', "%$group_name%");
+                         $overdueTaskQuery->where('group', 'like', "%$group_name%");
                         $totalTask->where('group', 'like', "%$group_name%");
                         $totalETAmin->where('group', 'like', "%$group_name%");
                         $totalATCMin->where('group', 'like', "%$group_name%");
@@ -4416,7 +4503,7 @@ public function bulkUpdateStatus(Request $request)
                     if($priority && !empty($priority) ){
                         $completedTask->where('priority', 'like', "%$priority%");
                         $pendingTask->where('priority', 'like', "%$priority%");
-                         $overdueTask->where('priority', 'like', "%$priority%");
+                         $overdueTaskQuery->where('priority', 'like', "%$priority%");
                         $totalTask->where('priority', 'like', "%$priority%");
                         $totalETAmin->where('priority', 'like', "%$priority%");
                         $totalATCMin->where('priority', 'like', "%$priority%");
@@ -4424,19 +4511,52 @@ public function bulkUpdateStatus(Request $request)
                      if($task_name && !empty($task_name) ){
                         $completedTask->where('title', 'like', "%$task_name%");
                         $pendingTask->where('title', 'like', "%$task_name%");
-                        $overdueTask->where('title', 'like', "%$task_name%");
+                        $overdueTaskQuery->where('title', 'like', "%$task_name%");
                         $totalTask->where('title', 'like', "%$task_name%");
                         $totalETAmin->where('title', 'like', "%$task_name%");
                         $totalATCMin->where('title', 'like', "%$task_name%");
                     }
+                    $filteredAssigneeEmails = null;
                     if($assignee_name && count($assignee_name) ){
-                        $completedTask->where('assign_to', 'like', "%$assignee_name[0]%");
-                        $pendingTask->where('assign_to', 'like', "%$assignee_name[0]%");
-                        $overdueTask->where('assign_to', 'like', "%$assignee_name[0]%");
-                        $totalTask->where('assign_to', 'like', "%$assignee_name[0]%");
-                        $totalETAmin->where('assign_to', 'like', "%$assignee_name[0]%");
-                        $totalATCMin->where('assign_to', 'like', "%$assignee_name[0]%");
+                        $assigneeEmails = $assignee_name;
+                        $filteredAssigneeEmails = array_filter($assigneeEmails, function($email) {
+                            return $email !== 'NULL';
+                        });
+                        $assigneeFilter = function ($query) use ($assigneeEmails) {
+                            $query->where(function ($q) use ($assigneeEmails) {
+                                foreach ($assigneeEmails as $email) {
+                                    if ($email === 'NULL') {
+                                        $q->orWhere(function ($subQ) {
+                                            $subQ->whereNull('assign_to')
+                                                ->orWhere('assign_to', '')
+                                                ->orWhereRaw("LENGTH(assign_to) > 0 AND (
+                                                    SELECT COUNT(*) FROM users
+                                                    WHERE FIND_IN_SET(users.email, tasks.assign_to)
+                                                ) = 0");
+                                        });
+                                    } else {
+                                        $q->orWhereRaw("FIND_IN_SET(?, tasks.assign_to)", [$email]);
+                                    }
+                                }
+                            });
+                        };
+                        $completedTask->where($assigneeFilter);
+                        $pendingTask->where($assigneeFilter);
+                        $overdueTaskQuery->where($assigneeFilter);
+                        $totalTask->where($assigneeFilter);
+                        $totalETAmin->where($assigneeFilter);
+                        $totalATCMin->where($assigneeFilter);
 
+                    }
+                    // Apply status_name filter to all queries except totalTask
+                    // (totalTask should include all tasks including Done to show accurate total)
+                    if($status_name && !empty($status_name) ){
+                        $completedTask->where('tasks.status', 'like', "%$status_name%");
+                        $pendingTask->where('tasks.status', 'like', "%$status_name%");
+                        $overdueTaskQuery->where('tasks.status', 'like', "%$status_name%");
+                        $totalETAmin->where('tasks.status', 'like', "%$status_name%");
+                        $totalATCMin->where('tasks.status', 'like', "%$status_name%");
+                        // Note: totalTask does NOT get status_name filter to include all tasks
                     }
                     // Explicitly ensure status_name filter is NOT applied to totalTask
                     // so that done tasks are always included in the total count
@@ -4447,7 +4567,7 @@ public function bulkUpdateStatus(Request $request)
                     $totalETAmin = collect($totalETAmin->where('eta_time',">",0)->pluck('eta_time')->toArray())->sum();
                     
                     $totalATCMin = collect($totalATCMin->where('etc_done',">",0)->pluck('etc_done')->toArray())->sum();
-                    $overdueTask = $overdueTask->count();
+                    $overdueTask = $this->calculateOverdueTaskCount($overdueTaskQuery);
 
                     $totalTask = $totalTask->count();
             }else
@@ -4455,42 +4575,159 @@ public function bulkUpdateStatus(Request $request)
                       $email = $objUser->email;
                     $workspaceId = getActiveWorkSpace();
                     
-                    // Base query with all common filters
-                    $taskBaseQuery = Task::join('stages', 'stages.name', '=', 'tasks.status')
+                    // Base query must EXACTLY match datatable query structure
+                    $taskBaseQuery = Task::select('tasks.*', 'stages.name as stage_name', 'assignor_users.name as assigner_name','eta_time','etc_done')
+                        ->join('stages', 'stages.name', '=', 'tasks.status')
                         ->leftJoin('users as assignor_users', 'assignor_users.email', '=', 'tasks.assignor')
-                        ->where('tasks.workspace', $workspaceId)->where('is_missed',0)
-                        ->whereNull('tasks.deleted_at')
+                        ->where('tasks.deleted_at', NULL)
+                        // Exclude automate missed tasks (is_automate_task = 1 AND is_missed = 1)
+                        ->where(function($query) {
+                            $query->where('is_missed', 0)
+                                  ->orWhere('is_automate_task', 0);
+                        })
+                        ->where('tasks.workspace', $workspaceId)
                         ->where(function ($query) use ($email) {
                             $query->whereRaw("FIND_IN_SET(?, tasks.assign_to)", [$email])
                                   ->orWhere('tasks.assignor', $email);
                         })
-                        ->select('tasks.*', 'stages.name as stage_name', 'assignor_users.name as assigner_name','eta_time','etc_done')
-                        ->distinct('tasks.id');
+                        ->distinct();
                     
-                    // Total Tasks - includes ALL tasks including Done tasks
-                    // Note: status_name filter should NOT be applied to totalTask to ensure done tasks are included
-                    $totalTask = (clone $taskBaseQuery)->count('tasks.id');
+                    // Apply search value filter if provided
+                    if (!empty($searchValue)) {
+                        $taskBaseQuery->where(function ($query) use ($searchValue) {
+                            $query->where('assignor_users.name', 'like', "%$searchValue%")
+                                ->orWhereRaw("
+                                    EXISTS (
+                                        SELECT 1 
+                                        FROM users 
+                                        WHERE FIND_IN_SET(users.email, tasks.assign_to) 
+                                        AND users.name LIKE ?
+                                    )", ["%$searchValue%"])
+                                ->orWhere('tasks.title', 'like', "%$searchValue%")
+                                ->orWhere('tasks.group', 'like', "%$searchValue%");
+                        });
+                    }
                     
-                    // Completed Tasks
+                    // Clone queries for different counts
                     $completedTask = (clone $taskBaseQuery)
-                        ->where('tasks.status', 'Done')
-                        ->count('tasks.id');
-                    
-                    // Pending Tasks
+                        ->where('tasks.status', 'Done');
                     $pendingTask = (clone $taskBaseQuery)
                         ->where('tasks.status', '!=', 'Done')
+                        ->where('tasks.status', '!=', '');
+                    // Overdue query - must include ALL tasks with red TID (including Done tasks)
+                    // The datatable shows red TID for ALL tasks regardless of status
+                    $overdueTaskQuery = (clone $taskBaseQuery)
                         ->where('tasks.status', '!=', '')
-                        ->count('tasks.id');
+                        ->whereNotNull('tasks.start_date')
+                        ->where('tasks.start_date', '!=', '');
+                    $totalTask = (clone $taskBaseQuery);
+                    $totalETAmin = (clone $taskBaseQuery);
+                    $totalATCMin = (clone $taskBaseQuery);
                     
-                    // Overdue Tasks
-                    $overdueTask = (clone $taskBaseQuery)
-                        ->where('tasks.status', '!=', '')
-                        ->where('tasks.status', '!=', 'Done')
-                        ->where('tasks.due_date', '<', now())
-                        ->count('tasks.id');
-                        
-                     $totalETAmin = collect((clone $taskBaseQuery)->where('eta_time',">",0)->pluck('eta_time')->toArray())->sum();
-                     $totalATCMin = collect((clone $taskBaseQuery)->where('etc_done',">",0)->pluck('etc_done')->toArray())->sum();
+                    // Apply filters (matching privileged user logic)
+                    if($assignor_name && count($assignor_name) ){
+                        $assignorEmails = $assignor_name;
+                        $assignorFilter = function ($query) use ($assignorEmails) {
+                            $query->where(function ($q) use ($assignorEmails) {
+                                foreach ($assignorEmails as $assignorEmail) {
+                                    if ($assignorEmail === 'NULL') {
+                                        $q->orWhere(function ($subQ) {
+                                            $subQ->whereNull('assignor')
+                                                ->orWhere('assignor', '')
+                                                ->orWhereRaw("LENGTH(assignor) > 0 AND (
+                                                    SELECT COUNT(*) FROM users
+                                                    WHERE FIND_IN_SET(users.email, tasks.assignor)
+                                                ) = 0");
+                                        });
+                                    } else {
+                                        $q->orWhereRaw("FIND_IN_SET(?, tasks.assignor)", [$assignorEmail]);
+                                    }
+                                }
+                            });
+                        };
+                        $completedTask->where($assignorFilter);
+                        $pendingTask->where($assignorFilter);
+                        $overdueTaskQuery->where($assignorFilter);
+                        $totalTask->where($assignorFilter);
+                        $totalETAmin->where($assignorFilter);
+                        $totalATCMin->where($assignorFilter);
+                    }
+                    
+                    if($group_name && !empty($group_name) ){
+                        $completedTask->where('tasks.group', 'like', "%$group_name%");
+                        $pendingTask->where('tasks.group', 'like', "%$group_name%");
+                        $overdueTaskQuery->where('tasks.group', 'like', "%$group_name%");
+                        $totalTask->where('tasks.group', 'like', "%$group_name%");
+                        $totalETAmin->where('tasks.group', 'like', "%$group_name%");
+                        $totalATCMin->where('tasks.group', 'like', "%$group_name%");
+                    }
+                    
+                    if($priority && !empty($priority) ){
+                        $completedTask->where('tasks.priority', 'like', "%$priority%");
+                        $pendingTask->where('tasks.priority', 'like', "%$priority%");
+                        $overdueTaskQuery->where('tasks.priority', 'like', "%$priority%");
+                        $totalTask->where('tasks.priority', 'like', "%$priority%");
+                        $totalETAmin->where('tasks.priority', 'like', "%$priority%");
+                        $totalATCMin->where('tasks.priority', 'like', "%$priority%");
+                    }
+                    
+                    if($task_name && !empty($task_name) ){
+                        $completedTask->where('tasks.title', 'like', "%$task_name%");
+                        $pendingTask->where('tasks.title', 'like', "%$task_name%");
+                        $overdueTaskQuery->where('tasks.title', 'like', "%$task_name%");
+                        $totalTask->where('tasks.title', 'like', "%$task_name%");
+                        $totalETAmin->where('tasks.title', 'like', "%$task_name%");
+                        $totalATCMin->where('tasks.title', 'like', "%$task_name%");
+                    }
+                    
+                    $filteredAssigneeEmails = null;
+                    if($assignee_name && count($assignee_name) ){
+                        $assigneeEmails = $assignee_name;
+                        $filteredAssigneeEmails = array_filter($assigneeEmails, function($email) {
+                            return $email !== 'NULL';
+                        });
+                        $assigneeFilter = function ($query) use ($assigneeEmails) {
+                            $query->where(function ($q) use ($assigneeEmails) {
+                                foreach ($assigneeEmails as $assigneeEmail) {
+                                    if ($assigneeEmail === 'NULL') {
+                                        $q->orWhere(function ($subQ) {
+                                            $subQ->whereNull('assign_to')
+                                                ->orWhere('assign_to', '')
+                                                ->orWhereRaw("LENGTH(assign_to) > 0 AND (
+                                                    SELECT COUNT(*) FROM users
+                                                    WHERE FIND_IN_SET(users.email, tasks.assign_to)
+                                                ) = 0");
+                                        });
+                                    } else {
+                                        $q->orWhereRaw("FIND_IN_SET(?, tasks.assign_to)", [$assigneeEmail]);
+                                    }
+                                }
+                            });
+                        };
+                        $completedTask->where($assigneeFilter);
+                        $pendingTask->where($assigneeFilter);
+                        $overdueTaskQuery->where($assigneeFilter);
+                        $totalTask->where($assigneeFilter);
+                        $totalETAmin->where($assigneeFilter);
+                        $totalATCMin->where($assigneeFilter);
+                    }
+                    
+                    // Apply status_name filter to all queries except totalTask
+                    if($status_name && !empty($status_name) ){
+                        $completedTask->where('tasks.status', 'like', "%$status_name%");
+                        $pendingTask->where('tasks.status', 'like', "%$status_name%");
+                        $overdueTaskQuery->where('tasks.status', 'like', "%$status_name%");
+                        $totalETAmin->where('tasks.status', 'like', "%$status_name%");
+                        $totalATCMin->where('tasks.status', 'like', "%$status_name%");
+                    }
+                    
+                    // Calculate counts
+                    $totalTask = $totalTask->count('tasks.id');
+                    $completedTask = $completedTask->count('tasks.id');
+                    $pendingTask = $pendingTask->count('tasks.id');
+                    $overdueTask = $this->calculateOverdueTaskCount($overdueTaskQuery);
+                    $totalETAmin = collect($totalETAmin->where('eta_time',">",0)->pluck('eta_time')->toArray())->sum();
+                    $totalATCMin = collect($totalATCMin->where('etc_done',">",0)->pluck('etc_done')->toArray())->sum();
             }
             
         // $totalETAHours = number_format($totalETAmin/60,2);
@@ -4953,10 +5190,11 @@ public function taskTracklist(Request $request)
                         ->where('tasks.status', '!=', 'Done')
                         ->where('tasks.status', '!=', '');
                  
-            $overdueTask = (clone $taskBaseQuery)
+            $overdueTaskQuery = (clone $taskBaseQuery)
                         ->where('tasks.status', '!=', '')
                         ->where('tasks.status', '!=', '')
-                        ->where('tasks.due_date', '<', now());
+                        ->whereNotNull('tasks.start_date')
+                        ->where('tasks.start_date', '!=', '');
 
             $totalTask = (clone $taskBaseQuery);
             $totalETAmin = (clone $taskBaseQuery);
@@ -4965,6 +5203,8 @@ public function taskTracklist(Request $request)
             
                     
             $totalATCMin = collect($totalATCMin->where('etc_done',">",0)->pluck('etc_done')->toArray())->sum();
+            
+            $overdueTask = $this->calculateOverdueTaskCount($overdueTaskQuery);
 
             // dd($completedTask->count(),$overdueTask->count(),$pendingTask->count(),$totalTask->count(),round($totalATCMin / 60),round($totalETAmin / 60));
     
@@ -4981,14 +5221,13 @@ public function taskTracklist(Request $request)
         $userTasks = (clone $taskBaseQuery)
             ->where('tasks.assign_to', 'like', "%$email%");
 
-        // Get user's overdue duration, default to 0
-        $userOverdueDays = $user->overdue_duration_days ?? 0;
-        $overdueThreshold = now()->subDays($userOverdueDays);
-
         // User counts
         $total = (clone $userTasks)->count();
         $pending = (clone $userTasks)->where('tasks.status', '!=', 'Done')->count();
-        $overdue = (clone $userTasks)->where('tasks.due_date', '<', $overdueThreshold)->count();
+        $overdueUserTasksQuery = (clone $userTasks)
+            ->whereNotNull('tasks.start_date')
+            ->where('tasks.start_date', '!=', '');
+        $overdue = $this->calculateOverdueTaskCount($overdueUserTasksQuery);
         $done = (clone $userTasks)->where('tasks.status', 'Done')->count();
 
         // ETA / ATC totals
