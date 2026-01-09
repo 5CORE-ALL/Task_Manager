@@ -37,12 +37,25 @@
 
     <!-- Favicon icon -->
     @php
-        $favicon_url = check_file($favicon) ? get_file($favicon) : get_file('uploads/logo/favicon.png');
+        // Get favicon from settings - try multiple sources
+        $favicon_url = null;
+        if (check_file($favicon)) {
+            $favicon_url = get_file($favicon);
+        } elseif (check_file('uploads/logo/favicon.png')) {
+            $favicon_url = get_file('uploads/logo/favicon.png');
+        } elseif (file_exists(public_path('images/favicon.png'))) {
+            $favicon_url = asset('images/favicon.png');
+        } elseif (file_exists(public_path('favicon.ico'))) {
+            $favicon_url = asset('favicon.ico');
+        } else {
+            $favicon_url = asset('favicon.ico');
+        }
         $favicon_url_with_cache = $favicon_url . '?' . time();
     @endphp
     <link rel="icon" href="{{ $favicon_url_with_cache }}" type="image/x-icon" />
     <link rel="shortcut icon" href="{{ $favicon_url_with_cache }}" type="image/x-icon" />
     <link rel="apple-touch-icon" href="{{ $favicon_url_with_cache }}" />
+    <link rel="icon" type="image/png" href="{{ $favicon_url_with_cache }}" />
 
     <!-- font css -->
     <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}">
