@@ -236,18 +236,25 @@ class ProjectAutomateTaskDatatable extends DataTable
                 }
                 
                 // Check if there's a flag matching this task
-                // Flag description typically starts with "Task: {title}"
-                $flagDescriptionPattern = "Task: {$task->title}%";
+                // Match by assignee and task title in description (more flexible matching)
+                if (empty($assigneeUserIds)) {
+                    return '';
+                }
                 
-                $matchingFlag = FlagRaise::where(function($query) use ($givenBy, $assigneeUserIds, $flagDescriptionPattern) {
-                    if ($givenBy) {
-                        $query->where('given_by', $givenBy);
-                    }
-                    if (!empty($assigneeUserIds)) {
-                        $query->whereIn('team_member_id', $assigneeUserIds);
-                    }
-                    $query->where('description', 'like', $flagDescriptionPattern);
-                })->first();
+                // Escape special characters for LIKE query
+                $taskTitleEscaped = str_replace(['%', '_'], ['\%', '\_'], $task->title);
+                
+                // Match flags where:
+                // 1. team_member_id matches any assignee (REQUIRED)
+                // 2. AND description contains task title or starts with "Task: {title}"
+                $matchingFlag = FlagRaise::whereIn('team_member_id', $assigneeUserIds)
+                    ->where(function($query) use ($taskTitleEscaped) {
+                        // Check if description contains task title (case-insensitive)
+                        $query->where('description', 'like', "%{$taskTitleEscaped}%")
+                              // OR check if description starts with "Task: {title}"
+                              ->orWhere('description', 'like', "Task: {$taskTitleEscaped}%");
+                    })
+                    ->first();
                 
                 if ($matchingFlag) {
                     // Task is flagged - show flag icon with link to flag raise management
@@ -393,27 +400,21 @@ public function query(AutomateTask $model)
         } elseif ($toggleFilter === 'flag') {
             // Filter tasks that are marked as flag (visible in flag raise management)
             // A task is flagged if there's a matching flag in the flag_raises table
-            // Match based on: flag description starts with "Task: {title}", and 
-            // (flag's given_by matches task's assignor OR flag's team_member_id matches task's assignee)
+            // Match based on: flag's team_member_id matches task's assignee AND description contains task title
             $automateTask->whereExists(function($query) {
                 $query->select(DB::raw(1))
                     ->from('flag_raises')
-                    ->whereRaw("flag_raises.description LIKE CONCAT('Task: ', automate_tasks.title, '%')")
+                    // Check if flag's team_member_id (assignee) matches any task's assignee
+                    ->whereExists(function($subQuery) {
+                        $subQuery->select(DB::raw(1))
+                            ->from('users as assignee_users')
+                            ->whereColumn('assignee_users.id', 'flag_raises.team_member_id')
+                            ->whereRaw("FIND_IN_SET(assignee_users.email, automate_tasks.assign_to) > 0");
+                    })
+                    // AND flag description contains task title (flexible matching)
                     ->where(function($q) {
-                        // Check if flag's given_by (assignor) matches task's assignor
-                        $q->whereExists(function($subQuery) {
-                            $subQuery->select(DB::raw(1))
-                                ->from('users as assignor_users')
-                                ->whereColumn('assignor_users.id', 'flag_raises.given_by')
-                                ->whereRaw("FIND_IN_SET(assignor_users.email, automate_tasks.assignor) > 0");
-                        })
-                        // OR check if flag's team_member_id (assignee) matches any task's assignee
-                        ->orWhereExists(function($subQuery) {
-                            $subQuery->select(DB::raw(1))
-                                ->from('users as assignee_users')
-                                ->whereColumn('assignee_users.id', 'flag_raises.team_member_id')
-                                ->whereRaw("FIND_IN_SET(assignee_users.email, automate_tasks.assign_to) > 0");
-                        });
+                        $q->whereRaw("flag_raises.description LIKE CONCAT('%', automate_tasks.title, '%')")
+                          ->orWhereRaw("flag_raises.description LIKE CONCAT('Task: ', automate_tasks.title, '%')");
                     });
             });
         }
