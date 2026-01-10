@@ -66,7 +66,8 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (! Auth::attempt(['email' =>$this->email, 'password' =>$this->password,'id'=>$id], $this->boolean('remember'))) {
+        // Disable remember me - force daily login (set to false to prevent extended sessions)
+        if (! Auth::attempt(['email' =>$this->email, 'password' =>$this->password,'id'=>$id], false)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

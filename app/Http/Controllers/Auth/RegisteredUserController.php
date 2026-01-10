@@ -119,6 +119,9 @@ class RegisteredUserController extends Controller
         ]);
 
         Auth::login($user);
+        
+        // Store login timestamp to enforce daily login requirement
+        request()->session()->put('login_timestamp', now()->timestamp);
 
         $role_r = Role::where('name','company')->first();
         if(!empty($user))

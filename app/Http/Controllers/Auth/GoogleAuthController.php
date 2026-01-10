@@ -61,8 +61,11 @@ class GoogleAuthController extends Controller
                 }
             }
 
-            // Log in the user
-            Auth::login($user, true);
+            // Log in the user (without remember me to enforce daily login)
+            Auth::login($user, false);
+            
+            // Store login timestamp to enforce daily login requirement
+            request()->session()->put('login_timestamp', now()->timestamp);
 
             return redirect('/dashboard/taskly');
 

@@ -77,6 +77,9 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        
+        // Store login timestamp to enforce daily login requirement
+        $request->session()->put('login_timestamp', now()->timestamp);
 
         //  User logs
 
