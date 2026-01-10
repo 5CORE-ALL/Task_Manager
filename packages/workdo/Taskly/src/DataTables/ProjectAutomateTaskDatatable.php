@@ -13,6 +13,10 @@ use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
+use Carbon\Carbon;
+use App\Models\FlagRaise;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class ProjectAutomateTaskDatatable extends DataTable
 {
@@ -318,6 +322,49 @@ public function query(AutomateTask $model)
             $query->where('assignor_users.name', 'like', "%$searchValue%")
                 ->orWhereRaw("EXISTS (SELECT 1 FROM users WHERE FIND_IN_SET(users.email, automate_tasks.assign_to) AND users.name LIKE ?)", ["%$searchValue%"]);
         });
+    }
+
+    // Add toggle filter support
+    if (request()->has('toggle_filter') && !empty(request()->input('toggle_filter'))) {
+        $toggleFilter = request()->input('toggle_filter');
+        $currentDate = Carbon::now();
+
+        if ($toggleFilter === 'overdue') {
+            // Show all overdue tasks (due date before or equal to now)
+            $automateTask->where('automate_tasks.due_date', '<=', $currentDate);
+        } elseif ($toggleFilter === 'normal') {
+            $automateTask->where('automate_tasks.priority', 'normal');
+        } elseif ($toggleFilter === 'urgent') {
+            $automateTask->where('automate_tasks.priority', 'urgent');
+        } elseif ($toggleFilter === 'flag') {
+            // Filter tasks that are marked as flag (visible in flag raise management)
+            // A task is flagged if there's a matching flag in the flag_raises table
+            // Match based on: flag description starts with "Task: {title}", and 
+            // (flag's given_by matches task's assignor OR flag's team_member_id matches task's assignee)
+            $automateTask->whereExists(function($query) {
+                $query->select(DB::raw(1))
+                    ->from('flag_raises')
+                    ->whereRaw("flag_raises.description LIKE CONCAT('Task: ', automate_tasks.title, '%')")
+                    ->where(function($q) {
+                        // Check if flag's given_by (assignor) matches task's assignor
+                        $q->whereExists(function($subQuery) {
+                            $subQuery->select(DB::raw(1))
+                                ->from('users as assignor_users')
+                                ->whereColumn('assignor_users.id', 'flag_raises.given_by')
+                                ->whereRaw("FIND_IN_SET(assignor_users.email, automate_tasks.assignor) > 0");
+                        })
+                        // OR check if flag's team_member_id (assignee) matches any task's assignee
+                        ->orWhereExists(function($subQuery) {
+                            $subQuery->select(DB::raw(1))
+                                ->from('users as assignee_users')
+                                ->whereColumn('assignee_users.id', 'flag_raises.team_member_id')
+                                ->whereRaw("FIND_IN_SET(assignee_users.email, automate_tasks.assign_to) > 0");
+                        });
+                    });
+            });
+        }
+
+        // For 'all', no extra filtering
     }
 
     return $automateTask;

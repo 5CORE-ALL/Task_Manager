@@ -239,12 +239,16 @@
       background-color: #4731D3;
       border: none;
     }
-        /* Task Toggle Styles */
+        /* Task Toggle Styles - Enhanced and Beautiful */
     .task-toggle-wrapper {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 20px;
+      margin: 0;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      height: 42px;
     }
 
     .toggle-indicator {
@@ -252,37 +256,60 @@
   top: 3px;
   left: 3px;
   width: calc(25% - 6px); /* 4 equal segments */
-  height: 44px;
-  background: #4CAF50;
-  border-radius: 25px;
-  transition: left 0.3s, background 0.3s;
+  height: calc(100% - 6px);
+  background: #6c757d;
+  border-radius: 6px;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   pointer-events: none;
   z-index: 1;
 }
 
 /* Map states to the indicator positions matching your HTML order:
    0: all    -> left: 3px
-   1: overdue-> left: 33.33% + 3px
-   2: urgent -> left: 66.66% + 3px
+   1: overdue-> left: 25% + 3px
+   2: urgent -> left: 50% + 3px
+   3: flag   -> left: 75% + 3px
 */
-.toggle[data-state="all"]     .toggle-indicator { left: 3px;                 background: #007bff; } /* All  */
-.toggle[data-state="overdue"] .toggle-indicator { left: calc(33.33% + 3px);   background: #dc3545; } /* Overdue */
-.toggle[data-state="urgent"]  .toggle-indicator { left: calc(66.66% + 3px);   background: #ff000d; } /* Urgent */
+.toggle[data-state="all"]     .toggle-indicator { 
+  left: 3px; 
+  background: #6c757d; 
+}
+.toggle[data-state="overdue"] .toggle-indicator { 
+  left: calc(25% + 3px); 
+  background: #dc3545; 
+}
+.toggle[data-state="urgent"]  .toggle-indicator { 
+  left: calc(50% + 3px); 
+  background: #ffc107; 
+}
+.toggle[data-state="flag"]    .toggle-indicator { 
+  left: calc(75% + 3px); 
+  background: #fd7e14; 
+}
 
-/* Make active option text white */
+/* Make active option text white with better styling */
 .toggle[data-state="all"]     .toggle-option[data-value="all"],
 .toggle[data-state="overdue"] .toggle-option[data-value="overdue"],
-.toggle[data-state="urgent"]  .toggle-option[data-value="urgent"] {
+.toggle[data-state="urgent"]  .toggle-option[data-value="urgent"],
+.toggle[data-state="flag"]    .toggle-option[data-value="flag"] {
   color: #fff;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
 /* Ensure options layout matches segments (so indicator lands correctly) */
 .toggle {
   position: relative;
   display: flex;
-  width: 100%; /* keep as-is or set fixed width */
-  height: 50px; /* match your indicator height + padding */
+  width: 100%;
+  max-width: 600px;
+  height: 100%;
+  background: #fff;
+  border-radius: 6px;
   box-sizing: border-box;
+  padding: 3px;
+  margin: 0 auto;
 }
 
 .toggle-option {
@@ -293,6 +320,22 @@
   cursor: pointer;
   z-index: 2;
   user-select: none;
+  font-weight: 600;
+  font-size: 13px;
+  color: #6c757d;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  position: relative;
+  height: 100%;
+}
+
+.toggle-option:hover {
+  color: #495057;
+  transform: translateY(-2px);
+}
+
+.toggle-option:active {
+  transform: scale(0.98);
 }
 
   </style>
@@ -1336,6 +1379,7 @@
                             <div class="toggle-option" data-value="all">All</div>
                             <div class="toggle-option" data-value="overdue">Overdue</div>
                             <div class="toggle-option" data-value="urgent">Urgent</div>
+                            <div class="toggle-option" data-value="flag">Flag</div>
                         </div>
                     `;
                     
@@ -1345,6 +1389,13 @@
                     // Bind toggle functionality
                     $('#taskToggle .toggle-option').on('click', function() {
                         var selectedValue = $(this).data('value');
+                        var currentState = $('#taskToggle').attr('data-state');
+                        
+                        // If clicking the same option, toggle it off (set to 'all')
+                        if (currentState === selectedValue && selectedValue !== 'all') {
+                            selectedValue = 'all';
+                        }
+                        
                         $('#taskToggle').attr('data-state', selectedValue);
                         console.log("Selected:", selectedValue);
                         

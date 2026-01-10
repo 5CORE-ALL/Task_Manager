@@ -11,6 +11,98 @@
 
 @push('css')
     @include('layouts.includes.datatable-css')
+    <style>
+        /* Task Toggle Styles - Enhanced and Beautiful */
+        .task-toggle-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            height: 42px;
+        }
+
+        .toggle-indicator {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: calc(25% - 6px);
+            height: calc(100% - 6px);
+            background: #6c757d;
+            border-radius: 6px;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .toggle[data-state="all"] .toggle-indicator { 
+            left: 3px; 
+            background: #6c757d; 
+        }
+        .toggle[data-state="overdue"] .toggle-indicator { 
+            left: calc(25% + 3px); 
+            background: #dc3545; 
+        }
+        .toggle[data-state="urgent"] .toggle-indicator { 
+            left: calc(50% + 3px); 
+            background: #ffc107; 
+        }
+        .toggle[data-state="flag"] .toggle-indicator { 
+            left: calc(75% + 3px); 
+            background: #fd7e14; 
+        }
+
+        .toggle[data-state="all"] .toggle-option[data-value="all"],
+        .toggle[data-state="overdue"] .toggle-option[data-value="overdue"],
+        .toggle[data-state="urgent"] .toggle-option[data-value="urgent"],
+        .toggle[data-state="flag"] .toggle-option[data-value="flag"] {
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .toggle {
+            position: relative;
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            height: 100%;
+            background: #fff;
+            border-radius: 6px;
+            box-sizing: border-box;
+            padding: 3px;
+            margin: 0 auto;
+        }
+
+        .toggle-option {
+            flex: 0 0 25%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            user-select: none;
+            font-weight: 600;
+            font-size: 13px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            position: relative;
+            height: 100%;
+        }
+
+        .toggle-option:hover {
+            color: #495057;
+            transform: translateY(-2px);
+        }
+
+        .toggle-option:active {
+            transform: scale(0.98);
+        }
+    </style>
 @endpush
 @section('page-action')
     <div class="d-flex">
@@ -35,6 +127,49 @@
 @endsection
 
 @section('content')
+    {{-- Bulk Actions Bar with Filter Section --}}
+    <div class="card mb-3" style="position: sticky; top: 0; z-index: 1000; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div id="bulk-actions-bar" style="display: none; flex: 1;" class="d-flex align-items-center gap-2">
+                    <span class="text-dark me-3" style="font-weight: 600;">
+                        <i class="fas fa-tasks me-2"></i>
+                        <span id="selected-count">0</span> task(s) selected
+                    </span>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-sm btn-primary" id="bulk-status-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update Status">
+                            <i class="fas fa-tasks me-1"></i> Status
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" id="bulk-assignor-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update Assignor">
+                            <i class="fas fa-user-edit me-1"></i> Assignor
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" id="bulk-assignee-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update Assignee">
+                            <i class="fas fa-user-plus me-1"></i> Assignee
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" id="bulk-etc-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update ETC">
+                            <i class="fas fa-clock me-1"></i> ETC
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" id="bulk-date-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update Dates">
+                            <i class="fas fa-calendar me-1"></i> Dates
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" id="bulk-priority-update-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Update Priority">
+                            <i class="fas fa-flag me-1"></i> Priority
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" id="delete-btn-top" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Selected">
+                            <i class="fas fa-trash me-1"></i> Delete
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" id="clear-selection-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Clear Selection">
+                            <i class="fas fa-times me-1"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="task-toggle-wrapper" style="flex-shrink: 0;">
+                    <!-- Toggle will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-xl-12">
             <div class="container mt-5">
@@ -473,6 +608,9 @@
                     $('.task-checkbox').prop('checked', isChecked);
                 });
 
+                // Initialize toggle filter
+                initializeTaskToggle();
+                
                 // initializeDataTable();
                  $('#assignee_name, #assignor_name,#status_name,#group_name,#task_name').on('change', function () {
                     getTaskCount();
@@ -489,6 +627,65 @@
 
               
             });
+            
+            // Initialize task toggle
+            function initializeTaskToggle() {
+                // Wait for DataTable to be fully initialized
+                setTimeout(function() {
+                    // Create toggle HTML
+                    var toggleHtml = `
+                        <div class="toggle" data-state="all" id="taskToggle">
+                            <div class="toggle-indicator"></div>
+                            <div class="toggle-option" data-value="all">All</div>
+                            <div class="toggle-option" data-value="overdue">Overdue</div>
+                            <div class="toggle-option" data-value="urgent">Urgent</div>
+                            <div class="toggle-option" data-value="flag">Flag</div>
+                        </div>
+                    `;
+                    
+                    // Insert toggle into the task-toggle-wrapper
+                    $('.task-toggle-wrapper').html(toggleHtml);
+                    
+                    // Bind toggle functionality
+                    $('#taskToggle .toggle-option').on('click', function() {
+                        var selectedValue = $(this).data('value');
+                        var currentState = $('#taskToggle').attr('data-state');
+                        
+                        // If clicking the same option, toggle it off (set to 'all')
+                        if (currentState === selectedValue && selectedValue !== 'all') {
+                            selectedValue = 'all';
+                        }
+                        
+                        $('#taskToggle').attr('data-state', selectedValue);
+                        console.log("Selected:", selectedValue);
+                        
+                        // Apply filtering based on selected option
+                        filterTasksByToggle(selectedValue);
+                    });
+                }, 1000);
+            }
+            
+            // Filter tasks based on toggle selection
+            function filterTasksByToggle(filterType) {
+                if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                    var table = $('#projects-task-table').DataTable();
+                    
+                    // Update the AJAX data to include toggle filter
+                    table.settings()[0].ajax.data = function(d) {
+                        d.assignee_name = $('#assignee_name').val();
+                        d.assignor_name = $('#assignor_name').val();
+                        d.status_name = $('#status_name').val();
+                        d.group_name = $('#group_name').val();
+                        d.task_name = $('#task_name').val();
+                        d.toggle_filter = filterType;
+                        return d;
+                    };
+                    
+                    // Reload the table with new filter
+                    table.ajax.reload();
+                    getTaskCount();
+                }
+            }
                
                 
             $(document).on("click", ".task-checkbox", function() {
@@ -541,6 +738,20 @@
                                 className: 'btn btn-light-warning'
                             }
                         ],
+                        drawCallback: function(settings) {
+                            // Initialize toggle filter if not already initialized
+                            setTimeout(function() {
+                                if ($('.task-toggle-wrapper').html().trim() === '' || !$('#taskToggle').length) {
+                                    initializeTaskToggle();
+                                }
+                            }, 100);
+                            
+                            // Reinitialize tooltips
+                            var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
+                            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                                return new bootstrap.Tooltip(tooltipTriggerEl);
+                            });
+                        },
                         ajax: {
                             url: "{{ route('projecttask.automate.list') }}",
                             data: function (d) {
@@ -549,6 +760,10 @@
                                 d.group_name = $('#group_name').val();
                                 d.task_name = $('#task_name').val();
                                 d.status_name = $('#status_name').val();
+                                var toggleState = $('#taskToggle').attr('data-state') || 'all';
+                                if (toggleState !== 'all') {
+                                    d.toggle_filter = toggleState;
+                                }
                             }
                         },
                         columns: [
