@@ -346,7 +346,7 @@
                     <span class="stat-label">Overdue</span>
                     <span class="stat-icon">⚠️</span>
                 </div>
-                <div class="stat-value">{{$overdueTask->count()}}</div>
+                <div class="stat-value">{{$overdueTask}}</div>
             </div>
 
             <div class="stat-card green">
