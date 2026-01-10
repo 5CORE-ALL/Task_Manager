@@ -721,8 +721,9 @@ class ProjectTaskDatatable extends DataTable
                     
                     if ($matchingFlag) {
                         // Task is flagged - show flag icon with link to flag raise management
-                        // Color the flag based on flag_type (red or green)
-                        $flagType = strtolower($matchingFlag->flag_type ?? 'red');
+                        // Get flag_type directly from the matched flag record in storage
+                        $flagType = strtolower(trim($matchingFlag->flag_type ?? 'red'));
+                        // Display green color only if flag_type stored in database is 'green', otherwise red
                         $colorClass = ($flagType === 'green') ? 'text-success' : 'text-danger';
                         $flagIcon = '<a href="' . route('flag-raise.history') . '" target="_blank" title="Flag Raise Management" class="' . $colorClass . '" style="text-decoration: none;">
                                         <i class="fas fa-flag" style="font-size: 16px;"></i>

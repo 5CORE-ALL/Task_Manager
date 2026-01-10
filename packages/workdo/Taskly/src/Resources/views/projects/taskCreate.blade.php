@@ -83,8 +83,8 @@
                 <div class="row">
                     <div class="form-group col-md-6">
                         <label class="form-label">{{ __('Flag Type') }}</label>
-                        <select class="form-control form-control-light" name="flag_type" id="flag_type">
-                            <option value="red">{{ __('Red Flag') }}</option>
+                        <select class="form-control form-control-light" name="flag_type" id="flag_type" required>
+                            <option value="red" selected>{{ __('Red Flag') }}</option>
                             <option value="green">{{ __('Green Flag') }}</option>
                         </select>
                     </div>
@@ -745,6 +745,15 @@ document.addEventListener('DOMContentLoaded', function() {
     async function createGroupedTask(assignees) {
         const formData = new FormData(taskForm);
         
+        // Ensure flag_type is included if flag_raise is checked
+        const flagRaiseChecked = document.getElementById('flagRaiseToggle')?.checked;
+        if (flagRaiseChecked) {
+            const flagTypeSelect = document.getElementById('flag_type');
+            if (flagTypeSelect) {
+                formData.set('flag_type', flagTypeSelect.value || 'red');
+            }
+        }
+        
         // Clear and set all assignees
         formData.delete('assign_to');
         assignees.forEach(assignee => {
@@ -761,6 +770,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function createIndividualTasks(assignees) {
         const baseFormData = new FormData(taskForm);
+        
+        // Ensure flag_type is included if flag_raise is checked
+        const flagRaiseChecked = document.getElementById('flagRaiseToggle')?.checked;
+        if (flagRaiseChecked) {
+            const flagTypeSelect = document.getElementById('flag_type');
+            if (flagTypeSelect) {
+                baseFormData.set('flag_type', flagTypeSelect.value || 'red');
+            }
+        }
+        
         baseFormData.delete('assign_to[]');
         
         const requests = assignees.map(assignee => {
@@ -845,6 +864,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Submit form for each member using Promise.all to wait for all requests
             const requests = allMemberEmails.map(email => {
                 const formData = new FormData(taskForm);
+                
+                // Ensure flag_type is included if flag_raise is checked
+                const flagRaiseChecked = document.getElementById('flagRaiseToggle')?.checked;
+                if (flagRaiseChecked) {
+                    const flagTypeSelect = document.getElementById('flag_type');
+                    if (flagTypeSelect) {
+                        formData.set('flag_type', flagTypeSelect.value || 'red');
+                    }
+                }
                 
                 // Set single assignee
                 formData.delete('assign_to[]');

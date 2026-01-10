@@ -1254,16 +1254,22 @@ private function createFlagForTask($task, $assigneeEmail, $request)
             }
         }
         
-        // Determine flag type based on priority and request
+        // Determine flag type from request (user selection takes priority)
         $flagType = $request->input('flag_type');
-        if (empty($flagType)) {
-            // Auto-determine based on task priority
+        // Validate and ensure flag_type is 'red' or 'green'
+        // Only use priority-based default if flag_type is not provided or invalid
+        if ($flagType && in_array($flagType, ['red', 'green'])) {
+            // Use the flag_type from request (user's selection)
+            Log::info("Flag type from request - Task: {$task->title}, FlagType: {$flagType}");
+        } else {
+            // Auto-determine based on task priority only if flag_type was not provided or invalid
             $priority = strtolower($task->priority ?? 'normal');
             if (in_array($priority, ['urgent', 'high', 'critical'])) {
                 $flagType = 'red';
             } else {
                 $flagType = 'green';
             }
+            Log::info("Flag type auto-determined from priority - Task: {$task->title}, Priority: {$priority}, FlagType: {$flagType}, Request flag_type was: " . ($request->input('flag_type') ?? 'null'));
         }
         
         // Create flag with mapped task fields
@@ -1274,7 +1280,7 @@ private function createFlagForTask($task, $assigneeEmail, $request)
             'flag_type' => $flagType,
         ]);
         
-        Log::info("Flag created from task - Assignor: {$givenBy}, Assignee: {$assigneeUser->id}, Type: {$flagType}");
+        Log::info("Flag created from task - Assignor: {$givenBy}, Assignee: {$assigneeUser->id}, Task: {$task->title}, Type: {$flagType}");
     } catch (\Exception $e) {
         Log::error("Error creating flag from task: " . $e->getMessage());
     }
