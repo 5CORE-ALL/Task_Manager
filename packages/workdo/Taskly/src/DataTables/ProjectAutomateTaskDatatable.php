@@ -27,7 +27,7 @@ class ProjectAutomateTaskDatatable extends DataTable
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
-        $rowcolumn = ['title','priority','status','assign_to','assigner_name','start_date','end_date','group','checkbox','links','link_3','link_4','link_5','link_7','link_6'];
+        $rowcolumn = ['title','priority','status','assign_to','assigner_name','start_date','end_date','group','checkbox','links','link_3','link_4','link_5','link_7','link_6','flag_raise'];
         $dataTable = (new EloquentDataTable($query))
         ->editColumn('status',function(AutomateTask $automateTask){
             $stage = $automateTask->stage;
@@ -212,6 +212,60 @@ class ProjectAutomateTaskDatatable extends DataTable
                     $html .= '</div>';
             }
             return $html;
+        })
+        ->addColumn('flag_raise', function (AutomateTask $task) {
+            // Check if task is flagged by looking for matching flag in flag_raises table
+            try {
+                // Get assignor user ID
+                $assignorEmails = explode(',', $task->assignor ?? '');
+                $assignorEmail = trim($assignorEmails[0] ?? '');
+                $assignorUser = null;
+                if (!empty($assignorEmail)) {
+                    $assignorUser = User::where('email', $assignorEmail)->first();
+                }
+                $givenBy = $assignorUser ? $assignorUser->id : null;
+                
+                // Get assignee user IDs
+                $assigneeEmails = explode(',', $task->assign_to ?? '');
+                $assigneeUserIds = [];
+                foreach ($assigneeEmails as $email) {
+                    $assigneeUser = User::where('email', trim($email))->first();
+                    if ($assigneeUser) {
+                        $assigneeUserIds[] = $assigneeUser->id;
+                    }
+                }
+                
+                // Check if there's a flag matching this task
+                // Flag description typically starts with "Task: {title}"
+                $flagDescriptionPattern = "Task: {$task->title}%";
+                
+                $matchingFlag = FlagRaise::where(function($query) use ($givenBy, $assigneeUserIds, $flagDescriptionPattern) {
+                    if ($givenBy) {
+                        $query->where('given_by', $givenBy);
+                    }
+                    if (!empty($assigneeUserIds)) {
+                        $query->whereIn('team_member_id', $assigneeUserIds);
+                    }
+                    $query->where('description', 'like', $flagDescriptionPattern);
+                })->first();
+                
+                if ($matchingFlag) {
+                    // Task is flagged - show flag icon with link to flag raise management
+                    // Color the flag based on flag_type (red or green)
+                    $flagType = strtolower($matchingFlag->flag_type ?? 'red');
+                    $colorClass = ($flagType === 'green') ? 'text-success' : 'text-danger';
+                    $flagIcon = '<a href="' . route('flag-raise.history') . '" target="_blank" title="Flag Raise Management" class="' . $colorClass . '" style="text-decoration: none;">
+                                    <i class="fas fa-flag" style="font-size: 16px;"></i>
+                                </a>';
+                    return $flagIcon;
+                }
+                
+                // Task is not flagged - return empty
+                return '';
+            } catch (\Exception $e) {
+                \Log::error("Error checking flag raise for automate task {$task->id}: " . $e->getMessage());
+                return '';
+            }
         });
         if (\Laratrust::hasPermission('task show') || \Laratrust::hasPermission('task edit') || \Laratrust::hasPermission('task delete')) {
             $dataTable->addColumn('action', function (AutomateTask $task) {
@@ -655,6 +709,7 @@ public function query(AutomateTask $model)
             ->exportable(false)
             ->printable(false)
             ->className('no-export'),
+            Column::make('flag_raise')->title(__('Flag Raised?'))->html()->exportable(false)->searchable(false)->orderable(false),
              Column::make('group')->title(__('Group')),
             Column::make('title')->title(__('Title')),
             Column::make('assigner_name')->title(__('Assigner')),
