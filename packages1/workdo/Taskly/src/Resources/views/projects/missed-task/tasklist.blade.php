@@ -2377,64 +2377,31 @@ function updateTodayGraphButtonState() {
                                 <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                         </div>
-                        <div class="modal-body py-4 px-4">
+                        <div class="modal-body py-5 px-4">
+                            <h4 class="text-center mb-4" style="font-size: 1.5rem; font-weight: 600;">✨ Daily Growth Reminder</h4>
+                            
+                            <div class="mb-4">
+                                <div class="mb-3 p-3 rounded" style="background-color: #d4edda; border-left: 4px solid #28a745;">
+                                    <p class="mb-0" style="font-size: 1.1rem; font-weight: 500;">
+                                        🟢 On-time tasks = Salary growth 💰 + Incentives 🏆
+                                    </p>
+                                </div>
+                                <div class="mb-3 p-3 rounded" style="background-color: #f8d7da; border-left: 4px solid #dc3545;">
+                                    <p class="mb-0" style="font-size: 1.1rem; font-weight: 500;">
+                                        🔴 Overdue tasks = Missed promotions ❌
+                                    </p>
+                                </div>
+                            </div>
+
                             <div class="text-center mb-3">
-                                <div class="bg-primary bg-opacity-10 rounded-circle p-4 d-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                                    </svg>
-                                </div>
-                            </div>
-                            <h4 class="text-center mb-3 text-primary">Professional Excellence Reminder</h4>
-                            <div class="alert alert-primary border-0 bg-primary bg-opacity-10">
-                                <p class="mb-0 text-center fw-bold text-white" style="font-size: 1.1rem;">
-                                    "Avoid overdue tasks, excel consistently, and secure monthly salary increments through strong dedication!"
+                                <p class="mb-2" style="font-size: 1.15rem; font-weight: 600; color: #333;">
+                                    👈 Your daily discipline decides your income.
                                 </p>
-                            </div>
-                            <div class="text-center mt-4">
-                                <div class="d-flex justify-content-center">
-                                    <div class="mx-2">
-                                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="12" cy="12" r="10"></circle>
-                                                <polyline points="12 6 12 12 16 14"></polyline>
-                                            </svg>
-                                        </div>
-                                        <p class="small mt-2 mb-0">Timely Completion</p>
-                                    </div>
-                                    <div class="mx-2">
-                                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                            </svg>
-                                        </div>
-                                        <p class="small mt-2 mb-0">Consistent Excellence</p>
-                                    </div>
-                                    <div class="mx-2">
-                                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <line x1="12" y1="1" x2="12" y2="3"></line>
-                                                <line x1="12" y1="21" x2="12" y2="23"></line>
-                                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                                                <line x1="1" y1="12" x2="3" y2="12"></line>
-                                                <line x1="21" y1="12" x2="23" y2="12"></line>
-                                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                                            </svg>
-                                        </div>
-                                        <p class="small mt-2 mb-0">Career Growth</p>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         <div class="modal-footer bg-light py-3" style="border-top: none;">
                             <button type="button" class="btn btn-primary rounded-pill px-4 ms-auto" data-bs-dismiss="modal">
-                                <i class="fas fa-thumbs-up me-2"></i>I'm Motivated!
+                                <i class="fas fa-thumbs-up me-2"></i>👍 I'm Committed
                             </button>
                         </div>
                     </div>
