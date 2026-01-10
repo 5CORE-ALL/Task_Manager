@@ -41,12 +41,7 @@ trait TaskTraits
             $autoMatetaskArr['automate_task_id'] = $autoMatetask->id;
             $autoMatetaskArr['is_automate_task'] =1;
              $autoMatetaskArr['start_date'] =$todayTime;
-            $autoMatetaskArr['due_date'] =$todayDueTime;
             $autoMatetaskArr['workspace'] = $currentWorkspace; // Ensure workspace is set
-            if($autoMatetask->schedule_type=='weekly')
-            {
-                $autoMatetaskArr['due_date'] =$weekdayTime;
-            }
           
             $autoMatetaskArr['status'] ="Todo";
             unset($autoMatetaskArr['id']); // Remove id to force creation of new task

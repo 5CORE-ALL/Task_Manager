@@ -115,12 +115,11 @@
            min="1" value="10" oninput="this.value = Math.abs(this.value.replace(/[^0-9]/g, '').slice(0, 4));">
 </div>
                 <div class="form-group col-md-6">
-                    <label class="form-label">{{ __('Duration')}}</label><x-required></x-required>
+                    <label class="form-label">{{ __('TID (Task Initiation Date)')}}</label><x-required></x-required>
                     <div class='input-group'>
                         <input type='text' class=" form-control form-control-light" id="duration" name="duration" required autocomplete="off"
-                            placeholder="Select date range" />
+                            placeholder="Select date" />
                             <input type="hidden" name="start_date">
-                                <input type="hidden" name="due_date">
                                 <span class="input-group-text"><i class="feather icon-calendar"></i></span>
                     </div>
                 </div>
@@ -333,13 +332,6 @@
 </script>
 
     <script>
-    // Move the callback function to global scope
-    function updateDateRange(start, end) {
-        $('#duration').val(start.format('MMM D, YY hh:mm A') + ' - ' + end.format('MMM D, YY hh:mm A'));
-        $('input[name="start_date"]').val(start.format('YYYY-MM-DD HH:mm:ss'));
-        $('input[name="due_date"]').val(end.format('YYYY-MM-DD HH:mm:ss'));
-    }
-
     // Toggle flag raise details visibility
     $(document).ready(function() {
         $('#flagRaiseToggle').change(function() {
@@ -350,52 +342,26 @@
             }
         });
     });
-
-    $(document).ready(function() {
-        const durationPicker = $('#duration').daterangepicker({
-            // ... keep existing daterangepicker configuration
-        }, updateDateRange);
-
-        // Add status change handler
-        $('#task-stage').change(function() {
-            if ($(this).val() === 'Urgent') {
-                const urgentStart = moment();
-                const urgentEnd = moment().add(1, 'days');
-                
-                // Update picker and inputs
-                durationPicker.data('daterangepicker').setStartDate(urgentStart);
-                durationPicker.data('daterangepicker').setEndDate(urgentEnd);
-                updateDateRange(urgentStart, urgentEnd);
-            }
-        });
-    });
 </script>
-<!--urgent status  when select that time 1 day time count-->
     <script>
         $(function () {
-              var start = moment('{{ date('Y-m-d') }}', 'YYYY-MM-DD HH:mm:ss');
-            var end = moment(start).add(4, 'days'); // Initialize end date with +3 days
+            var start = moment('{{ date('Y-m-d') }}', 'YYYY-MM-DD');
 
-            function cb(start, end) {
-                var updatedEnd = end.clone().add(4, 'days'); // Clone end before adding days
-                console.log("================================",updatedEnd);
-                $("form #duration").val(start.format('MMM D, YY hh:mm A') + ' - ' + end.format('MMM D, YY hh:mm A'));
+            function cb(start) {
+                $("form #duration").val(start.format('MMM D, YY hh:mm A'));
                 $('form input[name="start_date"]').val(start.format('YYYY-MM-DD HH:mm:ss'));
-                $('form input[name="due_date"]').val(end.format('YYYY-MM-DD HH:mm:ss'));
             }
 
             $('form #duration').daterangepicker({
+                singleDatePicker: true,
                 autoApply: true,
                 timePicker: true,
                 autoUpdateInput: false,
                 startDate: start,
-                endDate: end,
                 locale: {
                     format: 'MMMM D, YYYY hh:mm A',
                     applyLabel: "{{__('Apply')}}",
                     cancelLabel: "{{__('Cancel')}}",
-                    fromLabel: "{{__('From')}}",
-                    toLabel: "{{__('To')}}",
                     daysOfWeek: [
                         "{{__('Sun')}}",
                         "{{__('Mon')}}",
@@ -420,9 +386,11 @@
                         "{{__('December')}}"
                     ],
                 }
-            }, cb);
+            }, function(start) {
+                cb(start);
+            });
 
-            cb(start, end);
+            cb(start);
         });
         $(document).on('change', "select[name=project_id]", function () {
             $.get('@auth('web'){{route('home')}}@elseauth{{route('client.home')}}@endauth' + '/userProjectJson/' + $(this).val(), function (data) {

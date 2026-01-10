@@ -1010,13 +1010,15 @@ public function taskStore(Request $request)
         'assignor' => 'required',
         'priority' => 'required',
         'start_date' => 'required',
-        'due_date' => 'required',
         'description' => 'nullable',
     ]);
     
     $objUser = Auth::user();
     $currentWorkspace = getActiveWorkSpace();
     $post = $request->all();
+    
+    // Remove due_date from post array to prevent saving it
+    unset($post['due_date']);
 
     // Handle All Members selection
     if (isset($post['assign_to']) && in_array('all_members', $post['assign_to'])) {
@@ -2583,6 +2585,10 @@ public function bulkUpdateStatus(Request $request)
             }
             
             $post              = $request->all();
+            
+            // Remove due_date from post array to prevent updating it
+            unset($post['due_date']);
+            
              if(!empty($request->stage_id))
             {
              $stage = Stage::where('workspace_id', '=', $currentWorkspace)->where('name',$request->stage_id)->orderBy('order')->first();

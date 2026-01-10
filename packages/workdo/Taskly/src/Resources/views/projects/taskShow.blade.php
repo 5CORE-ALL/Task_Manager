@@ -24,10 +24,6 @@
                 <div class="form-control-label fw-bold">{{ __('Create Date')}}</div>
                 <p class="mt-1">{{ company_date_formate($task->created_at) }}</p>
             </div>
-            <div class="col-md-3">
-                <div class="form-control-label fw-bold">{{ __('Due Date')}}</div>
-                <p class="mt-1">{{ company_date_formate($task->due_date) }}</p>
-            </div>
              <div class="col-md-3">
                 <div class="form-control-label fw-bold">{{ __('Assigned')}}</div>
             
@@ -218,12 +214,6 @@
                         <div class="form-group text-start">
                             <label class="col-form-label">{{__('Name')}}</label>
                             <input type="text" name="name" class="form-control" required placeholder="{{__('Sub Task Name')}}">
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="form-group text-start">
-                            <label class="col-form-label">{{__('Due Date')}}</label>
-                            <input class="form-control" type="date" id="due_date" name="due_date" autocomplete="off" required="required">
                         </div>
                     </div>
                 </div>

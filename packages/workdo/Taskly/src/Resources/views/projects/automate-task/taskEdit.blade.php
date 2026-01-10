@@ -96,14 +96,13 @@
                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
                 </div>
                  <div class="form-group col-md-6">
-                        <label class="form-label">{{ __('Duration')}}</label>
+                        <label class="form-label">{{ __('TID (Task Initiation Date)')}}</label>
                         <div class='input-group'>
-                                <input type='text' class=" form-control pc-daterangepicker-3" id="duration" name="duration" value="{{__('Select Date Range')}}"
-                                    placeholder="Select date range" 
+                                <input type='text' class=" form-control pc-daterangepicker-3" id="duration" name="duration" value="{{__('Select Date')}}"
+                                    placeholder="Select date" 
                                     
                                     />
                                     <input type="hidden" name="start_date"  id="start_date1">
-                                    <input type="hidden" name="due_date" id="end_date1">
                                     <span class="input-group-text"><i
                                         class="feather icon-calendar"></i></span>
                             </div>
@@ -200,26 +199,37 @@
             });
        }
         $(function () {
-            var start = moment('{{$task->start_date}}', 'YYYY-MM-DD HH:mm:ss');
-            var end = moment('{{$task->due_date}}', 'YYYY-MM-DD HH:mm:ss');
+            var startDate = '{{$task->start_date}}';
+            var start;
+            
+            // Check if date is valid, otherwise use current date/time
+            if (startDate && startDate !== '' && startDate !== 'null') {
+                start = moment(startDate, 'YYYY-MM-DD HH:mm:ss');
+                if (!start.isValid()) {
+                    start = moment();
+                }
+            } else {
+                start = moment();
+            }
 
-            function cb(start, end) {
-                $("form #duration").val(start.format('MMM D, YY hh:mm A') + ' - ' + end.format('MMM D, YY hh:mm A'));
-                $('form input[name="start_date"]').val(start.format('YYYY-MM-DD HH:mm:ss'));
-                $('form input[name="due_date"]').val(end.format('YYYY-MM-DD HH:mm:ss'));
+            function cb(start) {
+                if (start && start.isValid()) {
+                    $("form #duration").val(start.format('MMM D, YY hh:mm A'));
+                    $('form input[name="start_date"]').val(start.format('YYYY-MM-DD HH:mm:ss'));
+                } else {
+                    $("form #duration").val("{{__('Select Date')}}");
+                }
             }
 
             $('form #duration').daterangepicker({
+                singleDatePicker: true,
                 timePicker: true,
                 autoUpdateInput: false,
                 startDate: start,
-                endDate: end,
                 locale: {
                     format: 'MMMM D, YYYY hh:mm A',
                     applyLabel: "{{__('Apply')}}",
                     cancelLabel: "{{__('Cancel')}}",
-                    fromLabel: "{{__('From')}}",
-                    toLabel: "{{__('To')}}",
                     daysOfWeek: [
                         "{{__('Sun')}}",
                         "{{__('Mon')}}",
@@ -244,9 +254,14 @@
                         "{{__('December')}}"
                     ],
                 }
-            }, cb);
+            }, function(start) {
+                cb(start);
+            });
 
-            cb(start, end);
+            // Only call cb if we have valid date
+            if (startDate && startDate !== '' && startDate !== 'null') {
+                cb(start);
+            }
         });
     </script>
     

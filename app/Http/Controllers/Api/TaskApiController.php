@@ -38,7 +38,6 @@ class TaskApiController extends Controller
                 'assignor.*' => 'required|string|email', 
                 'priority' => 'required|in:normal,urgent,Take your time',
                 'start_date' => 'required|date',
-                'due_date' => 'required|date|after_or_equal:start_date',
                 'group' => 'required|string|max:15',
                 'stage_id' => 'nullable|string',
                 'description' => 'nullable|string',
@@ -96,6 +95,8 @@ class TaskApiController extends Controller
             }
 
             $post = $request->all();
+            // Remove due_date from post array to prevent saving it
+            unset($post['due_date']);
             // $split_tasks = $request->filled('split_tasks') ? 1 : 0;
             $split_tasks = $request->boolean('split_tasks') ? 1 : 0;
 
@@ -129,7 +130,6 @@ class TaskApiController extends Controller
                         'assignor' => implode(',', $post['assignor']),
                         'priority' => $post['priority'],
                         'start_date' => $post['start_date'],
-                        'due_date' => $post['due_date'],
                         'group' => $post['group'],
                         'eta_time' => $post['eta_time'],
                         'link1' => $post['link1'] ?? '',

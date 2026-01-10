@@ -85,12 +85,11 @@
                 </div>
 
                <div class="form-group col-md-6">
-                    <label class="form-label">{{ __('Duration')}}</label><x-required></x-required>
+                    <label class="form-label">{{ __('TID (Task Initiation Date)')}}</label><x-required></x-required>
                     <div class='input-group'>
                         <input type='text' class=" form-control form-control-light" id="duration" name="duration" required autocomplete="off"
-                            placeholder="Select date range" />
+                            placeholder="Select date" />
                             <input type="hidden" name="start_date">
-                                <input type="hidden" name="due_date">
                                 <span class="input-group-text"><i class="feather icon-calendar"></i></span>
                     </div>
                 </div>
@@ -213,38 +212,27 @@
 
     <script>
         $(function() {
-    // Set start to today at 00:00
-    var start = moment().startOf('day'); 
-    // Set end to tomorrow at 00:00 (ensures different date)
-    var end = moment().startOf('day').add(1, 'day');
+            // Set start to today at 00:00
+            var start = moment().startOf('day');
 
-    function cb(start, end) {
-        // Format display with full date range
-        $("form #duration").val(
-            start.format('MMM D, YY hh:mm A') + ' - ' + 
-            end.format('MMM D, YY hh:mm A')
-        );
-        
-        // Store full datetime values
-        $('form input[name="start_date"]').val(start.format('YYYY-MM-DD HH:mm:ss'));
-        $('form input[name="due_date"]').val(end.format('YYYY-MM-DD HH:mm:ss'));
-        
-        console.log("Start:", start.format('YYYY-MM-DD HH:mm'));
-        console.log("End:", end.format('YYYY-MM-DD HH:mm'));
-    }
+            function cb(start) {
+                // Format display with single date
+                $("form #duration").val(start.format('MMM D, YY hh:mm A'));
+                
+                // Store full datetime value
+                $('form input[name="start_date"]').val(start.format('YYYY-MM-DD HH:mm:ss'));
+            }
 
             $('form #duration').daterangepicker({
+                singleDatePicker: true,
                 autoApply: true,
                 timePicker: true,
                 autoUpdateInput: false,
                 startDate: start,
-                endDate: end,
                 locale: {
                     format: 'MMMM D, YYYY hh:mm A',
                     applyLabel: "{{ __('Apply') }}",
                     cancelLabel: "{{ __('Cancel') }}",
-                    fromLabel: "{{ __('From') }}",
-                    toLabel: "{{ __('To') }}",
                     daysOfWeek: [
                         "{{ __('Sun') }}",
                         "{{ __('Mon') }}",
@@ -269,20 +257,11 @@
                         "{{ __('December') }}"
                     ],
                 }
-            }, cb);
+            }, function(start) {
+                cb(start);
+            });
 
-            cb(start, end);
-                // For due date coloring (this would be in your task display logic)
-    function checkDueDate(taskEndDate) {
-        const now = moment();
-        const dueDate = moment(taskEndDate);
-        const isOverdue = dueDate.isBefore(now, 'day');
-        
-        if (isOverdue) {
-            return 'red'; // Apply red color for overdue tasks
-        }
-        return ''; // Default color
-    }
+            cb(start);
         });
         $(document).on('change', "select[name=project_id]", function() {
             $.get('@auth('web'){{ route('home') }}@elseauth{{ route('client.home') }}@endauth' +

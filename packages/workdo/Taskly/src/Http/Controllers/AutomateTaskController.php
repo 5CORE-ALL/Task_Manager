@@ -281,7 +281,6 @@ class AutomateTaskController extends Controller
             $post['eta_time'] = $request->eta_time;
             $post['split_tasks'] = $request->has('split_tasks') ? 1 : 0;
             $post['start_date'] = $request->start_date;
-            $post['due_date'] = $request->due_date;
             $post['schedule_time'] = $request->schedule_time;
             $post['schedule_type'] = $request->schedule_type;
                 if ($request->schedule_type == 'monthly') {

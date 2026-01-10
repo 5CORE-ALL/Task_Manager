@@ -103,14 +103,13 @@
             </div>
              
                 <div class="form-group col-md-6">
-                        <label class="form-label">{{ __('Duration')}}</label>
+                        <label class="form-label">{{ __('TID (Task Initiation Date)')}}</label>
                         <div class='input-group'>
-                                <input type='text' class=" form-control pc-daterangepicker-3" id="duration" name="duration" value="{{__('Select Date Range')}}"
-                                    placeholder="Select date range" 
+                                <input type='text' class=" form-control pc-daterangepicker-3" id="duration" name="duration" value="{{__('Select Date')}}"
+                                    placeholder="Select date" 
                                     @if(Auth::user()->email !== 'president@5core.com') disabled title="You do not have permission to update TID (Task Initiation Date)" @endif
                                    />
                                     <input type="hidden" name="start_date"  id="start_date1">
-                                    <input type="hidden" name="due_date" id="end_date1">
                                     <span class="input-group-text"><i
                                         class="feather icon-calendar"></i></span>
                             </div>
@@ -246,9 +245,8 @@
         $(function () {
             // Handle null/empty dates for event tasks
             var startDate = '{{$task->start_date}}';
-            var endDate = '{{$task->due_date}}';
             
-            var start, end;
+            var start;
             
             // Check if dates are valid, otherwise use current date/time
             if (startDate && startDate !== '' && startDate !== 'null') {
@@ -259,37 +257,25 @@
             } else {
                 start = moment();
             }
-            
-            if (endDate && endDate !== '' && endDate !== 'null') {
-                end = moment(endDate, 'YYYY-MM-DD HH:mm:ss');
-                if (!end.isValid()) {
-                    end = moment().add(1, 'day');
-                }
-            } else {
-                end = moment().add(1, 'day');
-            }
 
-            function cb(start, end) {
-                if (start && end && start.isValid() && end.isValid()) {
-                    $("form #duration").val(start.format('MMM D, YY hh:mm A') + ' - ' + end.format('MMM D, YY hh:mm A'));
+            function cb(start) {
+                if (start && start.isValid()) {
+                    $("form #duration").val(start.format('MMM D, YY hh:mm A'));
                     $('form input[name="start_date"]').val(start.format('YYYY-MM-DD HH:mm:ss'));
-                    $('form input[name="due_date"]').val(end.format('YYYY-MM-DD HH:mm:ss'));
                 } else {
-                    $("form #duration").val("{{__('Select Date Range')}}");
+                    $("form #duration").val("{{__('Select Date')}}");
                 }
             }
 
             $('form #duration').daterangepicker({
+                singleDatePicker: true,
                 timePicker: true,
                 autoUpdateInput: false,
                 startDate: start,
-                endDate: end,
                 locale: {
                     format: 'MMMM D, YYYY hh:mm A',
                     applyLabel: "{{__('Apply')}}",
                     cancelLabel: "{{__('Cancel')}}",
-                    fromLabel: "{{__('From')}}",
-                    toLabel: "{{__('To')}}",
                     daysOfWeek: [
                         "{{__('Sun')}}",
                         "{{__('Mon')}}",
@@ -314,11 +300,13 @@
                         "{{__('December')}}"
                     ],
                 }
-            }, cb);
+            }, function(start) {
+                cb(start);
+            });
 
-            // Only call cb if we have valid dates
-            if (startDate && startDate !== '' && startDate !== 'null' && endDate && endDate !== '' && endDate !== 'null') {
-                cb(start, end);
+            // Only call cb if we have valid date
+            if (startDate && startDate !== '' && startDate !== 'null') {
+                cb(start);
             }
         });
     </script>
