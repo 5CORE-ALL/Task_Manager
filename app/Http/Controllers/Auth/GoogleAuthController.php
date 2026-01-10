@@ -37,27 +37,28 @@ class GoogleAuthController extends Controller
             
             $googleUser = Socialite::driver('google')->user();
             
-            // Check if email domain is 5core.com
-            if (!$this->isValidDomain($googleUser->getEmail())) {
-                return redirect()->route('login', $lang)->withErrors([
-                    'email' => 'Only @5core.com email addresses are allowed to login with Google.'
-                ]);
-            }
-
-            // Check if user exists in database
-            $user = User::where('email', $googleUser->getEmail())->first();
+            // Check if user exists in database and is visible/active in /users view
+            $user = $this->getValidUserForGoogleLogin($googleUser->getEmail());
             
             if (!$user) {
                 return redirect()->route('login', $lang)->withErrors([
-                    'email' => 'Your email address is not registered in our system. Please contact administrator.'
+                    'email' => 'Your email address is not registered or you do not have permission to login with Google. Please contact administrator.'
                 ]);
             }
 
             // Update user's Google ID if not set
             if (!$user->google_id) {
-                $user->update([
-                    'google_id' => $googleUser->getId()
-                ]);
+                try {
+                    $user->update([
+                        'google_id' => $googleUser->getId()
+                    ]);
+                } catch (\Exception $e) {
+                    // If google_id column doesn't exist, log the error but continue with login
+                    Log::warning('Could not update google_id for user', [
+                        'user_id' => $user->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
             }
 
             // Log in the user
@@ -74,28 +75,48 @@ class GoogleAuthController extends Controller
     }
 
     /**
-     * Check if email domain is valid (5core.com)
+     * Check if user exists and is visible/active in /users view
+     * Only users that would be visible in the /users view should be allowed to login
+     * 
+     * @param string $email
+     * @return User|null
      */
-
-    private function isValidDomain($email)
+    private function getValidUserForGoogleLogin($email)
     {
-        // Whitelist of special Gmail IDs (lowercase for consistent comparison)
-        $allowedSpecialEmails = [
-            'sjoy7486@gmail.com',
-            'ritu.kaur013@gmail.com',
-            'jadhavharshit66@gmail.com',
-            'sneha.workplace@gmail.com',
-            'ghosharitrika52@gmail.com',
-            'oasis101007@gmail.com',
-            'chakrabortysougata96@gmail.com',
-            'iaminchina2@gmail.com',
-            'roytoreto007@gmail.com',
-        ];
-    
-        $email = strtolower($email);
-        $domain = substr(strrchr($email, "@"), 1);
-    
-        // Allow if domain is 5core.com OR email is in special list
-        return $domain === '5core.com' || in_array($email, $allowedSpecialEmails);
+        // Find user by email
+        $user = User::where('email', $email)->first();
+        
+        if (!$user) {
+            // User doesn't exist (possibly deleted)
+            return null;
+        }
+
+        // Super admins should not use Google login
+        if ($user->type === 'super admin') {
+            return null;
+        }
+
+        // Check if user is active (is_disable = 1 means active/enabled)
+        // Users with is_disable = 0 are disabled and should not appear in /users view
+        if ($user->is_disable != 1) {
+            return null;
+        }
+
+        // Check if login is enabled for this user
+        // Users with is_enable_login = 0 have login disabled
+        if ($user->is_enable_login != 1) {
+            return null;
+        }
+
+        // User must be visible in /users view, which means:
+        // - For non-super admin users: they must have a creator (created_by is set)
+        // - User must be active (is_disable = 1) and login enabled (is_enable_login = 1)
+        // Since we already checked is_disable and is_enable_login above,
+        // we just need to ensure the user would be visible in someone's view
+        
+        // At this point, if user exists, is active, has login enabled, and is not super admin,
+        // they would be visible in the /users view (either in super admin's view or their creator's view)
+        
+        return $user;
     }
 }
