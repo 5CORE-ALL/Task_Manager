@@ -3550,9 +3550,9 @@ public function bulkUpdateStatus(Request $request)
             // Check if user is a team leader
             $isTeamLeader = \App\Models\Team::isTeamLeader($objUser->id);
             
-            // Build base query
-            $baseQueryBuilder = function($query) {
-                $query->where(function($q) {
+            // Build base query with conditions applied directly
+            $competeTaskQuery = Task::where('status','Done')
+                ->where(function($q) {
                     $q->where('is_missed', 0)
                       ->orWhere(function($sub) {
                           $sub->where('is_automate_task', 0);
@@ -3561,55 +3561,72 @@ public function bulkUpdateStatus(Request $request)
                 ->where('status',"!=","")
                 ->where('workspace', getActiveWorkSpace())
                 ->where('deleted_at',NULL);
-            };
-            
-            // Build visibility query
-            $competeTaskQuery = Task::where('status','Done')->where($baseQueryBuilder);
-            $pendingTaskQuery = Task::whereNotIn('status',['Done'])->where($baseQueryBuilder);
+                
+            $pendingTaskQuery = Task::whereNotIn('status',['Done'])
+                ->where(function($q) {
+                    $q->where('is_missed', 0)
+                      ->orWhere(function($sub) {
+                          $sub->where('is_automate_task', 0);
+                      });
+                })
+                ->where('status',"!=","")
+                ->where('workspace', getActiveWorkSpace())
+                ->where('deleted_at',NULL);
+                
             $overdueTaskQuery = Task::whereNotIn('status', [''])
-                ->where($baseQueryBuilder)
+                ->where(function($q) {
+                    $q->where('is_missed', 0)
+                      ->orWhere(function($sub) {
+                          $sub->where('is_automate_task', 0);
+                      });
+                })
+                ->where('status',"!=","")
+                ->where('workspace', getActiveWorkSpace())
+                ->where('deleted_at',NULL)
                 ->whereNotNull('start_date')
                 ->where('start_date', '!=', '');
             
             // Apply visibility filter based on user type
             // President@5core.com can view all tasks - no filtering
-            if (!$isPresident) {
-                // If assignee filter is selected (team leader viewing team member's tasks)
-                if ($selectedAssigneeEmail) {
-                    $competeTaskQuery->whereRaw("FIND_IN_SET(?, assign_to)", [$selectedAssigneeEmail]);
-                    $pendingTaskQuery->whereRaw("FIND_IN_SET(?, assign_to)", [$selectedAssigneeEmail]);
-                    $overdueTaskQuery->whereRaw("FIND_IN_SET(?, assign_to)", [$selectedAssigneeEmail]);
-                }
-                // Team leader viewing their own tasks
-                elseif ($isTeamLeader) {
-                    $competeTaskQuery->where(function ($q) use ($objUser) {
-                        $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                          ->orWhere('assignor', $objUser->email);
-                    });
-                    $pendingTaskQuery->where(function ($q) use ($objUser) {
-                        $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                          ->orWhere('assignor', $objUser->email);
-                    });
-                    $overdueTaskQuery->where(function ($q) use ($objUser) {
-                        $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                          ->orWhere('assignor', $objUser->email);
-                    });
-                }
-                // Non-team leaders: count tasks where they are assignee OR assignor
-                else {
-                    $competeTaskQuery->where(function ($q) use ($objUser) {
-                        $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                          ->orWhere('assignor', $objUser->email);
-                    });
-                    $pendingTaskQuery->where(function ($q) use ($objUser) {
-                        $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                          ->orWhere('assignor', $objUser->email);
-                    });
-                    $overdueTaskQuery->where(function ($q) use ($objUser) {
-                        $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                          ->orWhere('assignor', $objUser->email);
-                    });
-                }
+            if ($isPresident) {
+                // No filtering - president can see all tasks
+            }
+            // If assignee filter is selected (team leader viewing team member's tasks)
+            elseif ($selectedAssigneeEmail && $isTeamLeader) {
+                $competeTaskQuery->whereRaw("FIND_IN_SET(?, assign_to)", [$selectedAssigneeEmail]);
+                $pendingTaskQuery->whereRaw("FIND_IN_SET(?, assign_to)", [$selectedAssigneeEmail]);
+                $overdueTaskQuery->whereRaw("FIND_IN_SET(?, assign_to)", [$selectedAssigneeEmail]);
+            }
+            // Team leader viewing their own tasks
+            elseif ($isTeamLeader) {
+                $competeTaskQuery->where(function ($q) use ($objUser) {
+                    $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                      ->orWhere('assignor', $objUser->email);
+                });
+                $pendingTaskQuery->where(function ($q) use ($objUser) {
+                    $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                      ->orWhere('assignor', $objUser->email);
+                });
+                $overdueTaskQuery->where(function ($q) use ($objUser) {
+                    $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                      ->orWhere('assignor', $objUser->email);
+                });
+            }
+            // Non-team leaders: count tasks where they are assignee OR assignor
+            else {
+                // Explicitly apply filter for non-team leaders
+                $competeTaskQuery->where(function ($q) use ($objUser) {
+                    $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                      ->orWhere('assignor', $objUser->email);
+                });
+                $pendingTaskQuery->where(function ($q) use ($objUser) {
+                    $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                      ->orWhere('assignor', $objUser->email);
+                });
+                $overdueTaskQuery->where(function ($q) use ($objUser) {
+                    $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                      ->orWhere('assignor', $objUser->email);
+                });
             }
             
             // Calculate counts
@@ -4456,8 +4473,8 @@ public function bulkUpdateStatus(Request $request)
                 });
             }
             
-            // Only use role-based logic if president@5core.com (override all)
-            if($isPresident || ($objUser->hasRole('company') || $objUser->hasRole('Manager All Access') || $objUser->hasRole('hr')))
+            // Only president@5core.com can view all tasks (override all existing visibility)
+            if($isPresident)
             {
                     // Base query must EXACTLY match datatable query structure
                     $taskBaseQuery = Task::select('tasks.*', 'stages.name as stage_name', 'assignor_users.name as assigner_name','eta_time','etc_done')
