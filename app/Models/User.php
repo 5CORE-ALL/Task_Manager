@@ -598,4 +598,37 @@ class User extends Authenticatable implements LaratrustUser,MustVerifyEmail,JWTS
     {
         return $this->hasOne(\Workdo\Hrm\Entities\Employee::class, 'user_id');
     }
+
+    /**
+     * Get teams where user is a team leader
+     */
+    public function ledTeams()
+    {
+        return $this->hasMany(Team::class, 'team_leader_id');
+    }
+
+    /**
+     * Get teams where user is a member
+     */
+    public function memberTeams()
+    {
+        return $this->belongsToMany(Team::class, 'team_members', 'member_id', 'team_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Check if user is a team leader
+     */
+    public function isTeamLeader()
+    {
+        return $this->ledTeams()->exists();
+    }
+
+    /**
+     * Get all team member IDs for teams where this user is a leader
+     */
+    public function getTeamMemberIds()
+    {
+        return Team::getTeamMemberIdsByLeader($this->id);
+    }
 }

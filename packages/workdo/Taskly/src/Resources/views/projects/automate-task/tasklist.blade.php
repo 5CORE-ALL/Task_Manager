@@ -156,7 +156,14 @@
 @section('page-action')
     <div class="d-flex">
         @stack('addButtonHook')
-      
+        @if(isset($isTeamLeader) && $isTeamLeader)
+            <button type="button" class="btn btn-sm {{ $showTeamMembersTasks ? 'btn-success' : 'btn-outline-secondary' }} me-2" 
+                    id="toggle-team-members-tasks" 
+                    data-bs-toggle="tooltip" 
+                    data-bs-original-title="{{ $showTeamMembersTasks ? __('Hide Team Members Tasks') : __('Show Team Members Tasks') }}">
+                <i class="ti ti-users"></i> {{ $showTeamMembersTasks ? __('Hide Team Tasks') : __('Show Team Tasks') }}
+            </button>
+        @endif
         @permission('task create')
             <a class="btn btn-sm btn-primary me-2 add-task" data-ajax-popup="true" data-size="lg" data-title="{{ __('Create New Task') }}"
                 data-url="{{ route('automate.tasks.create') }}" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Create') }}"><i
@@ -1798,6 +1805,27 @@
             $('#change-assignor-modal, #change-assignee-modal, #change-etc-modal, #change-date-modal, #change-priority-modal, #change-status-modal').on('hidden.bs.modal', function () {
                 $(this).find('form')[0].reset();
             });
+            
+            // Toggle team members tasks visibility
+            @if(isset($isTeamLeader) && $isTeamLeader)
+            $(document).on('click', '#toggle-team-members-tasks', function() {
+                var currentUrl = new URL(window.location.href);
+                var showTeamMembers = {{ $showTeamMembersTasks ? 'false' : 'true' }};
+                
+                if (showTeamMembers) {
+                    currentUrl.searchParams.set('show_team_members', '1');
+                } else {
+                    currentUrl.searchParams.delete('show_team_members');
+                }
+                
+                // Reload DataTable with new filter
+                if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                    $('#projects-task-table').DataTable().ajax.url(currentUrl.toString()).load();
+                } else {
+                    window.location.href = currentUrl.toString();
+                }
+            });
+            @endif
         </script>
     @endpush
 @endif

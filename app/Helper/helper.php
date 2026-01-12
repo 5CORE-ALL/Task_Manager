@@ -143,6 +143,7 @@ if (!function_exists('categoryIcon')) {
             'Medical' => 'ambulance',
             'Vehicle' => 'bike',
             'AI' => 'brand-gitlab',
+            'Management' => 'users-group',
             'Settings' => 'adjustments-horizontal',
         ];
 

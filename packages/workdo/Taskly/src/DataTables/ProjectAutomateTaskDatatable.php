@@ -15,6 +15,7 @@ use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 use Carbon\Carbon;
 use App\Models\FlagRaise;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -377,15 +378,72 @@ public function query(AutomateTask $model)
                 $query->where('title', 'like', "%$task_name%");
             });
     }
-    // Default filtering removed - show all tasks by default when no filters are applied
-    // if (!Auth::user()->hasRole('client') && !Auth::user()->hasRole('company') && !Auth::user()->hasRole('Manager All Access') && !Auth::user()->hasRole('hr')) {
-    //     if (isset($objUser) && $objUser) {
-    //         $automateTask->where(function ($query) use ($objUser) {
-    //             $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-    //                 ->orWhere('assignor', $objUser->email);
-    //         });
-    //     }
-    // }
+    // Apply team-based visibility logic
+    // Check if user is president@5core.com (can view all tasks - exception)
+    $isPresident = ($objUser->email === 'president@5core.com');
+    
+    // Check if user wants to show team members' tasks (for team leaders)
+    $showTeamMembersTasks = request()->get('show_team_members', false);
+    
+    // Check if user is a team leader
+    $isTeamLeader = \App\Models\Team::isTeamLeader($objUser->id);
+    $teamMemberEmails = [];
+    if ($isTeamLeader) {
+        $teamMemberIds = \App\Models\Team::getTeamMemberIdsByLeader($objUser->id);
+        $teamMemberEmails = \App\Models\User::whereIn('id', $teamMemberIds)->pluck('email')->toArray();
+    }
+    
+    // Only apply default filtering if no explicit filters are set
+    $hasExplicitFilters = request()->has('assignee_name') || request()->has('assignor_name') || 
+                          request()->has('status_name') || request()->has('group_name') || 
+                          request()->has('task_name');
+    
+    if (!$hasExplicitFilters) {
+        // President@5core.com can view all tasks - no filtering
+        if ($isPresident) {
+            // No filtering needed - show all tasks
+        }
+        // Team leaders can view their own tasks + optionally team members' tasks
+        elseif ($isTeamLeader) {
+            $automateTask->where(function ($query) use ($objUser, $showTeamMembersTasks, $teamMemberEmails) {
+                // Always show tasks where user is assignor or assignee
+                $query->where(function ($q) use ($objUser) {
+                    $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                      ->orWhere('assignor', $objUser->email);
+                });
+                
+                // Optionally show team members' tasks if toggle is enabled
+                if ($showTeamMembersTasks && !empty($teamMemberEmails)) {
+                    $query->orWhere(function ($q) use ($teamMemberEmails) {
+                        $first = true;
+                        foreach ($teamMemberEmails as $email) {
+                            if ($first) {
+                                $q->where(function ($subQ) use ($email) {
+                                    $subQ->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
+                                         ->orWhere('assignor', $email);
+                                });
+                                $first = false;
+                            } else {
+                                $q->orWhere(function ($subQ) use ($email) {
+                                    $subQ->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
+                                         ->orWhere('assignor', $email);
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        // Non-team leaders can only view their assigned or assignee tasks
+        else {
+            if (isset($objUser) && $objUser) {
+                $automateTask->where(function ($query) use ($objUser) {
+                    $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                        ->orWhere('assignor', $objUser->email);
+                });
+            }
+        }
+    }
 
     // Add a condition to search by assignee names
     if (request()->has('search.value') && !empty(request()->input('search.value'))) {

@@ -5,6 +5,7 @@ namespace Workdo\Taskly\Http\Controllers;
 use App\Models\EmailTemplate;
 use App\Models\FlagRaise;
 use App\Models\Invoice;
+use App\Models\Team;
 use App\Models\User;
 use Workdo\Hrm\Entities\Employee;
 use Carbon\Carbon;
@@ -911,43 +912,75 @@ class ProjectController extends Controller
             $stages = $statusClass = [];
             // if ($project) {
                 $stages = Stage::where('workspace_id', '=', getActiveWorkSpace())->orderBy('order')->get();
+                
+                // Check if user wants to show team members' tasks (for team leaders)
+                $showTeamMembersTasks = $request->get('show_team_members', false);
+                
+                // Check if user is president@5core.com (can view all tasks)
+                $isPresident = ($objUser->email === 'president@5core.com');
+                
+                // Check if user is a team leader
+                $isTeamLeader = \App\Models\Team::isTeamLeader($objUser->id);
+                $teamMemberIds = [];
+                if ($isTeamLeader) {
+                    $teamMemberIds = \App\Models\Team::getTeamMemberIdsByLeader($objUser->id);
+                    $teamMemberEmails = \App\Models\User::whereIn('id', $teamMemberIds)->pluck('email')->toArray();
+                }
+                
                 foreach ($stages as $status) {
                     $statusClass[] = 'task-list-' . str_replace(' ', '_', $status->id);
 
                     $task = Task::where('workspace', '=', $currentWorkspace);
                     
-                    // Check if user is privileged (can see all tasks)
-                    // Only these specific roles should have full access to all tasks
-                    // Get all user roles and check against privileged role names (case-insensitive)
-                    $userRoles = $objUser->roles->pluck('name')->map(function($role) {
-                        return strtolower(trim($role));
-                    })->toArray();
-                    
-                    $privilegedRoles = ['client', 'company', 'manager all access', 'hr'];
-                    $isPrivileged = false;
-                    foreach ($privilegedRoles as $privilegedRole) {
-                        if (in_array(strtolower($privilegedRole), $userRoles)) {
-                            $isPrivileged = true;
-                            break;
-                        }
+                    // President@5core.com can view all tasks
+                    if ($isPresident) {
+                        // No filtering needed - show all tasks
                     }
-                    
-                    // If not privileged, filter to show only tasks where user is assignor OR assignee
-                    // This applies to all non-privileged roles including "software executive"
-                    if (!$isPrivileged) {
-                        if (isset($objUser) && $objUser) {
-                            $task->where(function ($query) use ($objUser) {
-                                $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                                      ->orWhere('assignor', $objUser->email);
+                    // Team leaders can view their own tasks + optionally team members' tasks
+                    elseif ($isTeamLeader) {
+                        $task->where(function ($query) use ($objUser, $showTeamMembersTasks, $teamMemberEmails) {
+                            // Always show tasks where user is assignor or assignee
+                            $query->where(function ($q) use ($objUser) {
+                                $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                                  ->orWhere('assignor', $objUser->email);
                             });
-                        }
+                            
+                            // Optionally show team members' tasks if toggle is enabled
+                            if ($showTeamMembersTasks && !empty($teamMemberEmails)) {
+                                $query->orWhere(function ($q) use ($teamMemberEmails) {
+                                    $first = true;
+                                    foreach ($teamMemberEmails as $email) {
+                                        if ($first) {
+                                            $q->where(function ($subQ) use ($email) {
+                                                $subQ->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
+                                                     ->orWhere('assignor', $email);
+                                            });
+                                            $first = false;
+                                        } else {
+                                            $q->orWhere(function ($subQ) use ($email) {
+                                                $subQ->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
+                                                     ->orWhere('assignor', $email);
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    // Non-team leaders can only view their assigned or assignee tasks
+                    else {
+                        $task->where(function ($query) use ($objUser) {
+                            $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                                  ->orWhere('assignor', $objUser->email);
+                        });
                     }
                     
                     $task->whereNull('deleted_at')
                          ->orderBy('order');
                     $status['tasks'] = $task->where('status', '=', $status->name)->with('stage')->get();
                 }
-                return view('taskly::projects.taskboard', compact('currentWorkspace', 'project', 'stages', 'statusClass'));
+                
+                return view('taskly::projects.taskboard', compact('currentWorkspace', 'project', 'stages', 'statusClass', 'isTeamLeader', 'showTeamMembersTasks'));
             // } else {
             //     return redirect()->back()->with('error', __('Task Note Found.'));
             // }

@@ -122,6 +122,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //Role & Permission
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
+    
+    //Team Management (only for president@5core.com)
+    Route::resource('teams', App\Http\Controllers\TeamController::class);
 
     //dashbord
     Route::get('/dashboard', [HomeController::class, 'Dashboard'])->name('dashboard');

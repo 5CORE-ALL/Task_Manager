@@ -8,6 +8,14 @@
 @section('page-action')
     <div class="d-flex">
         @stack('addButtonHook')
+        @if(isset($isTeamLeader) && $isTeamLeader)
+            <button type="button" class="btn btn-sm {{ $showTeamMembersTasks ? 'btn-success' : 'btn-outline-secondary' }} me-2" 
+                    id="toggle-team-members-tasks" 
+                    data-bs-toggle="tooltip" 
+                    data-bs-original-title="{{ $showTeamMembersTasks ? __('Hide Team Members Tasks') : __('Show Team Members Tasks') }}">
+                <i class="ti ti-users"></i> {{ $showTeamMembersTasks ? __('Hide Team Tasks') : __('Show Team Tasks') }}
+            </button>
+        @endif
         <a href="{{ route('projects.calendar', [$project->id]) }}" class="btn btn-sm btn-primary me-2" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Calendar View') }}"
             data-bs-original-title="{{ __('Calendar View') }}">
             <i class="ti ti-calendar"></i>
@@ -718,6 +726,22 @@
                     }
                 });
             });
+            
+            // Toggle team members tasks visibility
+            @if(isset($isTeamLeader) && $isTeamLeader)
+            $(document).on('click', '#toggle-team-members-tasks', function() {
+                var currentUrl = new URL(window.location.href);
+                var showTeamMembers = {{ $showTeamMembersTasks ? 'false' : 'true' }};
+                
+                if (showTeamMembers) {
+                    currentUrl.searchParams.set('show_team_members', '1');
+                } else {
+                    currentUrl.searchParams.delete('show_team_members');
+                }
+                
+                window.location.href = currentUrl.toString();
+            });
+            @endif
         </script>
     @endpush
 @endif

@@ -4,6 +4,7 @@ namespace Workdo\Taskly\Http\Controllers;
 
 use App\Models\EmailTemplate;
 use App\Models\Invoice;
+use App\Models\Team;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -106,6 +107,10 @@ class AutomateTaskController extends Controller
             $totalWeeklyHours = round(collect(AutomateTask::where('schedule_type','weekly')->pluck('eta_time')->toArray())->sum() / (60 * 6));
             $totalDailyHours = round(collect(AutomateTask::where('schedule_type','daily')->pluck('eta_time')->toArray())->sum() / (60 * 25));
 
+            // Check if user is a team leader
+            $isTeamLeader = \App\Models\Team::isTeamLeader($objUser->id);
+            $showTeamMembersTasks = request()->get('show_team_members', false);
+            
             return $dataTable->render('taskly::projects.automate-task.tasklist',compact(
                 'currentWorkspace',
                 'stages',
@@ -115,7 +120,9 @@ class AutomateTaskController extends Controller
                 'totalEtaHours',
                 'totalMonthlyHours',
                 'totalWeeklyHours',
-                'totalDailyHours'
+                'totalDailyHours',
+                'isTeamLeader',
+                'showTeamMembersTasks'
             ));
         } else {
             return redirect()->back()->with('error', 'permission Denied');
