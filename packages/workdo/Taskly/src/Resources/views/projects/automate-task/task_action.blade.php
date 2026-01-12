@@ -29,15 +29,24 @@
      @endif
 @endpermission
 @permission('task delete')
-@if((Auth::user()->hasRole('company')) || (Auth::user()->hasRole('Manager All Access')) || (Auth::user()->hasRole('hr')))
-
-   <div class="action-btn">
-        <div class="col-3">
-            <a href="#!" class="btn btn-sm   align-items-center text-white bg-danger"
-                onclick="deleteRecord('{{ route('automate.tasks.destroy', ['tid'=>$task->id]) }}')">
-                <i class="ti ti-trash" title="Delete"></i>
-            </a>
-        </div>
-    </div>
+    @php
+        // Check if task is archived (deleted and done) - only hide delete for archived tasks
+        $isArchived = !is_null($task->deleted_at) && strtolower($task->status) === 'done';
+        
+        // Check if task is missed - only check the is_missed flag, not due date logic
+        $isMissed = isset($task->is_missed) && $task->is_missed == 1;
+    @endphp
+    
+    @if((Auth::user()->hasRole('company')) || (Auth::user()->hasRole('Manager All Access')) || (Auth::user()->hasRole('hr')))
+        @if(!$isArchived && !$isMissed)
+            <div class="action-btn">
+                <div class="col-3">
+                    <a href="#!" class="btn btn-sm   align-items-center text-white bg-danger"
+                        onclick="deleteRecord('{{ route('automate.tasks.destroy', ['tid'=>$task->id]) }}')">
+                        <i class="ti ti-trash" title="Delete"></i>
+                    </a>
+                </div>
+            </div>
+        @endif
     @endif
 @endpermission

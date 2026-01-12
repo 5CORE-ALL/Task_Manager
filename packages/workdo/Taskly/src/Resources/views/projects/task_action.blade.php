@@ -35,9 +35,15 @@
 
         // Check if the current user is the assignor
         $isAssignor = $currentUserEmail === $task->assignor;
+        
+        // Check if task is archived (deleted and done) - only hide delete for archived tasks
+        $isArchived = !is_null($task->deleted_at) && strtolower($task->status) === 'done';
+        
+        // Check if task is missed - only check the is_missed flag, not due date logic
+        $isMissed = isset($task->is_missed) && $task->is_missed == 1;
     @endphp
 
-    @if(!$isAssignee || $isAssignor)
+    @if((!$isAssignee || $isAssignor) && !$isArchived && !$isMissed)
         <div class="action-btn">
             <div class="col-3">
                 <a href="#!" class="btn btn-sm align-items-center text-white bg-danger"

@@ -22,19 +22,54 @@
             background: #f8f9fa;
             border-radius: 8px;
             height: 42px;
+            flex-shrink: 0;
+            flex-grow: 0;
+            width: auto;
+            min-width: 600px;
+            margin-left: auto;
+        }
+        
+        @media (max-width: 1400px) {
+            .task-toggle-wrapper {
+                min-width: 550px;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .task-toggle-wrapper {
+                min-width: 500px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .task-toggle-wrapper {
+                min-width: 450px;
+                width: 100%;
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+        
+        /* Bulk actions bar takes remaining space */
+        #bulk-actions-bar {
+            flex: 1 1 auto;
+            min-width: 0;
+            margin-right: 15px;
+            overflow: hidden;
         }
 
         .toggle-indicator {
             position: absolute;
             top: 3px;
             left: 3px;
-            width: calc(25% - 6px);
+            width: calc(16.67% - 6px);
             height: calc(100% - 6px);
             background: #6c757d;
             border-radius: 6px;
             transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             pointer-events: none;
             z-index: 1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .toggle[data-state="all"] .toggle-indicator { 
@@ -42,22 +77,32 @@
             background: #6c757d; 
         }
         .toggle[data-state="overdue"] .toggle-indicator { 
-            left: calc(25% + 3px); 
+            left: calc(16.67% + 3px); 
             background: #dc3545; 
         }
         .toggle[data-state="urgent"] .toggle-indicator { 
-            left: calc(50% + 3px); 
+            left: calc(33.33% + 3px); 
             background: #ffc107; 
         }
         .toggle[data-state="flag"] .toggle-indicator { 
-            left: calc(75% + 3px); 
+            left: calc(50% + 3px); 
             background: #fd7e14; 
+        }
+        .toggle[data-state="archived"] .toggle-indicator { 
+            left: calc(66.67% + 3px); 
+            background: #6c757d; 
+        }
+        .toggle[data-state="missing"] .toggle-indicator { 
+            left: calc(83.33% + 3px); 
+            background: #17a2b8; 
         }
 
         .toggle[data-state="all"] .toggle-option[data-value="all"],
         .toggle[data-state="overdue"] .toggle-option[data-value="overdue"],
         .toggle[data-state="urgent"] .toggle-option[data-value="urgent"],
-        .toggle[data-state="flag"] .toggle-option[data-value="flag"] {
+        .toggle[data-state="flag"] .toggle-option[data-value="flag"],
+        .toggle[data-state="archived"] .toggle-option[data-value="archived"],
+        .toggle[data-state="missing"] .toggle-option[data-value="missing"] {
             color: #fff;
             font-weight: 700;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -68,17 +113,17 @@
             position: relative;
             display: flex;
             width: 100%;
-            max-width: 600px;
             height: 100%;
             background: #fff;
             border-radius: 6px;
             box-sizing: border-box;
             padding: 3px;
-            margin: 0 auto;
+            margin: 0;
         }
 
         .toggle-option {
-            flex: 0 0 25%;
+            flex: 1 1 0;
+            min-width: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -86,12 +131,16 @@
             z-index: 2;
             user-select: none;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             color: #6c757d;
             transition: all 0.3s ease;
             border-radius: 6px;
             position: relative;
             height: 100%;
+            padding: 0 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .toggle-option:hover {
@@ -130,8 +179,8 @@
     {{-- Bulk Actions Bar with Filter Section --}}
     <div class="card mb-3" style="position: sticky; top: 0; z-index: 1000; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
         <div class="card-body py-2 px-3">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div id="bulk-actions-bar" style="display: none; flex: 1;" class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2" style="min-width: 0; position: relative;">
+                <div id="bulk-actions-bar" style="display: none; flex: 1 1 auto; min-width: 0; margin-right: 15px;" class="d-flex align-items-center gap-2 flex-wrap">
                     <span class="text-dark me-3" style="font-weight: 600;">
                         <i class="fas fa-tasks me-2"></i>
                         <span id="selected-count">0</span> task(s) selected
@@ -163,7 +212,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="task-toggle-wrapper" style="flex-shrink: 0;">
+                <div class="task-toggle-wrapper">
                     <!-- Toggle will be inserted here by JavaScript -->
                 </div>
             </div>
@@ -616,11 +665,18 @@
                 
                 // Show/hide bulk actions bar
                 if (selectedIds.length > 0) {
-                    $('#bulk-actions-bar').fadeIn(200);
+                    $('#bulk-actions-bar').fadeIn(200).css({
+                        'display': 'flex',
+                        'flex': '1 1 auto',
+                        'min-width': '0',
+                        'margin-right': '15px'
+                    });
                     $('#delete-btn, #bulk-status-update-btn, #bulk-assignor-update-btn, #bulk-assignee-update-btn, #bulk-etc-update-btn, #bulk-date-update-btn, #bulk-priority-update-btn').prop('disabled', false);
                     $('#delete-btn-top, #bulk-status-update-btn-top, #bulk-assignor-update-btn-top, #bulk-assignee-update-btn-top, #bulk-etc-update-btn-top, #bulk-date-update-btn-top, #bulk-priority-update-btn-top').prop('disabled', false);
                 } else {
-                    $('#bulk-actions-bar').fadeOut(200);
+                    $('#bulk-actions-bar').fadeOut(200).css({
+                        'display': 'none'
+                    });
                     $('#delete-btn, #bulk-status-update-btn, #bulk-assignor-update-btn, #bulk-assignee-update-btn, #bulk-etc-update-btn, #bulk-date-update-btn, #bulk-priority-update-btn').prop('disabled', true);
                     $('#delete-btn-top, #bulk-status-update-btn-top, #bulk-assignor-update-btn-top, #bulk-assignee-update-btn-top, #bulk-etc-update-btn-top, #bulk-date-update-btn-top, #bulk-priority-update-btn-top').prop('disabled', true);
                 }
@@ -638,6 +694,8 @@
                             <div class="toggle-option" data-value="overdue">Overdue</div>
                             <div class="toggle-option" data-value="urgent">Urgent</div>
                             <div class="toggle-option" data-value="flag">Flag</div>
+                            <div class="toggle-option" data-value="archived">Archived</div>
+                            <div class="toggle-option" data-value="missing">Missed</div>
                         </div>
                     `;
                     

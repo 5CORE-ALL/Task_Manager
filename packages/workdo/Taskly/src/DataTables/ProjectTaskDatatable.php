@@ -763,18 +763,26 @@ class ProjectTaskDatatable extends DataTable
     public function query(Task $model)
 
     {
+        // Check toggle filter early to determine if we should include deleted tasks
+        $toggleFilter = request()->input('toggle_filter');
+        $includeDeleted = ($toggleFilter === 'archived');
 
         $task = $model->select('tasks.*', 'stages.name as stage_name')
 
             ->join('stages', 'stages.name', '=', 'tasks.status')
-
-            ->where('deleted_at',NULL)
 
             // Exclude automate missed tasks (is_automate_task = 1 AND is_missed = 1)
             // Keep: manual tasks (is_automate_task = 0) OR automate tasks that are not missed (is_missed = 0)
             ->where(function($query) {
                 $query->where('is_missed', 0)
                       ->orWhere('is_automate_task', 0);
+            })
+            
+            // Conditionally exclude deleted tasks (include them only for archived filter)
+            ->where(function($query) use ($includeDeleted) {
+                if (!$includeDeleted) {
+                    $query->whereNull('tasks.deleted_at');
+                }
             })
 
             ->where('tasks.workspace', getActiveWorkSpace())
@@ -1060,6 +1068,20 @@ if ($toggleFilter === 'overdue') {
                 $q->whereRaw("flag_raises.description LIKE CONCAT('%', tasks.title, '%')")
                   ->orWhereRaw("flag_raises.description LIKE CONCAT('Task: ', tasks.title, '%')");
             });
+    });
+} elseif ($toggleFilter === 'archived') {
+    // Show tasks that are DONE AND DELETED
+    $task->where('tasks.status', 'Done')
+         ->whereNotNull('tasks.deleted_at');
+} elseif ($toggleFilter === 'missing') {
+    // Show tasks that are missed (same logic as task-missed-list page)
+    // Tasks where is_missed = 1 OR (due_date < now AND status != 'Done')
+    $task->where(function($query) use ($currentDate) {
+        $query->where('tasks.is_missed', 1)
+              ->orWhere(function($subQuery) use ($currentDate) {
+                  $subQuery->where('tasks.due_date', '<', $currentDate)
+                           ->where('tasks.status', '!=', 'Done');
+              });
     });
 }
 

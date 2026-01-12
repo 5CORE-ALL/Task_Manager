@@ -385,49 +385,96 @@
       background: #f8f9fa;
       border-radius: 8px;
       height: 42px;
+      flex-shrink: 0;
+      flex-grow: 0;
+      width: auto;
+      min-width: 600px;
+      margin-left: auto;
+    }
+    
+    @media (max-width: 1400px) {
+      .task-toggle-wrapper {
+        min-width: 550px;
+      }
+    }
+    
+    @media (max-width: 1200px) {
+      .task-toggle-wrapper {
+        min-width: 500px;
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .task-toggle-wrapper {
+        min-width: 450px;
+        width: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+      }
+    }
+    
+    /* Bulk actions bar takes remaining space */
+    #bulk-actions-bar {
+      flex: 1 1 auto;
+      min-width: 0;
+      margin-right: 15px;
+      overflow: hidden;
     }
 
     .toggle-indicator {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: calc(25% - 6px); /* 4 equal segments */
+  width: calc(16.67% - 6px); /* 6 equal segments */
   height: calc(100% - 6px);
   background: #667eea;
   border-radius: 6px;
   transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   pointer-events: none;
   z-index: 1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Map states to the indicator positions matching your HTML order:
-   0: all    -> left: 3px
-   1: overdue-> left: 25% + 3px
-   2: urgent -> left: 50% + 3px
-   3: flag   -> left: 75% + 3px
+   0: all      -> left: 3px
+   1: overdue  -> left: 16.67% + 3px
+   2: urgent   -> left: 33.33% + 3px
+   3: flag     -> left: 50% + 3px
+   4: archived -> left: 66.67% + 3px
+   5: missing  -> left: 83.33% + 3px
 */
-.toggle[data-state="all"]     .toggle-indicator { 
+.toggle[data-state="all"]      .toggle-indicator { 
   left: 3px; 
   background: #6c757d; 
 }
-.toggle[data-state="overdue"] .toggle-indicator { 
-  left: calc(25% + 3px); 
+.toggle[data-state="overdue"]  .toggle-indicator { 
+  left: calc(16.67% + 3px); 
   background: #dc3545; 
 }
-.toggle[data-state="urgent"]  .toggle-indicator { 
-  left: calc(50% + 3px); 
+.toggle[data-state="urgent"]   .toggle-indicator { 
+  left: calc(33.33% + 3px); 
   background: #ffc107; 
 }
-.toggle[data-state="flag"]    .toggle-indicator { 
-  left: calc(75% + 3px); 
+.toggle[data-state="flag"]     .toggle-indicator { 
+  left: calc(50% + 3px); 
   background: #fd7e14; 
+}
+.toggle[data-state="archived"] .toggle-indicator { 
+  left: calc(66.67% + 3px); 
+  background: #6c757d; 
+}
+.toggle[data-state="missing"]  .toggle-indicator { 
+  left: calc(83.33% + 3px); 
+  background: #17a2b8; 
 }
 
 /* Make active option text white with better styling */
-.toggle[data-state="all"]     .toggle-option[data-value="all"],
-.toggle[data-state="overdue"] .toggle-option[data-value="overdue"],
-.toggle[data-state="urgent"]  .toggle-option[data-value="urgent"],
-.toggle[data-state="flag"]    .toggle-option[data-value="flag"] {
+.toggle[data-state="all"]      .toggle-option[data-value="all"],
+.toggle[data-state="overdue"]  .toggle-option[data-value="overdue"],
+.toggle[data-state="urgent"]   .toggle-option[data-value="urgent"],
+.toggle[data-state="flag"]     .toggle-option[data-value="flag"],
+.toggle[data-state="archived"] .toggle-option[data-value="archived"],
+.toggle[data-state="missing"]  .toggle-option[data-value="missing"] {
   color: #fff;
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -439,22 +486,27 @@
   position: relative;
   display: flex;
   width: 100%;
-  max-width: 600px;
   height: 100%;
   background: #fff;
   border-radius: 6px;
   box-sizing: border-box;
   padding: 3px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .toggle-option {
-  flex: 0 0 25%;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 2;
+  padding: 0 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   user-select: none;
   font-weight: 600;
   font-size: 13px;
@@ -1804,6 +1856,8 @@
                             <div class="toggle-option" data-value="overdue">Overdue</div>
                             <div class="toggle-option" data-value="urgent">Urgent</div>
                             <div class="toggle-option" data-value="flag">Flag</div>
+                            <div class="toggle-option" data-value="archived">Archived</div>
+                            <div class="toggle-option" data-value="missing">Missed</div>
                         </div>
                     `;
                     
