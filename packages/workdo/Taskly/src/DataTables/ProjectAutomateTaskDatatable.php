@@ -434,7 +434,7 @@ public function query(AutomateTask $model)
                 }
             });
         }
-        // Non-team leaders can only view their assigned or assignee tasks
+        // Non-team leaders can view their assigned (assignee) or assignor tasks
         else {
             if (isset($objUser) && $objUser) {
                 $automateTask->where(function ($query) use ($objUser) {

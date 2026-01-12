@@ -858,7 +858,7 @@ class ProjectTaskDatatable extends DataTable
                 }
             });
         }
-        // Non-team leaders can only view their assigned or assignee tasks
+        // Non-team leaders can view their assigned (assignee) or assignor tasks
         else {
             if (isset($objUser) && $objUser) {
                 $task->where(function ($query) use ($objUser) {
