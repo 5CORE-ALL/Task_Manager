@@ -4460,8 +4460,12 @@ public function bulkUpdateStatus(Request $request)
 
                     $completedTask = (clone $taskBaseQuery)
                         ->where('tasks.status', 'Done');
-                         $pendingTask = (clone $taskBaseQuery)
+                    // Pending should NOT include: Archived, Done, Deleted, or Missed tasks
+                    // Base query already excludes deleted_at (archived) and missed tasks
+                    // Explicitly ensure status is not Done and not empty
+                    $pendingTask = (clone $taskBaseQuery)
                         ->where('tasks.status', '!=', 'Done')
+                        ->whereNotNull('tasks.status')
                         ->where('tasks.status', '!=', '');
                  
                     // Overdue query - must include ALL tasks with red TID (including Done tasks)
@@ -4470,8 +4474,8 @@ public function bulkUpdateStatus(Request $request)
                         ->where('tasks.status', '!=', '')
                         ->whereNotNull('tasks.start_date')
                         ->where('tasks.start_date', '!=', '');
-                    // Total task count should include ALL tasks including Done tasks
-                    // Do NOT apply status_name filter to totalTask to ensure done tasks are included
+                    // Total task count should include ALL tasks (pending + done)
+                    // Status filter will be applied to totalTask if provided to match table display
                     $totalTask = (clone $taskBaseQuery);
                      $totalETAmin = (clone $taskBaseQuery);
                       $totalATCMin = (clone $taskBaseQuery);
@@ -4560,18 +4564,16 @@ public function bulkUpdateStatus(Request $request)
                         $totalATCMin->where($assigneeFilter);
 
                     }
-                    // Apply status_name filter to all queries except totalTask
-                    // (totalTask should include all tasks including Done to show accurate total)
+                    // Apply status_name filter to all queries including totalTask
+                    // When status filter is applied, total should also be filtered to match table
                     if($status_name && !empty($status_name) ){
                         $completedTask->where('tasks.status', 'like', "%$status_name%");
                         $pendingTask->where('tasks.status', 'like', "%$status_name%");
                         $overdueTaskQuery->where('tasks.status', 'like', "%$status_name%");
+                        $totalTask->where('tasks.status', 'like', "%$status_name%");
                         $totalETAmin->where('tasks.status', 'like', "%$status_name%");
                         $totalATCMin->where('tasks.status', 'like', "%$status_name%");
-                        // Note: totalTask does NOT get status_name filter to include all tasks
                     }
-                    // Explicitly ensure status_name filter is NOT applied to totalTask
-                    // so that done tasks are always included in the total count
                    
                     $completedTask = $completedTask->count();
                     $pendingTask =$pendingTask->count();
@@ -4623,8 +4625,12 @@ public function bulkUpdateStatus(Request $request)
                     // Clone queries for different counts
                     $completedTask = (clone $taskBaseQuery)
                         ->where('tasks.status', 'Done');
+                    // Pending should NOT include: Archived, Done, Deleted, or Missed tasks
+                    // Base query already excludes deleted_at (archived) and missed tasks
+                    // Explicitly ensure status is not Done and not empty
                     $pendingTask = (clone $taskBaseQuery)
                         ->where('tasks.status', '!=', 'Done')
+                        ->whereNotNull('tasks.status')
                         ->where('tasks.status', '!=', '');
                     // Overdue query - must include ALL tasks with red TID (including Done tasks)
                     // The datatable shows red TID for ALL tasks regardless of status
@@ -4724,11 +4730,13 @@ public function bulkUpdateStatus(Request $request)
                         $totalATCMin->where($assigneeFilter);
                     }
                     
-                    // Apply status_name filter to all queries except totalTask
+                    // Apply status_name filter to all queries including totalTask
+                    // When status filter is applied, total should also be filtered to match table
                     if($status_name && !empty($status_name) ){
                         $completedTask->where('tasks.status', 'like', "%$status_name%");
                         $pendingTask->where('tasks.status', 'like', "%$status_name%");
                         $overdueTaskQuery->where('tasks.status', 'like', "%$status_name%");
+                        $totalTask->where('tasks.status', 'like', "%$status_name%");
                         $totalETAmin->where('tasks.status', 'like', "%$status_name%");
                         $totalATCMin->where('tasks.status', 'like', "%$status_name%");
                     }
