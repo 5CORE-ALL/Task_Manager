@@ -34,11 +34,20 @@ class EnforceDailyLogin
         $session = $request->session();
         $loginTimestamp = $session->get('login_timestamp');
 
-        // If no login timestamp exists, treat as new session (shouldn't happen, but handle gracefully)
-        // This can happen if user logged in before this feature was added
+        // If no login timestamp exists, force logout
+        // This handles users who logged in before this feature was added
         if (!$loginTimestamp) {
-            $session->put('login_timestamp', now()->timestamp);
-            return $next($request);
+            // If user is impersonating, stop impersonation first
+            if (Auth::user() && method_exists(Auth::user(), 'isImpersonating') && Auth::user()->isImpersonating()) {
+                Auth::user()->leaveImpersonation();
+            }
+            
+            Auth::logout();
+            $session->invalidate();
+            $session->regenerateToken();
+
+            return redirect()->route('login')
+                ->with('error', __('Your session has expired. Please login again to continue.'));
         }
 
         // Calculate hours since login
@@ -47,7 +56,7 @@ class EnforceDailyLogin
         // Force logout if 12 hours have passed since login
         if ($hoursSinceLogin >= 12) {
             // If user is impersonating, stop impersonation first
-            if (Auth::user()->isImpersonating()) {
+            if (Auth::user() && method_exists(Auth::user(), 'isImpersonating') && Auth::user()->isImpersonating()) {
                 Auth::user()->leaveImpersonation();
             }
             
