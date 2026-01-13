@@ -812,51 +812,88 @@ class ProjectTaskDatatable extends DataTable
         // Check if user is president@5core.com (can view all tasks - exception)
         $isPresident = ($objUser->email === 'president@5core.com');
         
-        // Check if user wants to show team members' tasks (for team leaders)
-        $showTeamMembersTasks = request()->get('show_team_members', false);
+        // Check if user is a team creator
+        $isTeamCreator = \App\Models\Team::isTeamCreator($objUser->id);
+        $selectedTeamMemberEmails = [];
         
-        // Check if user is a team leader
-        $isTeamLeader = \App\Models\Team::isTeamLeader($objUser->id);
-        $teamMemberEmails = [];
-        if ($isTeamLeader) {
-            $teamMemberIds = \App\Models\Team::getTeamMemberIdsByLeader($objUser->id);
-            $teamMemberEmails = \App\Models\User::whereIn('id', $teamMemberIds)->pluck('email')->toArray();
+        if ($isTeamCreator) {
+            // Get selected team member IDs from request
+            // DataTables sends it as team_members array
+            $selectedMemberIds = [];
+            
+            // Check for team_members parameter (from DataTable ajax)
+            if (request()->has('team_members')) {
+                $teamMembersParam = request()->input('team_members');
+                if (is_array($teamMembersParam)) {
+                    $selectedMemberIds = array_filter($teamMembersParam, function($id) {
+                        return !empty($id) && $id !== 'NULL' && $id !== null && $id !== '';
+                    });
+                } elseif (!empty($teamMembersParam) && $teamMembersParam !== 'NULL') {
+                    $selectedMemberIds = [$teamMembersParam];
+                }
+            }
+            
+            // Also check URL parameters (for page reloads)
+            if (empty($selectedMemberIds) && request()->has('team_members')) {
+                $urlParam = request()->query('team_members');
+                if (is_array($urlParam)) {
+                    $selectedMemberIds = array_filter($urlParam, function($id) {
+                        return !empty($id) && $id !== 'NULL' && $id !== null && $id !== '';
+                    });
+                } elseif (!empty($urlParam) && $urlParam !== 'NULL') {
+                    $selectedMemberIds = [$urlParam];
+                }
+            }
+            
+            if (!empty($selectedMemberIds)) {
+                // Convert IDs to integers and get emails
+                $selectedMemberIds = array_map('intval', $selectedMemberIds);
+                $selectedTeamMemberEmails = \App\Models\User::whereIn('id', $selectedMemberIds)
+                    ->pluck('email')
+                    ->toArray();
+                    
+                // Log for debugging (remove in production)
+                \Log::info('Team Creator Filter', [
+                    'user_id' => $objUser->id,
+                    'selected_member_ids' => $selectedMemberIds,
+                    'selected_emails' => $selectedTeamMemberEmails
+                ]);
+            }
         }
         
         // President@5core.com can view all tasks - no filtering
         if ($isPresident) {
             // No filtering needed - show all tasks
         }
-        // Team leaders can view their own tasks + optionally team members' tasks
-        elseif ($isTeamLeader) {
-            $task->where(function ($query) use ($objUser, $showTeamMembersTasks, $teamMemberEmails) {
-                // Always show tasks where user is assignor or assignee
-                $query->where(function ($q) use ($objUser) {
-                    $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                      ->orWhere('assignor', $objUser->email);
-                });
-                
-                // Optionally show team members' tasks if toggle is enabled
-                if ($showTeamMembersTasks && !empty($teamMemberEmails)) {
-                    $query->orWhere(function ($q) use ($teamMemberEmails) {
-                        $first = true;
-                        foreach ($teamMemberEmails as $email) {
-                            if ($first) {
-                                $q->where(function ($subQ) use ($email) {
-                                    $subQ->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
-                                         ->orWhere('assignor', $email);
-                                });
-                                $first = false;
-                            } else {
-                                $q->orWhere(function ($subQ) use ($email) {
-                                    $subQ->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
-                                         ->orWhere('assignor', $email);
-                                });
-                            }
+        // Team creators can view their own tasks + selected team members' tasks
+        elseif ($isTeamCreator) {
+            if (!empty($selectedTeamMemberEmails)) {
+                // Show creator's tasks AND selected team members' tasks
+                $allEmails = array_merge([$objUser->email], $selectedTeamMemberEmails);
+                $task->where(function ($query) use ($allEmails) {
+                    $first = true;
+                    foreach ($allEmails as $email) {
+                        if ($first) {
+                            $query->where(function ($q) use ($email) {
+                                $q->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
+                                  ->orWhere('assignor', $email);
+                            });
+                            $first = false;
+                        } else {
+                            $query->orWhere(function ($q) use ($email) {
+                                $q->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
+                                  ->orWhere('assignor', $email);
+                            });
                         }
-                    });
-                }
-            });
+                    }
+                });
+            } else {
+                // No team members selected - show only creator's tasks
+                $task->where(function ($query) use ($objUser) {
+                    $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                          ->orWhere('assignor', $objUser->email);
+                });
+            }
         }
         // Non-team leaders can view their assigned (assignee) or assignor tasks
         else {

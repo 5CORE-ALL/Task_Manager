@@ -10,13 +10,9 @@
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <label class="form-label">{{ __('Team Leader') }} <span class="text-danger">*</span></label>
-                    <select class="form-control" name="team_leader_id" required>
-                        <option value="">{{ __('Select Team Leader') }}</option>
-                        @foreach ($employees as $employee)
-                            <option value="{{ $employee->id }}">{{ $employee->name }} ({{ $employee->email }})</option>
-                        @endforeach
-                    </select>
+                    <label class="form-label">{{ __('Team Creator') }}</label>
+                    <input type="text" class="form-control" value="{{ Auth::user()->name }} ({{ Auth::user()->email }})" disabled>
+                    <small class="form-text text-muted">{{ __('You will be set as the team creator automatically.') }}</small>
                 </div>
             </div>
             <div class="col-md-12">

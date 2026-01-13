@@ -207,23 +207,21 @@ class CompanyMenuListener
         // ]);
 
 
-            // Teams Management - Only for president@5core.com
+            // Teams Management - Available for everyone
             $user = $menu->user;
-            if ($user->email === 'president@5core.com') {
-                $menu->add([
-                    'category' => 'Management',
-                    'title' => __('Teams'),
-                    'icon' => 'ti ti-users',
-                    'name' => 'teams',
-                    'parent' => null,
-                    'order' => 100,
-                    'ignore_if' => [],
-                    'depend_on' => [],
-                    'route' => 'teams.index',
-                    'module' => $module,
-                    'permission' => ''
-                ]);
-            }
+            $menu->add([
+                'category' => 'Management',
+                'title' => __('Teams'),
+                'icon' => 'ti ti-users',
+                'name' => 'teams',
+                'parent' => null,
+                'order' => 100,
+                'ignore_if' => [],
+                'depend_on' => [],
+                'route' => 'teams.index',
+                'module' => $module,
+                'permission' => ''
+            ]);
 
             // Performance Management - Only for privileged users
             $privilegedEmails = [

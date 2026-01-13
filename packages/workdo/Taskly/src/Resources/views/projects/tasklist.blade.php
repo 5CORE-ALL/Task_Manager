@@ -271,6 +271,101 @@
       z-index: 1 !important;
     }
     
+    /* Team Members Dropdown Styling */
+    .team-members-filter {
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .team-members-filter .choices {
+        margin-bottom: 0;
+    }
+    
+    .team-members-filter .choices__inner {
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 6px 10px;
+        min-height: 38px;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+    
+    .team-members-filter .choices__inner:hover {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
+    }
+    
+    .team-members-filter .choices__inner:focus,
+    .team-members-filter .choices__inner.is-focused {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        outline: 0;
+    }
+    
+    .team-members-filter .choices__list--multiple .choices__item {
+        background-color: #4e73df;
+        border: 1px solid #4e73df;
+        border-radius: 4px;
+        padding: 4px 8px;
+        margin: 2px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .team-members-filter .choices__list--multiple .choices__item.is-highlighted {
+        background-color: #224abe;
+        border-color: #224abe;
+    }
+    
+    .team-members-filter .choices__button {
+        border-left: 1px solid rgba(255, 255, 255, 0.3);
+        opacity: 0.8;
+        margin-left: 6px;
+        padding-left: 6px;
+    }
+    
+    .team-members-filter .choices__button:hover {
+        opacity: 1;
+    }
+    
+    .team-members-filter .choices__placeholder {
+        opacity: 0.6;
+        color: #6c757d;
+    }
+    
+    .team-members-filter .choices__list--dropdown {
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        margin-top: 4px;
+    }
+    
+    .team-members-filter .choices__list--dropdown .choices__item {
+        padding: 8px 12px;
+        font-size: 0.875rem;
+    }
+    
+    .team-members-filter .choices__list--dropdown .choices__item--selectable.is-highlighted {
+        background-color: #f8f9fa;
+        color: #4e73df;
+    }
+    
+    @media (max-width: 768px) {
+        .team-members-filter {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .team-members-filter .choices {
+            width: 100% !important;
+        }
+        
+        .team-members-filter .choices__inner {
+            min-width: 100% !important;
+        }
+    }
+    
     .task-choice-card:hover {
       transform: translateY(-8px);
       box-shadow: 0 15px 30px rgba(0,0,0,0.25);
@@ -531,6 +626,25 @@
 @section('page-action')
     <div class="d-flex">
         @stack('addButtonHook')
+        
+        @if(isset($isTeamCreator) && $isTeamCreator && !empty($teamMembers))
+            <div class="team-members-filter me-3">
+                <select class="form-select form-select-sm multi-select choices" id="team-members-select" 
+                        name="team_members[]"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="bottom"
+                        data-bs-original-title="{{ __('Select team members to view their tasks') }}"
+                        multiple data-placeholder="{{ __('Team Members') }}"
+                        style="min-width: 280px;">
+                    @foreach($teamMembers as $member)
+                        <option value="{{ $member->id }}" 
+                                {{ isset($selectedMemberIds) && is_array($selectedMemberIds) && in_array($member->id, $selectedMemberIds) ? 'selected' : '' }}>
+                            {{ $member->name }} ({{ $member->email }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
 
         @permission('task create')
             <a class="btn btn-sm btn-primary me-2" data-ajax-popup="true" data-size="lg" data-title="{{ __('Create Single Task') }}"
@@ -1818,6 +1932,136 @@
                     loadTeamloggerData();
                 });
                 
+                // Initialize Choices.js for team members select if available
+                @if(isset($isTeamCreator) && $isTeamCreator && !empty($teamMembers))
+                var teamMembersSelect = document.getElementById('team-members-select');
+                if (teamMembersSelect && typeof Choices !== 'undefined') {
+                    var choices = new Choices(teamMembersSelect, {
+                        removeItemButton: true,
+                        searchEnabled: true,
+                        placeholder: true,
+                        placeholderValue: '{{ __('Team Members') }}',
+                        loadingText: 'Loading...',
+                        classNames: {
+                            containerOuter: 'choices team-members-choices',
+                            containerInner: 'choices__inner',
+                            input: 'choices__input',
+                            inputCloned: 'choices__input--cloned',
+                            list: 'choices__list',
+                            listItems: 'choices__list--multiple',
+                            listSingle: 'choices__list--single',
+                            listDropdown: 'choices__list--dropdown',
+                            item: 'choices__item',
+                            itemSelectable: 'choices__item--selectable',
+                            itemDisabled: 'choices__item--disabled',
+                            itemChoice: 'choices__item--choice',
+                            placeholder: 'choices__placeholder',
+                            group: 'choices__group',
+                            groupHeading: 'choices__heading',
+                            button: 'choices__button',
+                            activeState: 'is-active',
+                            focusState: 'is-focused',
+                            openState: 'is-open',
+                            disabledState: 'is-disabled',
+                            highlightedState: 'is-highlighted',
+                            selectedState: 'is-selected',
+                            flippedState: 'is-flipped',
+                            loadingState: 'is-loading',
+                            noResults: 'has-no-results',
+                            noChoices: 'has-no-choices'
+                        }
+                    });
+                    
+                    // Handle selection change
+                    teamMembersSelect.addEventListener('change', function() {
+                        var selectedMembers = Array.from(this.selectedOptions).map(option => option.value);
+                        var currentUrl = new URL(window.location.href);
+                        
+                        // Remove existing team_members parameter
+                        currentUrl.searchParams.delete('team_members[]');
+                        currentUrl.searchParams.delete('team_members');
+                        
+                        // Add selected team member IDs
+                        if (selectedMembers && selectedMembers.length > 0) {
+                            selectedMembers.forEach(function(memberId) {
+                                currentUrl.searchParams.append('team_members[]', memberId);
+                            });
+                        }
+                        
+                        // Reload DataTable with new parameters
+                        if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                            var table = $('#projects-task-table').DataTable();
+                            // Update ajax data function to include team_members
+                            table.settings()[0].ajax.data = function(d) {
+                                d.assignee_name = $('#assignee_name').val();
+                                d.assignor_name = $('#assignor_name').val();
+                                d.status_name = $('#status_name').val();
+                                d.priority = $('#priority').val();
+                                d.group_name = $('#group_name').val();
+                                d.task_name = $('#task_name').val();
+                                // Add team_members as array
+                                if (selectedMembers && selectedMembers.length > 0) {
+                                    d.team_members = selectedMembers;
+                                } else {
+                                    d.team_members = [];
+                                }
+                                console.log('Team members selected:', selectedMembers);
+                                return d;
+                            };
+                            table.ajax.reload(null, false); // false = don't reset paging
+                            getTaskCount();
+                        }
+                        
+                        // Update URL without reloading page
+                        window.history.pushState({}, '', currentUrl.toString());
+                    });
+                } else {
+                    // Fallback to regular select if Choices.js is not available
+                    $('#team-members-select').on('change', function() {
+                        var selectedMembers = $(this).val();
+                        var currentUrl = new URL(window.location.href);
+                        
+                        // Remove existing team_members parameter
+                        currentUrl.searchParams.delete('team_members[]');
+                        currentUrl.searchParams.delete('team_members');
+                        
+                        // Add selected team member IDs
+                        if (selectedMembers && selectedMembers.length > 0) {
+                            selectedMembers.forEach(function(memberId) {
+                                currentUrl.searchParams.append('team_members[]', memberId);
+                            });
+                        }
+                        
+                        // Reload DataTable with new parameters
+                        if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                            var table = $('#projects-task-table').DataTable();
+                            // Update ajax data function to include team_members
+                            table.settings()[0].ajax.data = function(d) {
+                                d.assignee_name = $('#assignee_name').val();
+                                d.assignor_name = $('#assignor_name').val();
+                                d.status_name = $('#status_name').val();
+                                d.priority = $('#priority').val();
+                                d.group_name = $('#group_name').val();
+                                d.task_name = $('#task_name').val();
+                                // Add team_members as array
+                                if (selectedMembers && selectedMembers.length > 0) {
+                                    d.team_members = selectedMembers;
+                                } else {
+                                    d.team_members = [];
+                                }
+                                console.log('Team members selected (fallback):', selectedMembers);
+                                return d;
+                            };
+                            table.ajax.reload(null, false); // false = don't reset paging
+                            getTaskCount();
+                        }
+                        
+                        // Update URL without reloading page
+                        window.history.pushState({}, '', currentUrl.toString());
+                    });
+                }
+                @endif
+                
                 // Intercept the add-task button click to show our custom task choice modal
                 $('.add-task').on('click', function(e) {
                     e.preventDefault();
@@ -2877,6 +3121,24 @@
         pageLength: 100,
         lengthMenu: [10, 25, 50, 100, 200],
         dom: 'Bfrtip',
+        ajax: {
+            url: $('#projects-task-table').data('url') || window.location.href,
+            data: function(d) {
+                d.assignee_name = $('#assignee_name').val();
+                d.assignor_name = $('#assignor_name').val();
+                d.status_name = $('#status_name').val();
+                d.priority = $('#priority').val();
+                d.group_name = $('#group_name').val();
+                d.task_name = $('#task_name').val();
+                @if(isset($isTeamCreator) && $isTeamCreator && !empty($teamMembers))
+                var teamMembersSelect = document.getElementById('team-members-select');
+                if (teamMembersSelect) {
+                    d.team_members = Array.from(teamMembersSelect.selectedOptions).map(option => option.value);
+                }
+                @endif
+                return d;
+            }
+        },
         buttons: [
             {
                 extend: 'collection',
@@ -2969,6 +3231,18 @@
                  d.task_name = $('#task_name').val();
                 d.status_name = $('#status_name').val();
                 d.priority = $('#priority').val();
+                @if(isset($isTeamCreator) && $isTeamCreator && !empty($teamMembers))
+                var teamMembersSelect = document.getElementById('team-members-select');
+                if (teamMembersSelect) {
+                    var selectedMembers = Array.from(teamMembersSelect.selectedOptions).map(option => option.value);
+                    if (selectedMembers && selectedMembers.length > 0) {
+                        // Send as array - DataTables will handle it correctly
+                        d.team_members = selectedMembers;
+                    } else {
+                        d.team_members = [];
+                    }
+                }
+                @endif
                 // Send global search as the DataTable's built-in search parameter
                 d['search[value]'] = $('#global_search').val();
                 console.log('AJAX data being sent:', d);

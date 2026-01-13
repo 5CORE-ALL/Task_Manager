@@ -8,13 +8,23 @@
 @section('page-action')
     <div class="d-flex">
         @stack('addButtonHook')
-        @if(isset($isTeamLeader) && $isTeamLeader)
-            <button type="button" class="btn btn-sm {{ $showTeamMembersTasks ? 'btn-success' : 'btn-outline-secondary' }} me-2" 
-                    id="toggle-team-members-tasks" 
-                    data-bs-toggle="tooltip" 
-                    data-bs-original-title="{{ $showTeamMembersTasks ? __('Hide Team Members Tasks') : __('Show Team Members Tasks') }}">
-                <i class="ti ti-users"></i> {{ $showTeamMembersTasks ? __('Hide Team Tasks') : __('Show Team Tasks') }}
-            </button>
+        @if(isset($isTeamCreator) && $isTeamCreator && !empty($teamMembers))
+            <div class="me-2 d-inline-block">
+                <label class="form-label me-2 mb-0">{{ __('Team Members:') }}</label>
+                <select class="form-select form-select-sm multi-select choices" id="team-members-select" 
+                        name="team_members[]"
+                        data-bs-toggle="tooltip" 
+                        data-bs-original-title="{{ __('Select team members to view their tasks') }}"
+                        multiple data-placeholder="{{ __('Select Team Members...') }}"
+                        style="min-width: 250px;">
+                    @foreach($teamMembers as $member)
+                        <option value="{{ $member->id }}" 
+                                {{ isset($selectedMemberIds) && is_array($selectedMemberIds) && in_array($member->id, $selectedMemberIds) ? 'selected' : '' }}>
+                            {{ $member->name }} ({{ $member->email }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
         @endif
         <a href="{{ route('projects.calendar', [$project->id]) }}" class="btn btn-sm btn-primary me-2" data-bs-toggle="tooltip" data-bs-original-title="{{ __('Calendar View') }}"
             data-bs-original-title="{{ __('Calendar View') }}">
@@ -727,19 +737,57 @@
                 });
             });
             
-            // Toggle team members tasks visibility
-            @if(isset($isTeamLeader) && $isTeamLeader)
-            $(document).on('click', '#toggle-team-members-tasks', function() {
-                var currentUrl = new URL(window.location.href);
-                var showTeamMembers = {{ $showTeamMembersTasks ? 'false' : 'true' }};
-                
-                if (showTeamMembers) {
-                    currentUrl.searchParams.set('show_team_members', '1');
+            // Initialize Choices.js for team members select if available
+            @if(isset($isTeamCreator) && $isTeamCreator && !empty($teamMembers))
+            $(document).ready(function() {
+                var teamMembersSelect = document.getElementById('team-members-select');
+                if (teamMembersSelect && typeof Choices !== 'undefined') {
+                    var choices = new Choices(teamMembersSelect, {
+                        removeItemButton: true,
+                        searchEnabled: true,
+                        placeholder: true,
+                        placeholderValue: '{{ __('Select Team Members...') }}',
+                        loadingText: 'Loading...',
+                    });
+                    
+                    // Handle selection change
+                    teamMembersSelect.addEventListener('change', function() {
+                        var selectedMembers = Array.from(this.selectedOptions).map(option => option.value);
+                        var currentUrl = new URL(window.location.href);
+                        
+                        // Remove existing team_members parameter
+                        currentUrl.searchParams.delete('team_members[]');
+                        currentUrl.searchParams.delete('team_members');
+                        
+                        // Add selected team member IDs
+                        if (selectedMembers && selectedMembers.length > 0) {
+                            selectedMembers.forEach(function(memberId) {
+                                currentUrl.searchParams.append('team_members[]', memberId);
+                            });
+                        }
+                        
+                        window.location.href = currentUrl.toString();
+                    });
                 } else {
-                    currentUrl.searchParams.delete('show_team_members');
+                    // Fallback to regular select if Choices.js is not available
+                    $(document).on('change', '#team-members-select', function() {
+                        var selectedMembers = $(this).val();
+                        var currentUrl = new URL(window.location.href);
+                        
+                        // Remove existing team_members parameter
+                        currentUrl.searchParams.delete('team_members[]');
+                        currentUrl.searchParams.delete('team_members');
+                        
+                        // Add selected team member IDs
+                        if (selectedMembers && selectedMembers.length > 0) {
+                            selectedMembers.forEach(function(memberId) {
+                                currentUrl.searchParams.append('team_members[]', memberId);
+                            });
+                        }
+                        
+                        window.location.href = currentUrl.toString();
+                    });
                 }
-                
-                window.location.href = currentUrl.toString();
             });
             @endif
         </script>

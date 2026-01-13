@@ -14,13 +14,8 @@ class TeamController extends Controller
      */
     public function index()
     {
-        // Only president@5core.com can manage teams
-        if (Auth::user()->email !== 'president@5core.com') {
-            abort(403, 'You do not have permission to manage teams.');
-        }
-
         $currentWorkspace = getActiveWorkSpace();
-        $teams = Team::with(['teamLeader', 'members'])
+        $teams = Team::with(['teamCreator', 'members'])
                     ->where('workspace_id', $currentWorkspace)
                     ->get();
 
@@ -32,11 +27,6 @@ class TeamController extends Controller
      */
     public function create()
     {
-        // Only president@5core.com can manage teams
-        if (Auth::user()->email !== 'president@5core.com') {
-            abort(403, 'You do not have permission to manage teams.');
-        }
-
         $currentWorkspace = getActiveWorkSpace();
         $employees = User::where('workspace_id', $currentWorkspace)
                         ->where('type', '!=', 'super admin')
@@ -51,14 +41,8 @@ class TeamController extends Controller
      */
     public function store(Request $request)
     {
-        // Only president@5core.com can manage teams
-        if (Auth::user()->email !== 'president@5core.com') {
-            abort(403, 'You do not have permission to manage teams.');
-        }
-
         $request->validate([
             'name' => 'required|string|max:255',
-            'team_leader_id' => 'required|exists:users,id',
             'description' => 'nullable|string',
             'members' => 'nullable|array',
             'members.*' => 'exists:users,id',
@@ -66,9 +50,10 @@ class TeamController extends Controller
 
         $currentWorkspace = getActiveWorkSpace();
 
+        // Set the team creator to the current authenticated user
         $team = Team::create([
             'name' => $request->name,
-            'team_leader_id' => $request->team_leader_id,
+            'team_leader_id' => Auth::id(), // Team creator is always the user who creates it
             'workspace_id' => $currentWorkspace,
             'description' => $request->description,
         ]);
@@ -87,9 +72,9 @@ class TeamController extends Controller
      */
     public function edit(Team $team)
     {
-        // Only president@5core.com can manage teams
-        if (Auth::user()->email !== 'president@5core.com') {
-            abort(403, 'You do not have permission to manage teams.');
+        // Check if user is the team creator
+        if ($team->team_leader_id !== Auth::id()) {
+            abort(403, 'Only the team creator can edit this team.');
         }
 
         $currentWorkspace = getActiveWorkSpace();
@@ -108,24 +93,33 @@ class TeamController extends Controller
      */
     public function update(Request $request, Team $team)
     {
-        // Only president@5core.com can manage teams
-        if (Auth::user()->email !== 'president@5core.com') {
-            abort(403, 'You do not have permission to manage teams.');
+        // Check if user is the team creator
+        if ($team->team_leader_id !== Auth::id()) {
+            abort(403, 'Only the team creator can update this team.');
         }
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'team_leader_id' => 'required|exists:users,id',
             'description' => 'nullable|string',
             'members' => 'nullable|array',
             'members.*' => 'exists:users,id',
         ]);
 
-        $team->update([
+        // Only allow team creator to change themselves (team_leader_id can only be changed by creator)
+        $updateData = [
             'name' => $request->name,
-            'team_leader_id' => $request->team_leader_id,
             'description' => $request->description,
-        ]);
+        ];
+
+        // Only update team_leader_id if it's provided and user is the creator
+        if ($request->has('team_leader_id') && $request->team_leader_id != $team->team_leader_id) {
+            // Only the current creator can change the creator
+            if ($team->team_leader_id === Auth::id()) {
+                $updateData['team_leader_id'] = $request->team_leader_id;
+            }
+        }
+
+        $team->update($updateData);
 
         // Update team members
         if ($request->has('members') && is_array($request->members)) {
@@ -143,9 +137,9 @@ class TeamController extends Controller
      */
     public function destroy(Team $team)
     {
-        // Only president@5core.com can manage teams
-        if (Auth::user()->email !== 'president@5core.com') {
-            abort(403, 'You do not have permission to manage teams.');
+        // Only the team creator can delete the team
+        if ($team->team_leader_id !== Auth::id()) {
+            abort(403, 'Only the team creator can delete this team.');
         }
 
         $team->delete();

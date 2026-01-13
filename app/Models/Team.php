@@ -12,17 +12,25 @@ class Team extends Model
 
     protected $fillable = [
         'name',
-        'team_leader_id',
+        'team_leader_id', // Keeping DB column name for compatibility
         'workspace_id',
         'description',
     ];
 
     /**
-     * Get the team leader (user)
+     * Get the team creator (user)
+     */
+    public function teamCreator()
+    {
+        return $this->belongsTo(User::class, 'team_leader_id');
+    }
+
+    /**
+     * Alias for backward compatibility
      */
     public function teamLeader()
     {
-        return $this->belongsTo(User::class, 'team_leader_id');
+        return $this->teamCreator();
     }
 
     /**
@@ -43,19 +51,35 @@ class Team extends Model
     }
 
     /**
-     * Check if a user is a team leader of any team
+     * Check if a user is a team creator of any team
      */
-    public static function isTeamLeader($userId)
+    public static function isTeamCreator($userId)
     {
         return self::where('team_leader_id', $userId)->exists();
     }
 
     /**
-     * Get all teams where user is a team leader
+     * Alias for backward compatibility
+     */
+    public static function isTeamLeader($userId)
+    {
+        return self::isTeamCreator($userId);
+    }
+
+    /**
+     * Get all teams where user is a team creator
+     */
+    public static function getTeamsByCreator($userId)
+    {
+        return self::where('team_leader_id', $userId)->get();
+    }
+
+    /**
+     * Alias for backward compatibility
      */
     public static function getTeamsByLeader($userId)
     {
-        return self::where('team_leader_id', $userId)->get();
+        return self::getTeamsByCreator($userId);
     }
 
     /**
@@ -69,14 +93,22 @@ class Team extends Model
     }
 
     /**
-     * Get all team member IDs for teams where user is a leader
+     * Get all team member IDs for teams where user is a creator
      */
-    public static function getTeamMemberIdsByLeader($userId)
+    public static function getTeamMemberIdsByCreator($userId)
     {
         $teamIds = self::where('team_leader_id', $userId)->pluck('id');
         return \DB::table('team_members')
             ->whereIn('team_id', $teamIds)
             ->pluck('member_id')
             ->toArray();
+    }
+
+    /**
+     * Alias for backward compatibility
+     */
+    public static function getTeamMemberIdsByLeader($userId)
+    {
+        return self::getTeamMemberIdsByCreator($userId);
     }
 }

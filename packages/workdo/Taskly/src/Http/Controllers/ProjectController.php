@@ -913,18 +913,38 @@ class ProjectController extends Controller
             // if ($project) {
                 $stages = Stage::where('workspace_id', '=', getActiveWorkSpace())->orderBy('order')->get();
                 
-                // Check if user wants to show team members' tasks (for team leaders)
-                $showTeamMembersTasks = $request->get('show_team_members', false);
-                
                 // Check if user is president@5core.com (can view all tasks)
                 $isPresident = ($objUser->email === 'president@5core.com');
                 
-                // Check if user is a team leader
-                $isTeamLeader = \App\Models\Team::isTeamLeader($objUser->id);
-                $teamMemberIds = [];
-                if ($isTeamLeader) {
-                    $teamMemberIds = \App\Models\Team::getTeamMemberIdsByLeader($objUser->id);
-                    $teamMemberEmails = \App\Models\User::whereIn('id', $teamMemberIds)->pluck('email')->toArray();
+                // Check if user is a team creator
+                $isTeamCreator = \App\Models\Team::isTeamCreator($objUser->id);
+                $teamMembers = [];
+                $selectedTeamMemberEmails = [];
+                
+                if ($isTeamCreator) {
+                    // Get all teams where user is creator
+                    $userTeams = \App\Models\Team::getTeamsByCreator($objUser->id);
+                    
+                    // Get all unique team members from all teams
+                    $teamMemberIds = [];
+                    foreach ($userTeams as $team) {
+                        $memberIds = $team->members->pluck('id')->toArray();
+                        $teamMemberIds = array_merge($teamMemberIds, $memberIds);
+                    }
+                    $teamMemberIds = array_unique($teamMemberIds);
+                    
+                    // Get team member details
+                    if (!empty($teamMemberIds)) {
+                        $teamMembers = \App\Models\User::whereIn('id', $teamMemberIds)->get(['id', 'name', 'email']);
+                    }
+                    
+                    // Get selected team member emails from request
+                    $selectedMemberIds = $request->get('team_members', []);
+                    if (!empty($selectedMemberIds) && is_array($selectedMemberIds)) {
+                        $selectedTeamMemberEmails = \App\Models\User::whereIn('id', $selectedMemberIds)
+                            ->pluck('email')
+                            ->toArray();
+                    }
                 }
                 
                 foreach ($stages as $status) {
@@ -936,20 +956,20 @@ class ProjectController extends Controller
                     if ($isPresident) {
                         // No filtering needed - show all tasks
                     }
-                    // Team leaders can view their own tasks + optionally team members' tasks
-                    elseif ($isTeamLeader) {
-                        $task->where(function ($query) use ($objUser, $showTeamMembersTasks, $teamMemberEmails) {
+                    // Team creators can view their own tasks + selected team members' tasks
+                    elseif ($isTeamCreator) {
+                        $task->where(function ($query) use ($objUser, $selectedTeamMemberEmails) {
                             // Always show tasks where user is assignor or assignee
                             $query->where(function ($q) use ($objUser) {
                                 $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
                                   ->orWhere('assignor', $objUser->email);
                             });
                             
-                            // Optionally show team members' tasks if toggle is enabled
-                            if ($showTeamMembersTasks && !empty($teamMemberEmails)) {
-                                $query->orWhere(function ($q) use ($teamMemberEmails) {
+                            // Show selected team members' tasks if any are selected
+                            if (!empty($selectedTeamMemberEmails)) {
+                                $query->orWhere(function ($q) use ($selectedTeamMemberEmails) {
                                     $first = true;
-                                    foreach ($teamMemberEmails as $email) {
+                                    foreach ($selectedTeamMemberEmails as $email) {
                                         if ($first) {
                                             $q->where(function ($subQ) use ($email) {
                                                 $subQ->whereRaw("FIND_IN_SET(?, assign_to)", [$email])
@@ -980,7 +1000,9 @@ class ProjectController extends Controller
                     $status['tasks'] = $task->where('status', '=', $status->name)->with('stage')->get();
                 }
                 
-                return view('taskly::projects.taskboard', compact('currentWorkspace', 'project', 'stages', 'statusClass', 'isTeamLeader', 'showTeamMembersTasks'));
+                $selectedMemberIds = $request->get('team_members', []);
+                
+                return view('taskly::projects.taskboard', compact('currentWorkspace', 'project', 'stages', 'statusClass', 'isTeamCreator', 'teamMembers', 'selectedTeamMemberEmails', 'selectedMemberIds'));
             // } else {
             //     return redirect()->back()->with('error', __('Task Note Found.'));
             // }
@@ -3642,8 +3664,31 @@ public function bulkUpdateStatus(Request $request)
                 ['value'=>"normal", 'color' => 'success']
             ]);
             $users = User::select('users.*')->get();
+            
+            // Get team members for team creators
+            $isTeamCreator = \App\Models\Team::isTeamCreator($objUser->id);
+            $teamMembers = [];
+            $selectedMemberIds = request()->get('team_members', []);
+            
+            if ($isTeamCreator) {
+                // Get all teams where user is creator
+                $userTeams = \App\Models\Team::getTeamsByCreator($objUser->id);
+                
+                // Get all unique team members from all teams
+                $teamMemberIds = [];
+                foreach ($userTeams as $team) {
+                    $memberIds = $team->members->pluck('id')->toArray();
+                    $teamMemberIds = array_merge($teamMemberIds, $memberIds);
+                }
+                $teamMemberIds = array_unique($teamMemberIds);
+                
+                // Get team member details
+                if (!empty($teamMemberIds)) {
+                    $teamMembers = \App\Models\User::whereIn('id', $teamMemberIds)->get(['id', 'name', 'email']);
+                }
+            }
          
-            return $dataTable->render('taskly::projects.tasklist',compact('currentWorkspace','stages','users','competeTask','pendingTask','overdueTask','totalTask','priority'));
+            return $dataTable->render('taskly::projects.tasklist',compact('currentWorkspace','stages','users','competeTask','pendingTask','overdueTask','totalTask','priority','isTeamCreator','teamMembers','selectedMemberIds'));
         } else { 
             return redirect()->back()->with('error', 'permission Denied');
         }

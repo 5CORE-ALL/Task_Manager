@@ -600,11 +600,19 @@ class User extends Authenticatable implements LaratrustUser,MustVerifyEmail,JWTS
     }
 
     /**
-     * Get teams where user is a team leader
+     * Get teams where user is a team creator
+     */
+    public function createdTeams()
+    {
+        return $this->hasMany(Team::class, 'team_leader_id');
+    }
+
+    /**
+     * Alias for backward compatibility
      */
     public function ledTeams()
     {
-        return $this->hasMany(Team::class, 'team_leader_id');
+        return $this->createdTeams();
     }
 
     /**
@@ -617,11 +625,19 @@ class User extends Authenticatable implements LaratrustUser,MustVerifyEmail,JWTS
     }
 
     /**
-     * Check if user is a team leader
+     * Check if user is a team creator
+     */
+    public function isTeamCreator()
+    {
+        return $this->createdTeams()->exists();
+    }
+
+    /**
+     * Alias for backward compatibility
      */
     public function isTeamLeader()
     {
-        return $this->ledTeams()->exists();
+        return $this->isTeamCreator();
     }
 
     /**

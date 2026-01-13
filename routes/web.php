@@ -123,7 +123,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
     
-    //Team Management (only for president@5core.com)
+    //Team Management
     Route::resource('teams', App\Http\Controllers\TeamController::class);
 
     //dashbord

@@ -11,15 +11,16 @@
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <label class="form-label">{{ __('Team Leader') }} <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('Team Creator') }} <span class="text-danger">*</span></label>
                     <select class="form-control" name="team_leader_id" required>
-                        <option value="">{{ __('Select Team Leader') }}</option>
+                        <option value="">{{ __('Select Team Creator') }}</option>
                         @foreach ($employees as $employee)
                             <option value="{{ $employee->id }}" {{ $team->team_leader_id == $employee->id ? 'selected' : '' }}>
                                 {{ $employee->name }} ({{ $employee->email }})
                             </option>
                         @endforeach
                     </select>
+                    <small class="form-text text-muted">{{ __('Only you (the current team creator) can change the team creator.') }}</small>
                 </div>
             </div>
             <div class="col-md-12">
