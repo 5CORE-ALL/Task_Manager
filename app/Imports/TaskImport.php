@@ -76,6 +76,7 @@ class TaskImport implements ToModel, WithHeadingRow
 
     /**
      * Parse date from Excel or string format
+     * Supports DD/MM/YYYY format (e.g., 12/01/2026 = 12th January 2026)
      */
     protected function parseDate($dateValue)
     {
@@ -84,17 +85,56 @@ class TaskImport implements ToModel, WithHeadingRow
         }
 
         try {
-            // Handle Excel date format
+            // Handle Excel date format (numeric value)
             if (is_numeric($dateValue)) {
                 return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateValue))
                     ->format('Y-m-d');
             }
             
-            // Handle string dates (like "06-18-2025")
-            return Carbon::createFromFormat('m-d-Y', $dateValue)->format('Y-m-d');
+            // Convert to string if not already
+            $dateString = trim((string) $dateValue);
+            
+            // For dates in format like "12/01/2026", parse as DD/MM/YYYY
+            // Check if it matches DD/MM/YYYY or DD-MM-YYYY pattern
+            if (preg_match('/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/', $dateString, $matches)) {
+                $day = (int) $matches[1];
+                $month = (int) $matches[2];
+                $year = (int) $matches[3];
+                
+                // Validate and create date as DD/MM/YYYY (day, month, year)
+                if ($day >= 1 && $day <= 31 && $month >= 1 && $month <= 12) {
+                    try {
+                        $date = Carbon::create($year, $month, $day);
+                        return $date->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        // Invalid date (e.g., Feb 30), continue to other formats
+                    }
+                }
+            }
+            
+            // Try DD/MM/YYYY formats explicitly
+            $formats = [
+                'd/m/Y',    // DD/MM/YYYY (e.g., 12/01/2026 = 12th January)
+                'd-m-Y',    // DD-MM-YYYY (e.g., 12-01-2026 = 12th January)
+                'd.m.Y',    // DD.MM.YYYY (e.g., 12.01.2026 = 12th January)
+                'Y-m-d',    // YYYY-MM-DD (ISO format)
+            ];
+            
+            foreach ($formats as $format) {
+                try {
+                    $date = Carbon::createFromFormat($format, $dateString);
+                    return $date->format('Y-m-d');
+                } catch (\Exception $e) {
+                    // Try next format
+                    continue;
+                }
+            }
+            
+            // Fallback: try Carbon's default parsing
+            return Carbon::parse($dateString)->format('Y-m-d');
             
         } catch (\Exception $e) {
-            Log::error("Failed to parse date: " . $dateValue);
+            Log::error("Failed to parse date: " . $dateValue . " - " . $e->getMessage());
             return null;
         }
     }
