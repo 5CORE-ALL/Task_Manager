@@ -49,10 +49,16 @@ class AutomateTaskScheduler extends Command
 
         // ---------- DAILY ----------
         try {
-            $dailyQuery = AutomateTask::where('schedule_type', 'daily')
+            // schedule_time is stored as string (HH:MM or HH:MM:SS), so we need string comparison
+            // Use case-insensitive comparison for schedule_type
+            $dailyQuery = AutomateTask::whereRaw('LOWER(schedule_type) = ?', ['daily'])
                 ->where('is_pause', 0)
-                // match by TIME or DATETIME minute part
-                ->whereTime('schedule_time', '=', $currentMinute . ':00'); // matches HH:MM:00
+                // Match time string - handle both HH:MM and HH:MM:SS formats
+                ->where(function($q) use ($currentMinute) {
+                    $q->where('schedule_time', '=', $currentMinute)
+                      ->orWhere('schedule_time', '=', $currentMinute . ':00')
+                      ->orWhere('schedule_time', 'LIKE', $currentMinute . ':%');
+                });
             Log::debug('Daily query SQL', ['sql' => $dailyQuery->toSql(), 'bindings' => $dailyQuery->getBindings()]);
             $dailyTasks = $dailyQuery->get();
             Log::info('Daily tasks found', ['count' => $dailyTasks->count()]);
@@ -63,10 +69,15 @@ class AutomateTaskScheduler extends Command
 
         // ---------- WEEKLY ----------
         try {
-            $weeklyQuery = AutomateTask::where('schedule_type', 'weekly')
+            // Use case-insensitive comparison for schedule_type
+            $weeklyQuery = AutomateTask::whereRaw('LOWER(schedule_type) = ?', ['weekly'])
                 ->where('is_pause', 0)
-                // match by minute
-                ->whereTime('schedule_time', '=', $currentMinute . ':00')
+                // Match time string - handle both HH:MM and HH:MM:SS formats
+                ->where(function($q) use ($currentMinute) {
+                    $q->where('schedule_time', '=', $currentMinute)
+                      ->orWhere('schedule_time', '=', $currentMinute . ':00')
+                      ->orWhere('schedule_time', 'LIKE', $currentMinute . ':%');
+                })
                 // flexible day matcher:
                 ->where(function($q) use ($currentDayToken) {
                     // JSON array: ["Mon","Wed"]
@@ -94,9 +105,15 @@ class AutomateTaskScheduler extends Command
 
     // Candidate rows: those that mention today's date OR the EOM token.
     // We keep DB-side filtering to limit rows, and then finalize decision in PHP.
-    $monthlyQuery = AutomateTask::where('schedule_type', 'monthly')
+    // Use case-insensitive comparison for schedule_type
+    $monthlyQuery = AutomateTask::whereRaw('LOWER(schedule_type) = ?', ['monthly'])
         ->where('is_pause', 0)
-        ->whereTime('schedule_time', '=', $currentMinute . ':00')
+        // Match time string - handle both HH:MM and HH:MM:SS formats
+        ->where(function($q) use ($currentMinute) {
+            $q->where('schedule_time', '=', $currentMinute)
+              ->orWhere('schedule_time', '=', $currentMinute . ':00')
+              ->orWhere('schedule_time', 'LIKE', $currentMinute . ':%');
+        })
         ->where(function($q) use ($todayToken, $eomToken) {
             // match today's numeric token
             $q->where(function($q2) use ($todayToken) {
