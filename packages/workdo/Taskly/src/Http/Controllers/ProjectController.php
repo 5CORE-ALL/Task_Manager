@@ -6216,63 +6216,9 @@ public function getDailyOverdueGraphData(Request $request)
         // Check if user is a team leader
         $isTeamLeader = \App\Models\Team::isTeamLeader($objUser->id);
         
-        // Get current overdue count from the card - MUST use EXACT same query as taskCountData
-        // This ensures the graph shows the same value (25) as the card
-        // Build query EXACTLY as in taskCountData method (non-president branch)
-        $email = $objUser->email;
-        
-        // Base query must EXACTLY match taskCountData query structure
-        $taskBaseQuery = Task::select('tasks.*', 'stages.name as stage_name', 'assignor_users.name as assigner_name','eta_time','etc_done')
-            ->join('stages', 'stages.name', '=', 'tasks.status')
-            ->leftJoin('users as assignor_users', 'assignor_users.email', '=', 'tasks.assignor')
-            ->where('tasks.deleted_at', NULL)
-            ->where(function($query) {
-                $query->where('is_missed', 0)
-                      ->orWhere('is_automate_task', 0);
-            })
-            ->where('tasks.workspace', $currentWorkspace);
-        
-        // Apply visibility filter based on user type (EXACTLY as in taskCountData)
-        if ($isPresident) {
-            // No filtering - president can see all tasks
-        } elseif ($selectedAssigneeEmail && $isTeamLeader) {
-            // Team leader viewing team member's tasks
-            $taskBaseQuery->whereRaw("FIND_IN_SET(?, tasks.assign_to)", [$selectedAssigneeEmail]);
-        } elseif ($isTeamLeader) {
-            // Team leader viewing their own tasks
-            $taskBaseQuery->where(function ($query) use ($email) {
-                $query->whereRaw("FIND_IN_SET(?, tasks.assign_to)", [$email])
-                      ->orWhere('tasks.assignor', $email);
-            });
-        } else {
-            // Non-team leaders: count tasks where they are assignee OR assignor
-            $taskBaseQuery->where(function ($query) use ($email) {
-                $query->whereRaw("FIND_IN_SET(?, tasks.assign_to)", [$email])
-                      ->orWhere('tasks.assignor', $email);
-            });
-        }
-        
-        $taskBaseQuery->distinct();
-        
-        // Overdue query - EXACTLY as in taskCountData
-        $overdueTaskQuery = (clone $taskBaseQuery)
-            ->where('tasks.status', '!=', '')
-            ->whereNotNull('tasks.start_date')
-            ->where('tasks.start_date', '!=', '');
-        
-        $currentOverdueCount = $this->calculateOverdueTaskCount($overdueTaskQuery);
-        
-        \Log::info('Graph Data - Calculated Current Overdue Count', [
-            'count' => $currentOverdueCount,
-            'user' => $objUser->email,
-            'is_president' => $isPresident,
-            'is_team_leader' => $isTeamLeader,
-            'selected_assignee' => $selectedAssigneeEmail,
-            'note' => 'This should match the card value (25)'
-        ]);
-        
-        // Log for debugging
-        \Log::info('Graph Data - Current Overdue Count: ' . $currentOverdueCount . ', User: ' . $objUser->email);
+        // SIMPLE: Just get the stored value from database - don't recalculate
+        // The database already has the correct value (25) stored by taskCountData
+        // No need to recalculate - just read what's stored
         
         // Get date range - default to last 30 days
         $days = $request->input('days', 30);
@@ -6280,68 +6226,21 @@ public function getDailyOverdueGraphData(Request $request)
         $endDate = Carbon::now()->format('Y-m-d');
         $todayStr = Carbon::now()->format('Y-m-d');
         
-        // Fetch daily overdue counts for the current user
+        // SIMPLE: Just fetch stored values from database and use them
         $dailyCounts = \App\Models\DailyOverdueCount::where('user_id', $objUser->id)
             ->where('workspace', $currentWorkspace)
             ->whereBetween('record_date', [$startDate, $endDate])
             ->orderBy('record_date', 'asc')
             ->get();
         
-        // Prepare data for chart
-        $labels = [];
-        $counts = [];
-        
-        // Create a map of existing records
+        // Create a simple map: date => count
         $recordsMap = [];
-        $storedTodayValue = null;
-        \Log::info('Graph Data - Fetching stored values', [
-            'today' => $todayStr,
-            'total_records' => count($dailyCounts),
-            'workspace' => $currentWorkspace,
-            'user_id' => $objUser->id
-        ]);
-        
         foreach ($dailyCounts as $record) {
             $dateStr = $record->record_date->format('Y-m-d');
-            \Log::info('Graph Data - Processing record', [
-                'date' => $dateStr,
-                'today' => $todayStr,
-                'matches_today' => ($dateStr === $todayStr),
-                'count' => $record->overdue_count
-            ]);
-            // Don't add today's record here - we'll override it below with stored value
-            if ($dateStr !== $todayStr) {
-                $recordsMap[$dateStr] = $record->overdue_count;
-            } else {
-                $storedTodayValue = $record->overdue_count;
-                \Log::info('Graph Data - Found stored value for today', [
-                    'value' => $storedTodayValue,
-                    'date' => $dateStr
-                ]);
-            }
+            $recordsMap[$dateStr] = $record->overdue_count;
         }
         
-        // CRITICAL: Use stored database value for today (25) instead of recalculating
-        // The database already has the correct value stored by taskCountData (25)
-        // Recalculating here gives wrong value (44) because query structure might differ
-        // The stored value (25) matches the card, so use that for today
-        if ($storedTodayValue !== null) {
-            // Use the stored value (25) which matches the card
-            $recordsMap[$todayStr] = $storedTodayValue;
-            \Log::info('Graph Data - Using STORED database value for today (matches card)', [
-                'today' => $todayStr,
-                'stored_value' => $storedTodayValue,
-                'calculated_value' => $currentOverdueCount,
-                'decision' => 'Using stored value (correct, matches card)'
-            ]);
-        } else {
-            // No stored value, use calculated (fallback)
-            $recordsMap[$todayStr] = $currentOverdueCount;
-            \Log::info('Graph Data - No stored value, using calculated (fallback)', [
-                'today' => $todayStr,
-                'calculated_value' => $currentOverdueCount
-            ]);
-        }
+        // That's it! Use what's stored in the database - no recalculation needed
         
         // Fill in all dates in the range (fill missing dates with 0 or last known value)
         $period = CarbonPeriod::create($startDate, $endDate);
@@ -6360,16 +6259,9 @@ public function getDailyOverdueGraphData(Request $request)
             }
         }
         
-        // Log the last count value to verify
+        // Get today's value from database (simple!)
+        $todayValue = isset($recordsMap[$todayStr]) ? $recordsMap[$todayStr] : 0;
         $lastCount = !empty($counts) ? end($counts) : 0;
-        $expectedCount = $storedTodayValue !== null ? $storedTodayValue : $currentOverdueCount;
-        \Log::info('Graph Data - Final Values', [
-            'last_count_in_array' => $lastCount,
-            'stored_today_value' => $storedTodayValue,
-            'calculated_value' => $currentOverdueCount,
-            'expected_value' => $expectedCount,
-            'match' => ($lastCount == $expectedCount)
-        ]);
         
         return response()->json([
             'success' => true,
@@ -6378,13 +6270,8 @@ public function getDailyOverdueGraphData(Request $request)
             'startDate' => $startDate,
             'endDate' => $endDate,
             'todayStr' => $todayStr,
-            'currentOverdueCount' => $currentOverdueCount,
-            'lastCount' => $lastCount,
-            'debug' => [
-                'storedTodayValue' => $storedTodayValue,
-                'overrideValue' => $currentOverdueCount,
-                'totalRecords' => count($dailyCounts)
-            ]
+            'todayValue' => $todayValue,
+            'lastCount' => $lastCount
         ]);
         
     } catch (\Exception $e) {
