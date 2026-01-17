@@ -475,6 +475,15 @@
                     </div>
 
                     <div class="col-md-1">
+                        <div class="card text-white bg-info mb-3" id="attendance-card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Attendance %</h5>
+                                <h2 class="card-text" id="attendance-percentage">0%</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-1">
                         <div class="card text-white bg-success mb-3" id="month-card" style="cursor: pointer; transition: transform 0.2s;">
                             <div class="card-body text-center">
                                 <h5 class="card-title">Month</h5>
@@ -1565,6 +1574,7 @@
                     
                     // Show loading state
                     $('#teamlogger-hours').text('...');
+                    $('#attendance-percentage').text('...');
                     
                     // Determine date filter based on current month
                     let dateFilter = 'this_month'; // Default to current month
@@ -1614,21 +1624,28 @@
                                 console.log('Total Hours:', response.totalHours, 'Idle Hours:', response.idleHours, 'Active Hours:', response.activeHours);
                                 console.log('Target emails:', response.targetEmails);
                                 console.log('Found emails:', response.foundEmails);
+                                
+                                // Calculate and update attendance percentage
+                                const attendancePercentage = ((displayValue / 200) * 100).toFixed(1);
+                                $('#attendance-percentage').text(attendancePercentage + '%');
                             } else {
                                 console.error('Backend error:', response.message);
                                 $('#teamlogger-hours').text('0');
+                                $('#attendance-percentage').text('0%');
                             }
                         },
                         error: function(xhr, status, error) {
                             console.error('Error fetching Teamlogger data from backend:', error);
                             console.error('Response:', xhr.responseText);
                             $('#teamlogger-hours').text('0');
+                            $('#attendance-percentage').text('0%');
                         }
                     });
                     
                 } catch (error) {
                     console.error('Error in loadTeamloggerData:', error);
                     $('#teamlogger-hours').text('0');
+                    $('#attendance-percentage').text('0%');
                 }
             }
 

@@ -842,6 +842,19 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Attendance % Card -->
+                    <div class="col-auto">
+                        <div class="stats-card stats-card-info">
+                            <div class="stats-icon">
+                                <i class="ti ti-percentage"></i>
+                            </div>
+                            <div class="stats-content">
+                                <div class="stats-label">Attendance %</div>
+                                <div class="stats-value" id="attendance-percentage">0%</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Filter Section -->
@@ -2314,6 +2327,7 @@
                     
                     // Show loading state
                     $('#teamlogger-hours').text('...');
+                    $('#attendance-percentage').text('...');
                     
                     // Always use last 30 days for TeamLogger card
                     let requestData = {
@@ -2336,20 +2350,27 @@
                                 const displayValue = Math.round(response.activeHours || 0);
                                 $('#teamlogger-hours').text(displayValue);
                                 console.log('Updated teamlogger L30 active hours to:', displayValue);
+                                
+                                // Calculate and update attendance percentage
+                                const attendancePercentage = ((displayValue / 200) * 100).toFixed(1);
+                                $('#attendance-percentage').text(attendancePercentage + '%');
                             } else {
                                 console.error('Backend error:', response.message);
                                 $('#teamlogger-hours').text('0');
+                                $('#attendance-percentage').text('0%');
                             }
                         },
                         error: function(xhr, status, error) {
                             console.error('Error fetching Teamlogger L30 data:', error);
                             $('#teamlogger-hours').text('0');
+                            $('#attendance-percentage').text('0%');
                         }
                     });
                     
                 } catch (error) {
                     console.error('Error in loadTeamloggerData:', error);
                     $('#teamlogger-hours').text('0');
+                    $('#attendance-percentage').text('0%');
                 }
             }
 
