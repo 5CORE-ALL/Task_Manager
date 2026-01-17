@@ -954,6 +954,7 @@ class ProjectController extends Controller
                 
                 // Define userEmail for non-privileged users
                 $userEmail = !$isPresident && !$isTeamCreator ? $objUser->email : null;
+                $useTablePrefix = (!$isPresident && !$isTeamCreator); // Track if we use JOIN (affects column prefixing)
                 
                 // Base query builder function to avoid duplication
                 $buildBaseQuery = function() use ($currentWorkspace, $isPresident, $isTeamCreator, $objUser, $selectedTeamMemberEmails, $userEmail) {
@@ -996,25 +997,29 @@ class ProjectController extends Controller
                     }
                     // Non-team leaders can only view their assigned or assignee tasks
                     else {
-                        $task->where(function ($query) use ($userEmail) {
-                            // Standard task filtering: user in assign_to or assignor
+                        // Use LEFT JOIN with automate_tasks to check both task and automate_task assignment
+                        $task->leftJoin('automate_tasks', function($join) {
+                            $join->on('automate_tasks.id', '=', 'tasks.automate_task_id');
+                        })
+                        ->select('tasks.*') // Select only tasks columns to avoid conflicts
+                        ->distinct()
+                        ->where(function ($query) use ($userEmail) {
+                            // Standard task filtering: user in assign_to or assignor from tasks table
                             $query->where(function($q) use ($userEmail) {
-                                $q->whereRaw("FIND_IN_SET(?, assign_to)", [$userEmail])
-                                  ->orWhere('assignor', $userEmail);
+                                $q->whereRaw("FIND_IN_SET(?, tasks.assign_to)", [$userEmail])
+                                  ->orWhere('tasks.assignor', $userEmail);
                             })
                             // For automated tasks: also check AutomateTask's assign_to/assignor
                             ->orWhere(function($q) use ($userEmail) {
-                                $q->where('is_automate_task', 1)
-                                  ->whereRaw("EXISTS (
-                                      SELECT 1 FROM automate_tasks 
-                                      WHERE automate_tasks.id = tasks.automate_task_id 
-                                      AND (
-                                          FIND_IN_SET(?, automate_tasks.assign_to) > 0 
-                                          OR automate_tasks.assignor = ?
-                                      )
-                                  )", [$userEmail, $userEmail]);
+                                $q->where('tasks.is_automate_task', 1)
+                                  ->where(function($subQ) use ($userEmail) {
+                                      $subQ->whereRaw("FIND_IN_SET(?, automate_tasks.assign_to) > 0", [$userEmail])
+                                            ->orWhere('automate_tasks.assignor', $userEmail);
+                                  });
                             });
                         });
+                        // Use table prefix for deleted_at and order since we have a JOIN
+                        return $task->whereNull('tasks.deleted_at')->orderBy('tasks.order');
                     }
                     
                     return $task->whereNull('deleted_at')->orderBy('order');
@@ -1030,13 +1035,15 @@ class ProjectController extends Controller
                     $stageNameLower = strtolower($stageName);
                     $isFirstStage = ($status->order == 0);
                     
-                    $status['tasks'] = $task->where(function($q) use ($stageName, $stageNameLower, $isFirstStage, $allStageNamesLower) {
+                    // Use table prefix for status column if we have a JOIN (non-president/team-creator users)
+                    $statusColumn = $useTablePrefix ? 'tasks.status' : 'status';
+                    $status['tasks'] = $task->where(function($q) use ($stageName, $stageNameLower, $isFirstStage, $allStageNamesLower, $statusColumn) {
                         // Try exact match first (fastest)
-                        $q->where('status', '=', $stageName)
+                        $q->where($statusColumn, '=', $stageName)
                           // Case-insensitive match (handles "Todo" vs "todo")
-                          ->orWhereRaw('LOWER(TRIM(status)) = ?', [$stageNameLower])
+                          ->orWhereRaw("LOWER(TRIM({$statusColumn})) = ?", [$stageNameLower])
                           // Trimmed match (handles extra spaces)
-                          ->orWhereRaw('TRIM(status) = ?', [$stageName]);
+                          ->orWhereRaw("TRIM({$statusColumn}) = ?", [$stageName]);
                           
                         // If this is the first stage, also show tasks with status that doesn't match any existing stage
                         // This handles cases where "Todo" was removed but tasks still have "Todo" status
@@ -1044,7 +1051,7 @@ class ProjectController extends Controller
                         if ($isFirstStage && !empty($allStageNamesLower)) {
                             // Create placeholders for parameter binding
                             $placeholders = implode(',', array_fill(0, count($allStageNamesLower), '?'));
-                            $q->orWhereRaw("LOWER(TRIM(status)) NOT IN ({$placeholders})", $allStageNamesLower);
+                            $q->orWhereRaw("LOWER(TRIM({$statusColumn})) NOT IN ({$placeholders})", $allStageNamesLower);
                         }
                     })->with('stage')->get();
                 }
