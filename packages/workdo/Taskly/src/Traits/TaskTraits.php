@@ -43,7 +43,10 @@ trait TaskTraits
              $autoMatetaskArr['start_date'] =$todayTime;
             $autoMatetaskArr['workspace'] = $currentWorkspace; // Ensure workspace is set
           
-            $autoMatetaskArr['status'] ="Todo";
+            // Get the first stage dynamically to ensure proper status matching
+            $firstStage = Stage::where('workspace_id', '=', $currentWorkspace)->orderBy('order')->first();
+            $firstStageName = $firstStage ? $firstStage->name : 'Todo';
+            $autoMatetaskArr['status'] = $firstStageName;
             unset($autoMatetaskArr['id']); // Remove id to force creation of new task
             unset($autoMatetaskArr['task_id']); // Remove task_id as it's not needed
             
