@@ -3743,8 +3743,152 @@ public function bulkUpdateStatus(Request $request)
                     $teamMembers = \App\Models\User::whereIn('id', $teamMemberIds)->get(['id', 'name', 'email']);
                 }
             }
+            
+            // Fetch KPI and KRA data from invent database
+            $kpiValue = null;
+            $kraValue = null;
+            $kpiLabel = 'KPI';
+            $kraLabel = 'KRA';
+            
+            try {
+                $inventConnection = DB::connection('invent');
+                $schema = $inventConnection->getSchemaBuilder();
+                
+                // Get all tables to help debug
+                $allTables = $inventConnection->select('SHOW TABLES');
+                $tableNames = [];
+                foreach ($allTables as $table) {
+                    $tableNames[] = array_values((array)$table)[0];
+                }
+                
+                // Try to get KPI data - check multiple table names and column combinations
+                $kpiData = null;
+                $tablesToCheck = ['kpi', 'kpi_kra', 'performance_metrics', 'kpi_data', 'kpi_results', 'metrics'];
+                
+                foreach ($tablesToCheck as $tableName) {
+                    if ($schema->hasTable($tableName)) {
+                        try {
+                            $columns = $schema->getColumnListing($tableName);
+                            
+                            // Build query based on available columns
+                            $query = $inventConnection->table($tableName);
+                            
+                            // Check for type column (for combined tables)
+                            if (in_array('type', $columns)) {
+                                $query->where('type', 'KPI');
+                            } elseif (in_array('metric_type', $columns)) {
+                                $query->where('metric_type', 'KPI');
+                            }
+                            
+                            // Try to match user by various column names
+                            $userMatched = false;
+                            if (in_array('user_email', $columns)) {
+                                $query->where('user_email', $objUser->email);
+                                $userMatched = true;
+                            } elseif (in_array('email', $columns)) {
+                                $query->where('email', $objUser->email);
+                                $userMatched = true;
+                            } elseif (in_array('user_id', $columns)) {
+                                $query->where('user_id', $objUser->id);
+                                $userMatched = true;
+                            } elseif (in_array('employee_id', $columns)) {
+                                // Try to match by employee_id if it exists
+                                $employee = \Workdo\Hrm\Entities\Employee::where('user_id', $objUser->id)->first();
+                                if ($employee) {
+                                    $query->where('employee_id', $employee->id);
+                                    $userMatched = true;
+                                }
+                            }
+                            
+                            // If no user matching, try to get latest record
+                            if (!$userMatched) {
+                                // Try to get any KPI record
+                                $kpiData = $query->orderBy('id', 'desc')->first();
+                            } else {
+                                $kpiData = $query->orderBy('created_at', 'desc')
+                                    ->orderBy('id', 'desc')
+                                    ->first();
+                            }
+                            
+                            if ($kpiData) {
+                                break; // Found data, stop searching
+                            }
+                        } catch (\Exception $tableEx) {
+                            continue; // Try next table
+                        }
+                    }
+                }
+                
+                // Try to get KRA data - similar logic
+                $kraData = null;
+                foreach ($tablesToCheck as $tableName) {
+                    if ($schema->hasTable($tableName)) {
+                        try {
+                            $columns = $schema->getColumnListing($tableName);
+                            
+                            $query = $inventConnection->table($tableName);
+                            
+                            // Check for type column
+                            if (in_array('type', $columns)) {
+                                $query->where('type', 'KRA');
+                            } elseif (in_array('metric_type', $columns)) {
+                                $query->where('metric_type', 'KRA');
+                            }
+                            
+                            // Try to match user
+                            $userMatched = false;
+                            if (in_array('user_email', $columns)) {
+                                $query->where('user_email', $objUser->email);
+                                $userMatched = true;
+                            } elseif (in_array('email', $columns)) {
+                                $query->where('email', $objUser->email);
+                                $userMatched = true;
+                            } elseif (in_array('user_id', $columns)) {
+                                $query->where('user_id', $objUser->id);
+                                $userMatched = true;
+                            } elseif (in_array('employee_id', $columns)) {
+                                $employee = \Workdo\Hrm\Entities\Employee::where('user_id', $objUser->id)->first();
+                                if ($employee) {
+                                    $query->where('employee_id', $employee->id);
+                                    $userMatched = true;
+                                }
+                            }
+                            
+                            if (!$userMatched) {
+                                $kraData = $query->orderBy('id', 'desc')->first();
+                            } else {
+                                $kraData = $query->orderBy('created_at', 'desc')
+                                    ->orderBy('id', 'desc')
+                                    ->first();
+                            }
+                            
+                            if ($kraData) {
+                                break;
+                            }
+                        } catch (\Exception $tableEx) {
+                            continue;
+                        }
+                    }
+                }
+                
+                // Extract values from KPI data - try multiple column names
+                if ($kpiData) {
+                    $kpiValue = $kpiData->value ?? $kpiData->score ?? $kpiData->result ?? $kpiData->kpi_value ?? $kpiData->percentage ?? $kpiData->kpi ?? null;
+                    $kpiLabel = $kpiData->label ?? $kpiData->name ?? $kpiData->title ?? 'KPI';
+                }
+                
+                // Extract values from KRA data
+                if ($kraData) {
+                    $kraValue = $kraData->value ?? $kraData->score ?? $kraData->result ?? $kraData->kra_value ?? $kraData->percentage ?? $kraData->kra ?? null;
+                    $kraLabel = $kraData->label ?? $kraData->name ?? $kraData->title ?? 'KRA';
+                }
+                
+            } catch (\Exception $e) {
+                // Log error with more details
+                \Log::warning('Failed to fetch KPI/KRA data from invent database: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            }
          
-            return $dataTable->render('taskly::projects.tasklist',compact('currentWorkspace','stages','users','competeTask','pendingTask','overdueTask','totalTask','priority','isTeamCreator','teamMembers','selectedMemberIds'));
+            return $dataTable->render('taskly::projects.tasklist',compact('currentWorkspace','stages','users','competeTask','pendingTask','overdueTask','totalTask','priority','isTeamCreator','teamMembers','selectedMemberIds','kpiValue','kraValue','kpiLabel','kraLabel'));
         } else { 
             return redirect()->back()->with('error', 'permission Denied');
         }

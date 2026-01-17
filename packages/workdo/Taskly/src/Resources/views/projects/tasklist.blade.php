@@ -685,6 +685,44 @@
             <div class="container-fluid mt-3 px-4">
                 <!-- Modern Stats Cards in One Line -->
                 <div class="row g-3 mb-4">
+                    <!-- KPI Card -->
+                    <div class="col-auto">
+                        <div class="stats-card stats-card-purple">
+                            <div class="stats-icon">
+                                <i class="ti ti-chart-line"></i>
+                            </div>
+                            <div class="stats-content">
+                                <div class="stats-label">{{ $kpiLabel ?? 'KPI' }}</div>
+                                <div class="stats-value" id="kpi-value">
+                                    @if(isset($kpiValue) && $kpiValue !== null)
+                                        {{ is_numeric($kpiValue) ? number_format($kpiValue, 2) : $kpiValue }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KRA Card -->
+                    <div class="col-auto">
+                        <div class="stats-card stats-card-teal">
+                            <div class="stats-icon">
+                                <i class="ti ti-target"></i>
+                            </div>
+                            <div class="stats-content">
+                                <div class="stats-label">{{ $kraLabel ?? 'KRA' }}</div>
+                                <div class="stats-value" id="kra-value">
+                                    @if(isset($kraValue) && $kraValue !== null)
+                                        {{ is_numeric($kraValue) ? number_format($kraValue, 2) : $kraValue }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Total Card -->
                     <div class="col-auto">
                         <div class="stats-card stats-card-primary">
@@ -875,6 +913,12 @@
         </div>
         <div class="col-xl-12">
             <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ __('Tasks') }}</h5>
+                    <button type="button" id="refresh-tasks-btn" class="btn btn-sm btn-primary">
+                        <i class="ti ti-refresh me-1"></i>{{ __('Refresh') }}
+                    </button>
+                </div>
                 <div class="card-body table-border-style">
                     <div class="table-responsive">
                         {{ $dataTable->table(['width' => '100%']) }}
@@ -3091,6 +3135,47 @@
                         table.ajax.reload();
                     }
                     getTaskCount();
+                });
+
+                // Refresh button handler - reloads table while preserving filters
+                $('#refresh-tasks-btn').on('click', function () {
+                    var $btn = $(this);
+                    var originalHtml = $btn.html();
+                    
+                    // Add loading state
+                    $btn.prop('disabled', true);
+                    $btn.html('<i class="ti ti-loader-2 ti-spin me-1"></i>{{ __('Refreshing...') }}');
+                    
+                    // Reload the DataTable with current filter values
+                    if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                        var table = $('#projects-task-table').DataTable();
+                        
+                        // Update the ajax data parameters with current filter values
+                        table.settings()[0].ajax.data = function(d) {
+                            d.assignee_name = $('#assignee_name').val();
+                            d.assignor_name = $('#assignor_name').val();
+                            d.status_name = $('#status_name').val();
+                            d.priority = $('#priority').val();
+                            d.group_name = $('#group_name').val();
+                            d.task_name = $('#task_name').val();
+                            d.search = $('#global_search').val();
+                            return d;
+                        };
+                        
+                        // Reload the table
+                        table.ajax.reload(function() {
+                            // Restore button state after reload
+                            $btn.prop('disabled', false);
+                            $btn.html(originalHtml);
+                            getTaskCount();
+                            getDoneTaskData();
+                            loadTeamloggerData();
+                        }, false); // false = don't reset paging
+                    } else {
+                        // If DataTable is not initialized, just restore button
+                        $btn.prop('disabled', false);
+                        $btn.html(originalHtml);
+                    }
                 });
 
             });
