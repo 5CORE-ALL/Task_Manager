@@ -6216,46 +6216,60 @@ public function getDailyOverdueGraphData(Request $request)
         // Check if user is a team leader
         $isTeamLeader = \App\Models\Team::isTeamLeader($objUser->id);
         
-        // Get current overdue count from the card (same calculation as TaskList)
-        // Build query exactly as in TaskList method
-        $overdueTaskQuery = Task::whereNotIn('status', [''])
-            ->where(function($q) {
-                $q->where('is_missed', 0)
-                  ->orWhere(function($sub) {
-                      $sub->where('is_automate_task', 0);
-                  });
-            })
-            ->where('status',"!=","")
-            ->where('workspace', $currentWorkspace)
-            ->where('deleted_at',NULL)
-            ->whereNotNull('start_date')
-            ->where('start_date', '!=', '');
+        // Get current overdue count from the card - MUST use EXACT same query as taskCountData
+        // This ensures the graph shows the same value (25) as the card
+        // Build query EXACTLY as in taskCountData method (non-president branch)
+        $email = $objUser->email;
         
-        // Apply visibility filter based on user type (EXACTLY as in TaskList)
-        // President@5core.com can view all tasks - no filtering
+        // Base query must EXACTLY match taskCountData query structure
+        $taskBaseQuery = Task::select('tasks.*', 'stages.name as stage_name', 'assignor_users.name as assigner_name','eta_time','etc_done')
+            ->join('stages', 'stages.name', '=', 'tasks.status')
+            ->leftJoin('users as assignor_users', 'assignor_users.email', '=', 'tasks.assignor')
+            ->where('tasks.deleted_at', NULL)
+            ->where(function($query) {
+                $query->where('is_missed', 0)
+                      ->orWhere('is_automate_task', 0);
+            })
+            ->where('tasks.workspace', $currentWorkspace);
+        
+        // Apply visibility filter based on user type (EXACTLY as in taskCountData)
         if ($isPresident) {
             // No filtering - president can see all tasks
-        }
-        // If assignee filter is selected (team leader viewing team member's tasks)
-        elseif ($selectedAssigneeEmail && $isTeamLeader) {
-            $overdueTaskQuery->whereRaw("FIND_IN_SET(?, assign_to)", [$selectedAssigneeEmail]);
-        }
-        // Team leader viewing their own tasks
-        elseif ($isTeamLeader) {
-            $overdueTaskQuery->where(function ($q) use ($objUser) {
-                $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                  ->orWhere('assignor', $objUser->email);
+        } elseif ($selectedAssigneeEmail && $isTeamLeader) {
+            // Team leader viewing team member's tasks
+            $taskBaseQuery->whereRaw("FIND_IN_SET(?, tasks.assign_to)", [$selectedAssigneeEmail]);
+        } elseif ($isTeamLeader) {
+            // Team leader viewing their own tasks
+            $taskBaseQuery->where(function ($query) use ($email) {
+                $query->whereRaw("FIND_IN_SET(?, tasks.assign_to)", [$email])
+                      ->orWhere('tasks.assignor', $email);
             });
-        }
-        // Non-team leaders: count tasks where they are assignee OR assignor
-        else {
-            $overdueTaskQuery->where(function ($q) use ($objUser) {
-                $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                  ->orWhere('assignor', $objUser->email);
+        } else {
+            // Non-team leaders: count tasks where they are assignee OR assignor
+            $taskBaseQuery->where(function ($query) use ($email) {
+                $query->whereRaw("FIND_IN_SET(?, tasks.assign_to)", [$email])
+                      ->orWhere('tasks.assignor', $email);
             });
         }
         
+        $taskBaseQuery->distinct();
+        
+        // Overdue query - EXACTLY as in taskCountData
+        $overdueTaskQuery = (clone $taskBaseQuery)
+            ->where('tasks.status', '!=', '')
+            ->whereNotNull('tasks.start_date')
+            ->where('tasks.start_date', '!=', '');
+        
         $currentOverdueCount = $this->calculateOverdueTaskCount($overdueTaskQuery);
+        
+        \Log::info('Graph Data - Calculated Current Overdue Count', [
+            'count' => $currentOverdueCount,
+            'user' => $objUser->email,
+            'is_president' => $isPresident,
+            'is_team_leader' => $isTeamLeader,
+            'selected_assignee' => $selectedAssigneeEmail,
+            'note' => 'This should match the card value (25)'
+        ]);
         
         // Log for debugging
         \Log::info('Graph Data - Current Overdue Count: ' . $currentOverdueCount . ', User: ' . $objUser->email);
