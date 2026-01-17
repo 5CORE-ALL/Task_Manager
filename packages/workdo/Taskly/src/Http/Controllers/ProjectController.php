@@ -989,31 +989,31 @@ class ProjectController extends Controller
                     }
                     // Non-team leaders can only view their assigned or assignee tasks
                     else {
-                        $task->leftJoin('automate_tasks', function($join) {
-                            $join->on('tasks.automate_task_id', '=', 'automate_tasks.id')
-                                 ->where('tasks.is_automate_task', '=', 1);
-                        });
-                        
-                        $task->where(function ($query) use ($objUser) {
-                            // Show tasks where user is in task's assign_to or assignor
-                            $query->where(function($q) use ($objUser) {
-                                $q->whereRaw("FIND_IN_SET(?, tasks.assign_to)", [$objUser->email])
-                                  ->orWhere('tasks.assignor', $objUser->email);
+                        $userEmail = $objUser->email;
+                        $task->where(function ($query) use ($userEmail) {
+                            // Standard task filtering: user in assign_to or assignor
+                            $query->where(function($q) use ($userEmail) {
+                                $q->whereRaw("FIND_IN_SET(?, assign_to)", [$userEmail])
+                                  ->orWhere('assignor', $userEmail);
                             })
-                            // OR show automated tasks where user is in AutomateTask's assign_to or assignor
-                            ->orWhere(function($q) use ($objUser) {
-                                $q->whereRaw("FIND_IN_SET(?, automate_tasks.assign_to)", [$objUser->email])
-                                  ->orWhere('automate_tasks.assignor', $objUser->email);
+                            // For automated tasks: also check AutomateTask's assign_to/assignor
+                            ->orWhere(function($q) use ($userEmail) {
+                                $q->where('is_automate_task', 1)
+                                  ->whereRaw("EXISTS (
+                                      SELECT 1 FROM automate_tasks 
+                                      WHERE automate_tasks.id = tasks.automate_task_id 
+                                      AND (
+                                          FIND_IN_SET(?, automate_tasks.assign_to) > 0 
+                                          OR automate_tasks.assignor = ?
+                                      )
+                                  )", [$userEmail, $userEmail]);
                             });
                         });
-                        
-                        // Add distinct to avoid duplicate rows from join
-                        $task->select('tasks.*')->distinct();
                     }
                     
-                    $task->whereNull('tasks.deleted_at')
-                         ->orderBy('tasks.order');
-                    $status['tasks'] = $task->where('tasks.status', '=', $status->name)->with('stage')->get();
+                    $task->whereNull('deleted_at')
+                         ->orderBy('order');
+                    $status['tasks'] = $task->where('status', '=', $status->name)->with('stage')->get();
                 }
                 
                 $selectedMemberIds = $request->get('team_members', []);
