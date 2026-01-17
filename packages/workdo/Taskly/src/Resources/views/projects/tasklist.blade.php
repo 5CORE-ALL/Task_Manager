@@ -857,6 +857,27 @@
                     </div>
                 </div>
                 
+                <!-- Daily Overdue Count Graph -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <button class="btn btn-link p-0 text-decoration-none text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#overdueGraphCollapse" aria-expanded="false" aria-controls="overdueGraphCollapse" id="overdueGraphToggle">
+                                        <i class="ti ti-chevron-right me-2" id="overdueGraphIcon"></i>
+                                        Daily Overdue Count Fluctuation
+                                    </button>
+                                </h5>
+                            </div>
+                            <div class="collapse" id="overdueGraphCollapse">
+                                <div class="card-body">
+                                    <canvas id="overdueGraphChart" style="max-height: 400px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Filter Section -->
                 <div class="row mt-1 align-items-center">
                <div class="col-md-2 mb-3"></div>
@@ -1971,6 +1992,7 @@
                 getTaskCount();
                 loadRatingData();
                 loadTeamloggerData();
+                loadOverdueGraph();
                 // Initialize task toggle
                 initializeTaskToggle();
                 // Bind filter change events
@@ -2373,6 +2395,132 @@
                     $('#attendance-percentage').text('0%');
                 }
             }
+
+            // Function to load and display daily overdue graph
+            let overdueGraphChart = null;
+            function loadOverdueGraph() {
+                try {
+                    // Get current assignee filter to match the card's calculation
+                    const assigneeFilter = $('#assignee_name').val() || [];
+                    
+                    $.ajax({
+                        url: '{{ route("projecttask.daily.overdue.graph.data") }}',
+                        method: 'GET',
+                        dataType: 'json',
+                        data: {
+                            days: 30, // Show last 30 days
+                            assignee_name: assigneeFilter // Pass assignee filter to match card calculation
+                        },
+                        success: function(response) {
+                            if (response.success && response.labels && response.counts) {
+                                // Debug: Log the data to see what we're getting
+                                const cardCount = $('#overdue-count').text().trim();
+                                const lastCount = response.counts[response.counts.length - 1];
+                                const lastLabel = response.labels[response.labels.length - 1];
+                                
+                                console.log('=== OVERDUE GRAPH DEBUG ===');
+                                console.log('Card Count:', cardCount);
+                                console.log('Current Overdue Count (from API):', response.currentOverdueCount);
+                                console.log('Last Count in Array:', lastCount);
+                                console.log('Last Label:', lastLabel);
+                                console.log('Today String:', response.todayStr);
+                                console.log('Debug Info:', response.debug);
+                                console.log('All Counts:', response.counts);
+                                console.log('All Labels:', response.labels);
+                                console.log('===========================');
+                                
+                                // Force the last value to match the card if they don't match
+                                if (response.counts.length > 0 && parseInt(cardCount) !== parseInt(lastCount)) {
+                                    console.warn('MISMATCH DETECTED! Forcing last value to match card:', cardCount);
+                                    response.counts[response.counts.length - 1] = parseInt(cardCount);
+                                }
+                                
+                                const ctx = document.getElementById('overdueGraphChart');
+                                if (!ctx) return;
+                                
+                                // Destroy existing chart if it exists
+                                if (overdueGraphChart) {
+                                    overdueGraphChart.destroy();
+                                }
+                                
+                                overdueGraphChart = new Chart(ctx, {
+                                    type: 'line',
+                                    data: {
+                                        labels: response.labels,
+                                        datasets: [{
+                                            label: 'Overdue Count',
+                                            data: response.counts,
+                                            borderColor: 'rgb(220, 53, 69)',
+                                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                                            borderWidth: 2,
+                                            fill: true,
+                                            tension: 0.4,
+                                            pointRadius: 4,
+                                            pointHoverRadius: 6,
+                                            pointBackgroundColor: 'rgb(220, 53, 69)',
+                                            pointBorderColor: '#fff',
+                                            pointBorderWidth: 2
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: true,
+                                        plugins: {
+                                            legend: {
+                                                display: true,
+                                                position: 'top',
+                                            },
+                                            tooltip: {
+                                                mode: 'index',
+                                                intersect: false,
+                                            }
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    stepSize: 1
+                                                },
+                                                title: {
+                                                    display: true,
+                                                    text: 'Overdue Count'
+                                                }
+                                            },
+                                            x: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Date'
+                                                }
+                                            }
+                                        },
+                                        interaction: {
+                                            mode: 'nearest',
+                                            axis: 'x',
+                                            intersect: false
+                                        }
+                                    }
+                                });
+                            } else {
+                                console.error('Invalid graph data response:', response);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching overdue graph data:', error);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error in loadOverdueGraph:', error);
+                }
+            }
+
+            // Handle collapse icon toggle for overdue graph
+            $('#overdueGraphCollapse').on('show.bs.collapse', function () {
+                $('#overdueGraphIcon').removeClass('ti-chevron-right').addClass('ti-chevron-down');
+            });
+            
+            $('#overdueGraphCollapse').on('hide.bs.collapse', function () {
+                $('#overdueGraphIcon').removeClass('ti-chevron-down').addClass('ti-chevron-right');
+            });
 
             // Function to update filtered data including Teamlogger
             function updateFilteredData() {
@@ -3444,7 +3592,9 @@
                                 currentFilteredData = data.data;
                                 
                                 // Update graph card state
-                                updateGraphCardState();
+                                if (typeof updateGraphCardState === 'function') {
+                                    updateGraphCardState();
+                                }
                                 
                                 // Update today's graph button state
                                 updateTodayGraphButtonState();
@@ -3459,7 +3609,9 @@
                                
                                // Clear filtered data
                                currentFilteredData = null;
-                               updateGraphCardState();
+                               if (typeof updateGraphCardState === 'function') {
+                                   updateGraphCardState();
+                               }
                                
                                // Update today's graph button state
                                updateTodayGraphButtonState();
@@ -4544,9 +4696,15 @@ $(document).ready(function() {
         handleAssigneeUpdate();
     });
     
-    updateGraphCardState();
-    updateFilteredCardStates();
-    updateTodayGraphButtonState();
+    if (typeof updateGraphCardState === 'function') {
+        updateGraphCardState();
+    }
+    if (typeof updateFilteredCardStates === 'function') {
+        updateFilteredCardStates();
+    }
+    if (typeof updateTodayGraphButtonState === 'function') {
+        updateTodayGraphButtonState();
+    }
     
     // Load ETC/ATC data based on current filters (or all data if no filter)
     getDoneTaskData();
@@ -4556,9 +4714,15 @@ $(document).ready(function() {
     
     // Update card states when filters change
     $('#assignee_name, #assignor_name, #status_name, #group_name, #task_name,#priority').on('change keyup', function() {
-        updateGraphCardState();
-        updateFilteredCardStates();
-        updateTodayGraphButtonState();
+        if (typeof updateGraphCardState === 'function') {
+            updateGraphCardState();
+        }
+        if (typeof updateFilteredCardStates === 'function') {
+            updateFilteredCardStates();
+        }
+        if (typeof updateTodayGraphButtonState === 'function') {
+            updateTodayGraphButtonState();
+        }
         
         // Fetch done task data based on applied filters
         getDoneTaskData();

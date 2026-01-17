@@ -3712,6 +3712,16 @@ public function bulkUpdateStatus(Request $request)
             $pendingTask = $pendingTaskQuery->count();
             $overdueTask = $this->calculateOverdueTaskCount($overdueTaskQuery);
             
+            // Log the calculated overdue count BEFORE storing
+            \Log::info('TaskList - Calculated Overdue Count BEFORE Storage', [
+                'overdue_count' => $overdueTask,
+                'user_email' => $objUser->email,
+                'workspace' => $currentWorkspace,
+                'is_president' => $isPresident ?? false,
+                'is_team_leader' => $isTeamLeader ?? false,
+                'selected_assignee' => $selectedAssigneeEmail ?? null
+            ]);
+            
             // Calculate total tasks
             $totalTask = $competeTask + $pendingTask;
             $priority = collect([
@@ -3887,6 +3897,16 @@ public function bulkUpdateStatus(Request $request)
                 // Log error with more details
                 \Log::warning('Failed to fetch KPI/KRA data from invent database: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
             }
+            
+            // DO NOT store daily overdue count here during initial page load
+            // The value stored here (59) doesn't match the card display (40)
+            // Storage will happen in taskCountData() AJAX call which calculates the correct value
+            // This prevents storing the wrong value that would overwrite the correct one
+            \Log::info('TaskList - Skipping daily overdue count storage', [
+                'reason' => 'Storage will happen in taskCountData AJAX call with correct calculation',
+                'calculated_value' => $overdueTask,
+                'note' => 'AJAX call will store the value that matches the card (40)'
+            ]);
          
             return $dataTable->render('taskly::projects.tasklist',compact('currentWorkspace','stages','users','competeTask','pendingTask','overdueTask','totalTask','priority','isTeamCreator','teamMembers','selectedMemberIds','kpiValue','kraValue','kpiLabel','kraLabel'));
         } else { 
@@ -5072,6 +5092,120 @@ public function bulkUpdateStatus(Request $request)
         $totalETAHours = round($totalETAmin/60);
         $totalATCHours = round($totalATCMin/60);
 
+        // CRITICAL: Store daily overdue count when NO filters are applied
+        // This ensures the database stores the same value shown in the card (40)
+        // Only store when this is the base count (no filters), not filtered counts
+        // Check if filters are actually applied (not just empty arrays or empty strings)
+        $hasFilters = false;
+        
+        // Check assignee_name - must have real values (not just 'NULL' or empty)
+        if (!empty($assignee_name)) {
+            if (is_array($assignee_name)) {
+                $realValues = array_filter($assignee_name, function($v) { 
+                    return $v !== 'NULL' && $v !== null && trim($v) !== ''; 
+                });
+                $hasFilters = !empty($realValues);
+            } else {
+                $hasFilters = trim($assignee_name) !== '';
+            }
+        }
+        
+        // Check assignor_name
+        if (!$hasFilters && !empty($assignor_name)) {
+            if (is_array($assignor_name)) {
+                $realValues = array_filter($assignor_name, function($v) { 
+                    return $v !== 'NULL' && $v !== null && trim($v) !== ''; 
+                });
+                $hasFilters = !empty($realValues);
+            } else {
+                $hasFilters = trim($assignor_name) !== '';
+            }
+        }
+        
+        // Check other filters
+        if (!$hasFilters && !empty($status_name) && trim($status_name) !== '') {
+            $hasFilters = true;
+        }
+        if (!$hasFilters && !empty($priority) && trim($priority) !== '') {
+            $hasFilters = true;
+        }
+        if (!$hasFilters && !empty($group_name) && trim($group_name) !== '') {
+            $hasFilters = true;
+        }
+        if (!$hasFilters && !empty($task_name) && trim($task_name) !== '') {
+            $hasFilters = true;
+        }
+        if (!$hasFilters && !empty($searchValue) && trim($searchValue) !== '') {
+            $hasFilters = true;
+        }
+        
+        \Log::info('taskCountData - Filter Check', [
+            'hasFilters' => $hasFilters,
+            'assignee_name' => $assignee_name,
+            'assignor_name' => $assignor_name,
+            'status_name' => $status_name,
+            'priority' => $priority,
+            'group_name' => $group_name,
+            'task_name' => $task_name,
+            'searchValue' => $searchValue,
+            'overdueTask' => $overdueTask,
+            'will_store' => !$hasFilters
+        ]);
+        
+        // ALWAYS store - the AJAX call is what displays in the card, so store it
+        // Even if filters are applied, we should still store when called from initial page load
+        // But let's be safe and only store when no filters
+        if (!$hasFilters) {
+            try {
+                \Log::info('taskCountData - Storing Daily Overdue Count (NO FILTERS)', [
+                    'user_id' => $objUser->id,
+                    'user_email' => $objUser->email,
+                    'overdue_count' => $overdueTask,
+                    'record_date' => now()->format('Y-m-d'),
+                    'workspace' => $workspaceId,
+                    'note' => 'This is the base count with no filters - matches card display'
+                ]);
+                
+                // Store the overdue count - this is what the card shows (40)
+                $record = \App\Models\DailyOverdueCount::updateOrCreate(
+                    [
+                        'user_id' => $objUser->id,
+                        'record_date' => now()->format('Y-m-d'),
+                        'workspace' => $workspaceId,
+                    ],
+                    [
+                        'overdue_count' => (int)$overdueTask, // This should be 40, matching the card
+                    ]
+                );
+                
+                // Verify what was stored
+                $stored = \App\Models\DailyOverdueCount::where('user_id', $objUser->id)
+                    ->where('record_date', now()->format('Y-m-d'))
+                    ->where('workspace', $workspaceId)
+                    ->first();
+                    
+                if ($stored) {
+                    \Log::info('taskCountData - Verified Stored Value', [
+                        'stored_value' => $stored->overdue_count,
+                        'card_value' => $overdueTask,
+                        'match' => ($stored->overdue_count == $overdueTask)
+                    ]);
+                    
+                    // Force update if mismatch
+                    if ($stored->overdue_count != $overdueTask) {
+                        \Log::warning('taskCountData - MISMATCH - Forcing update', [
+                            'old_value' => $stored->overdue_count,
+                            'new_value' => $overdueTask
+                        ]);
+                        $stored->overdue_count = (int)$overdueTask;
+                        $stored->save();
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::warning('taskCountData - Failed to store daily overdue count: ' . $e->getMessage());
+            }
+        }
+
         return response()->json(
             [
                 'is_success' => true,
@@ -6060,6 +6194,152 @@ public function getTeamloggerData(Request $request)
     }
 }
 
-
+public function getDailyOverdueGraphData(Request $request)
+{
+    try {
+        $objUser = Auth::user();
+        $currentWorkspace = getActiveWorkSpace();
+        
+        // Get assignee filter from request (if team leader selected a team member)
+        $assigneeFilter = $request->input('assignee_name');
+        $selectedAssigneeEmail = null;
+        if ($assigneeFilter && is_array($assigneeFilter) && count($assigneeFilter) > 0) {
+            // Get first non-NULL assignee
+            $selectedAssigneeEmail = collect($assigneeFilter)->first(function($email) {
+                return $email !== 'NULL' && !empty($email);
+            });
+        }
+        
+        // Check if user is president@5core.com (can view all tasks - exception)
+        $isPresident = ($objUser->email === 'president@5core.com');
+        
+        // Check if user is a team leader
+        $isTeamLeader = \App\Models\Team::isTeamLeader($objUser->id);
+        
+        // Get current overdue count from the card (same calculation as TaskList)
+        // Build query exactly as in TaskList method
+        $overdueTaskQuery = Task::whereNotIn('status', [''])
+            ->where(function($q) {
+                $q->where('is_missed', 0)
+                  ->orWhere(function($sub) {
+                      $sub->where('is_automate_task', 0);
+                  });
+            })
+            ->where('status',"!=","")
+            ->where('workspace', $currentWorkspace)
+            ->where('deleted_at',NULL)
+            ->whereNotNull('start_date')
+            ->where('start_date', '!=', '');
+        
+        // Apply visibility filter based on user type (EXACTLY as in TaskList)
+        // President@5core.com can view all tasks - no filtering
+        if ($isPresident) {
+            // No filtering - president can see all tasks
+        }
+        // If assignee filter is selected (team leader viewing team member's tasks)
+        elseif ($selectedAssigneeEmail && $isTeamLeader) {
+            $overdueTaskQuery->whereRaw("FIND_IN_SET(?, assign_to)", [$selectedAssigneeEmail]);
+        }
+        // Team leader viewing their own tasks
+        elseif ($isTeamLeader) {
+            $overdueTaskQuery->where(function ($q) use ($objUser) {
+                $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                  ->orWhere('assignor', $objUser->email);
+            });
+        }
+        // Non-team leaders: count tasks where they are assignee OR assignor
+        else {
+            $overdueTaskQuery->where(function ($q) use ($objUser) {
+                $q->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
+                  ->orWhere('assignor', $objUser->email);
+            });
+        }
+        
+        $currentOverdueCount = $this->calculateOverdueTaskCount($overdueTaskQuery);
+        
+        // Log for debugging
+        \Log::info('Graph Data - Current Overdue Count: ' . $currentOverdueCount . ', User: ' . $objUser->email);
+        
+        // Get date range - default to last 30 days
+        $days = $request->input('days', 30);
+        $startDate = Carbon::now()->subDays($days)->format('Y-m-d');
+        $endDate = Carbon::now()->format('Y-m-d');
+        $todayStr = Carbon::now()->format('Y-m-d');
+        
+        // Fetch daily overdue counts for the current user
+        $dailyCounts = \App\Models\DailyOverdueCount::where('user_id', $objUser->id)
+            ->where('workspace', $currentWorkspace)
+            ->whereBetween('record_date', [$startDate, $endDate])
+            ->orderBy('record_date', 'asc')
+            ->get();
+        
+        // Prepare data for chart
+        $labels = [];
+        $counts = [];
+        
+        // Create a map of existing records
+        $recordsMap = [];
+        $storedTodayValue = null;
+        foreach ($dailyCounts as $record) {
+            $dateStr = $record->record_date->format('Y-m-d');
+            // Don't add today's record here - we'll override it below with current count
+            if ($dateStr !== $todayStr) {
+                $recordsMap[$dateStr] = $record->overdue_count;
+            } else {
+                $storedTodayValue = $record->overdue_count;
+            }
+        }
+        
+        // Always use current overdue count for today to match the card
+        // This MUST override any stored value for today
+        $recordsMap[$todayStr] = $currentOverdueCount;
+        
+        // Log for debugging
+        \Log::info('Graph Data - Today String: ' . $todayStr . ', Stored Value: ' . ($storedTodayValue ?? 'null') . ', Override Value: ' . $currentOverdueCount);
+        
+        // Fill in all dates in the range (fill missing dates with 0 or last known value)
+        $period = CarbonPeriod::create($startDate, $endDate);
+        $lastKnownCount = 0;
+        
+        foreach ($period as $date) {
+            $dateStr = $date->format('Y-m-d');
+            $labels[] = $date->format('M d');
+            
+            if (isset($recordsMap[$dateStr])) {
+                $lastKnownCount = $recordsMap[$dateStr];
+                $counts[] = $lastKnownCount;
+            } else {
+                // Use last known count or 0 if no data exists
+                $counts[] = $lastKnownCount;
+            }
+        }
+        
+        // Log the last count value to verify
+        $lastCount = !empty($counts) ? end($counts) : 0;
+        \Log::info('Graph Data - Last Count in Array: ' . $lastCount . ', Expected: ' . $currentOverdueCount);
+        
+        return response()->json([
+            'success' => true,
+            'labels' => $labels,
+            'counts' => $counts,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'todayStr' => $todayStr,
+            'currentOverdueCount' => $currentOverdueCount,
+            'lastCount' => $lastCount,
+            'debug' => [
+                'storedTodayValue' => $storedTodayValue,
+                'overrideValue' => $currentOverdueCount,
+                'totalRecords' => count($dailyCounts)
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ]);
+    }
+}
 
 }

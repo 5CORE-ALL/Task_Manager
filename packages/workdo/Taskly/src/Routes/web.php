@@ -94,6 +94,7 @@ Route::middleware(['web','auth','verified','PlanModuleCheck:Taskly'])->group(fun
     Route::get('project/task-rating-data', [ProjectController::class,'taskRatingData'])->name('tasks.rating.data');
     Route::get('project/teamlogger-data', [ProjectController::class,'getTeamloggerData'])->name('projecttask.teamlogger.data');
     Route::get('project/teamlogger-data-by-date', [ProjectController::class,'getTeamloggerDataByDate'])->name('projecttask.teamlogger.by.date');
+    Route::get('project/daily-overdue-graph-data', [ProjectController::class,'getDailyOverdueGraphData'])->name('projecttask.daily.overdue.graph.data');
     Route::get('project/task-track', [ProjectController::class,'taskTracklist'])->name('projecttask.track');
         Route::post('project/update-etc-done', [ProjectController::class,'updateEtcDone'])->name('projecttask.update.etc');
         Route::post('project/task-save-rework',[ProjectController::class,'saveReworkReason'])->name('tasks.save.rework');
