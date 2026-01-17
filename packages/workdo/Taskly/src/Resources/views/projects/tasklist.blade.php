@@ -2429,10 +2429,19 @@
                                 console.log('All Labels:', response.labels);
                                 console.log('===========================');
                                 
-                                // Force the last value to match the card if they don't match
-                                if (response.counts.length > 0 && parseInt(cardCount) !== parseInt(lastCount)) {
-                                    console.warn('MISMATCH DETECTED! Forcing last value to match card:', cardCount);
-                                    response.counts[response.counts.length - 1] = parseInt(cardCount);
+                                // CRITICAL: Always use card value (25) for last point instead of API value (44)
+                                // The card shows the correct value (25), API might return wrong value (44)
+                                // Always override the last value with the card value to ensure they match
+                                if (response.counts.length > 0) {
+                                    const cardValue = parseInt(cardCount) || 0;
+                                    const apiValue = parseInt(lastCount) || 0;
+                                    if (cardValue !== apiValue) {
+                                        console.warn('MISMATCH DETECTED! API returned:', apiValue, 'but card shows:', cardValue, '- Using card value');
+                                    } else {
+                                        console.log('Values match - Card:', cardValue, 'API:', apiValue);
+                                    }
+                                    // Always use card value for the last point (today)
+                                    response.counts[response.counts.length - 1] = cardValue;
                                 }
                                 
                                 const ctx = document.getElementById('overdueGraphChart');

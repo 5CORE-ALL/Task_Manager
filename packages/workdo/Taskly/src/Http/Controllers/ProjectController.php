@@ -6294,13 +6294,30 @@ public function getDailyOverdueGraphData(Request $request)
         // Create a map of existing records
         $recordsMap = [];
         $storedTodayValue = null;
+        \Log::info('Graph Data - Fetching stored values', [
+            'today' => $todayStr,
+            'total_records' => count($dailyCounts),
+            'workspace' => $currentWorkspace,
+            'user_id' => $objUser->id
+        ]);
+        
         foreach ($dailyCounts as $record) {
             $dateStr = $record->record_date->format('Y-m-d');
-            // Don't add today's record here - we'll override it below with current count
+            \Log::info('Graph Data - Processing record', [
+                'date' => $dateStr,
+                'today' => $todayStr,
+                'matches_today' => ($dateStr === $todayStr),
+                'count' => $record->overdue_count
+            ]);
+            // Don't add today's record here - we'll override it below with stored value
             if ($dateStr !== $todayStr) {
                 $recordsMap[$dateStr] = $record->overdue_count;
             } else {
                 $storedTodayValue = $record->overdue_count;
+                \Log::info('Graph Data - Found stored value for today', [
+                    'value' => $storedTodayValue,
+                    'date' => $dateStr
+                ]);
             }
         }
         
