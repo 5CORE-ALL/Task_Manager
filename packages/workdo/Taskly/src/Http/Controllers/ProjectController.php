@@ -947,9 +947,16 @@ class ProjectController extends Controller
                     }
                 }
                 
-                foreach ($stages as $status) {
-                    $statusClass[] = 'task-list-' . str_replace(' ', '_', $status->id);
-
+                // Get all stage names (for orphaned task detection)
+                $allStageNamesLower = $stages->map(function($s) {
+                    return trim(strtolower($s->name));
+                })->toArray();
+                
+                // Define userEmail for non-privileged users
+                $userEmail = !$isPresident && !$isTeamCreator ? $objUser->email : null;
+                
+                // Base query builder function to avoid duplication
+                $buildBaseQuery = function() use ($currentWorkspace, $isPresident, $isTeamCreator, $objUser, $selectedTeamMemberEmails, $userEmail) {
                     $task = Task::where('workspace', '=', $currentWorkspace);
                     
                     // President@5core.com can view all tasks
@@ -989,7 +996,6 @@ class ProjectController extends Controller
                     }
                     // Non-team leaders can only view their assigned or assignee tasks
                     else {
-                        $userEmail = $objUser->email;
                         $task->where(function ($query) use ($userEmail) {
                             // Standard task filtering: user in assign_to or assignor
                             $query->where(function($q) use ($userEmail) {
@@ -1011,10 +1017,36 @@ class ProjectController extends Controller
                         });
                     }
                     
-                    $task->whereNull('deleted_at')
-                         ->orderBy('order');
-                    // Use case-insensitive comparison for status to handle any case differences
-                    $status['tasks'] = $task->whereRaw('LOWER(status) = ?', [strtolower($status->name)])->with('stage')->get();
+                    return $task->whereNull('deleted_at')->orderBy('order');
+                };
+                
+                foreach ($stages as $status) {
+                    $statusClass[] = 'task-list-' . str_replace(' ', '_', $status->id);
+
+                    $task = $buildBaseQuery();
+                    
+                    // Match status to stage name (flexible matching - handles case/whitespace differences)
+                    $stageName = trim($status->name);
+                    $stageNameLower = strtolower($stageName);
+                    $isFirstStage = ($status->order == 0);
+                    
+                    $status['tasks'] = $task->where(function($q) use ($stageName, $stageNameLower, $isFirstStage, $allStageNamesLower) {
+                        // Try exact match first (fastest)
+                        $q->where('status', '=', $stageName)
+                          // Case-insensitive match (handles "Todo" vs "todo")
+                          ->orWhereRaw('LOWER(TRIM(status)) = ?', [$stageNameLower])
+                          // Trimmed match (handles extra spaces)
+                          ->orWhereRaw('TRIM(status) = ?', [$stageName]);
+                          
+                        // If this is the first stage, also show tasks with status that doesn't match any existing stage
+                        // This handles cases where "Todo" was removed but tasks still have "Todo" status
+                        // Only applies to first stage to catch orphaned tasks
+                        if ($isFirstStage && !empty($allStageNamesLower)) {
+                            // Create placeholders for parameter binding
+                            $placeholders = implode(',', array_fill(0, count($allStageNamesLower), '?'));
+                            $q->orWhereRaw("LOWER(TRIM(status)) NOT IN ({$placeholders})", $allStageNamesLower);
+                        }
+                    })->with('stage')->get();
                 }
                 
                 $selectedMemberIds = $request->get('team_members', []);
