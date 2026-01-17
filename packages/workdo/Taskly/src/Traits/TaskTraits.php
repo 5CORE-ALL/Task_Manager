@@ -62,14 +62,24 @@ trait TaskTraits
             
             $newTask = Task::create($autoMatetaskArr);
             
+            // Verify assign_to/assignor were copied correctly
+            $taskAssignTo = $newTask->assign_to ?? 'NULL';
+            $taskAssignor = $newTask->assignor ?? 'NULL';
+            $autoAssignTo = $autoMatetask->assign_to ?? 'NULL';
+            $autoAssignor = $autoMatetask->assignor ?? 'NULL';
+            
             Log::info('New automated task created', [
                 'automate_task_id' => $autoMatetask->id,
                 'task_id' => $newTask->id,
                 'title' => $autoMatetask->title,
                 'workspace' => $currentWorkspace,
                 'status' => $firstStageName,
-                'assign_to' => $autoMatetaskArr['assign_to'] ?? 'N/A',
-                'assignor' => $autoMatetaskArr['assignor'] ?? 'N/A',
+                'automate_task_assign_to' => $autoAssignTo,
+                'automate_task_assignor' => $autoAssignor,
+                'task_assign_to' => $taskAssignTo,
+                'task_assignor' => $taskAssignor,
+                'assign_to_copied' => ($taskAssignTo === $autoAssignTo) ? 'YES' : 'NO',
+                'assignor_copied' => ($taskAssignor === $autoAssignor) ? 'YES' : 'NO',
                 'stage_name' => $firstStageName
             ]);
         }
