@@ -65,7 +65,12 @@ trait TaskTraits
             Log::info('New automated task created', [
                 'automate_task_id' => $autoMatetask->id,
                 'task_id' => $newTask->id,
-                'title' => $autoMatetask->title
+                'title' => $autoMatetask->title,
+                'workspace' => $currentWorkspace,
+                'status' => $firstStageName,
+                'assign_to' => $autoMatetaskArr['assign_to'] ?? 'N/A',
+                'assignor' => $autoMatetaskArr['assignor'] ?? 'N/A',
+                'stage_name' => $firstStageName
             ]);
         }
 
