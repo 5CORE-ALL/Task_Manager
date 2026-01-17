@@ -2429,19 +2429,15 @@
                                 console.log('All Labels:', response.labels);
                                 console.log('===========================');
                                 
-                                // CRITICAL: Always use card value (25) for last point instead of API value (44)
-                                // The card shows the correct value (25), API might return wrong value (44)
-                                // Always override the last value with the card value to ensure they match
+                                // Use the value from database - response.counts already has the correct value (25)
+                                // No override needed - backend returns database value
                                 if (response.counts.length > 0) {
+                                    const dbValue = parseInt(response.counts[response.counts.length - 1]) || 0;
                                     const cardValue = parseInt(cardCount) || 0;
-                                    const apiValue = parseInt(lastCount) || 0;
-                                    if (cardValue !== apiValue) {
-                                        console.warn('MISMATCH DETECTED! API returned:', apiValue, 'but card shows:', cardValue, '- Using card value');
-                                    } else {
-                                        console.log('Values match - Card:', cardValue, 'API:', apiValue);
+                                    // Both should match - database has 25, card shows 25
+                                    if (dbValue !== cardValue) {
+                                        console.warn('Mismatch: DB=', dbValue, 'Card=', cardValue);
                                     }
-                                    // Always use card value for the last point (today)
-                                    response.counts[response.counts.length - 1] = cardValue;
                                 }
                                 
                                 const ctx = document.getElementById('overdueGraphChart');

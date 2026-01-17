@@ -6233,16 +6233,16 @@ public function getDailyOverdueGraphData(Request $request)
             ->orderBy('record_date', 'asc')
             ->get();
         
-        // Create a simple map: date => count
+        // Create a simple map: date => count FROM DATABASE
         $recordsMap = [];
         foreach ($dailyCounts as $record) {
             $dateStr = $record->record_date->format('Y-m-d');
             $recordsMap[$dateStr] = $record->overdue_count;
         }
         
-        // That's it! Use what's stored in the database - no recalculation needed
-        
-        // Fill in all dates in the range (fill missing dates with 0 or last known value)
+        // Fill in all dates in the range - USE DATABASE VALUES ONLY
+        $labels = [];
+        $counts = [];
         $period = CarbonPeriod::create($startDate, $endDate);
         $lastKnownCount = 0;
         
@@ -6250,16 +6250,16 @@ public function getDailyOverdueGraphData(Request $request)
             $dateStr = $date->format('Y-m-d');
             $labels[] = $date->format('M d');
             
+            // Use value from database if exists, otherwise use last known or 0
             if (isset($recordsMap[$dateStr])) {
                 $lastKnownCount = $recordsMap[$dateStr];
                 $counts[] = $lastKnownCount;
             } else {
-                // Use last known count or 0 if no data exists
                 $counts[] = $lastKnownCount;
             }
         }
         
-        // Get today's value from database (simple!)
+        // Get today's value from database - THIS IS WHAT WE USE
         $todayValue = isset($recordsMap[$todayStr]) ? $recordsMap[$todayStr] : 0;
         $lastCount = !empty($counts) ? end($counts) : 0;
         
