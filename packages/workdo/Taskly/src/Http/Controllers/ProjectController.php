@@ -1013,7 +1013,8 @@ class ProjectController extends Controller
                     
                     $task->whereNull('deleted_at')
                          ->orderBy('order');
-                    $status['tasks'] = $task->where('status', '=', $status->name)->with('stage')->get();
+                    // Use case-insensitive comparison for status to handle any case differences
+                    $status['tasks'] = $task->whereRaw('LOWER(status) = ?', [strtolower($status->name)])->with('stage')->get();
                 }
                 
                 $selectedMemberIds = $request->get('team_members', []);
