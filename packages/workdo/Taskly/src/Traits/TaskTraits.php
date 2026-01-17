@@ -15,8 +15,18 @@ trait TaskTraits
         if ($autoMatetask) {
              $todayTime = Carbon::now()->toDateTimeString(); 
             $todayStart = Carbon::now()->startOfDay();
-            // Use workspace from the automate task itself, not from session
-            $currentWorkspace = $autoMatetask->workspace ?? getActiveWorkSpace();
+            // Use workspace from the automate task itself (required for cron/scheduler)
+            // Never use getActiveWorkSpace() as it requires authenticated user which doesn't exist in cron
+            $currentWorkspace = $autoMatetask->workspace;
+            
+            // Validate workspace exists
+            if (empty($currentWorkspace)) {
+                Log::error('AutomateTask missing workspace', [
+                    'automate_task_id' => $autoMatetask->id,
+                    'title' => $autoMatetask->title
+                ]);
+                return; // Cannot create task without workspace
+            }
             $weekdayTime = Carbon::now()->addDays(7)->toDateTimeString();
             $todayDueTime = Carbon::now()->addDays(1)->toDateTimeString();
             
