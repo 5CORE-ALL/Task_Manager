@@ -991,7 +991,20 @@ class ProjectController extends Controller
                     else {
                         $task->where(function ($query) use ($objUser) {
                             $query->whereRaw("FIND_IN_SET(?, assign_to)", [$objUser->email])
-                                  ->orWhere('assignor', $objUser->email);
+                                  ->orWhere('assignor', $objUser->email)
+                                  // Also show automated tasks where user is assigned in the AutomateTask
+                                  ->orWhere(function($q) use ($objUser) {
+                                      $q->where('is_automate_task', 1)
+                                        ->whereExists(function($subQuery) use ($objUser) {
+                                            $subQuery->select(\DB::raw(1))
+                                              ->from('automate_tasks')
+                                              ->whereColumn('automate_tasks.id', 'tasks.automate_task_id')
+                                              ->where(function($autoQ) use ($objUser) {
+                                                  $autoQ->whereRaw("FIND_IN_SET(?, automate_tasks.assign_to)", [$objUser->email])
+                                                        ->orWhere('automate_tasks.assignor', $objUser->email);
+                                              });
+                                        });
+                                  });
                         });
                     }
                     
