@@ -6304,12 +6304,27 @@ public function getDailyOverdueGraphData(Request $request)
             }
         }
         
-        // Always use current overdue count for today to match the card
-        // This MUST override any stored value for today
-        $recordsMap[$todayStr] = $currentOverdueCount;
-        
-        // Log for debugging
-        \Log::info('Graph Data - Today String: ' . $todayStr . ', Stored Value: ' . ($storedTodayValue ?? 'null') . ', Override Value: ' . $currentOverdueCount);
+        // CRITICAL: Use stored database value for today (25) instead of recalculating
+        // The database already has the correct value stored by taskCountData (25)
+        // Recalculating here gives wrong value (44) because query structure might differ
+        // The stored value (25) matches the card, so use that for today
+        if ($storedTodayValue !== null) {
+            // Use the stored value (25) which matches the card
+            $recordsMap[$todayStr] = $storedTodayValue;
+            \Log::info('Graph Data - Using STORED database value for today (matches card)', [
+                'today' => $todayStr,
+                'stored_value' => $storedTodayValue,
+                'calculated_value' => $currentOverdueCount,
+                'decision' => 'Using stored value (correct, matches card)'
+            ]);
+        } else {
+            // No stored value, use calculated (fallback)
+            $recordsMap[$todayStr] = $currentOverdueCount;
+            \Log::info('Graph Data - No stored value, using calculated (fallback)', [
+                'today' => $todayStr,
+                'calculated_value' => $currentOverdueCount
+            ]);
+        }
         
         // Fill in all dates in the range (fill missing dates with 0 or last known value)
         $period = CarbonPeriod::create($startDate, $endDate);
@@ -6330,7 +6345,14 @@ public function getDailyOverdueGraphData(Request $request)
         
         // Log the last count value to verify
         $lastCount = !empty($counts) ? end($counts) : 0;
-        \Log::info('Graph Data - Last Count in Array: ' . $lastCount . ', Expected: ' . $currentOverdueCount);
+        $expectedCount = $storedTodayValue !== null ? $storedTodayValue : $currentOverdueCount;
+        \Log::info('Graph Data - Final Values', [
+            'last_count_in_array' => $lastCount,
+            'stored_today_value' => $storedTodayValue,
+            'calculated_value' => $currentOverdueCount,
+            'expected_value' => $expectedCount,
+            'match' => ($lastCount == $expectedCount)
+        ]);
         
         return response()->json([
             'success' => true,
