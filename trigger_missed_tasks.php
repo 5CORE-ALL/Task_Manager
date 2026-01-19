@@ -26,15 +26,13 @@ $trigger = new TempTaskTrigger();
 $now = Carbon::now();
 $todayStart = $now->copy()->startOfDay();
 
-$filterEmail = 'software2@5core.com';
-
 // Force trigger option: set to true to re-trigger even if task was already created today
 $forceTrigger = isset($argv[1]) && ($argv[1] === '--force' || $argv[1] === '-f');
 
 echo "========================================\n";
 echo "Automated Tasks Trigger (DEBUG MODE)\n";
 echo "⚠ This script ONLY processes AUTOMATED TASKS (from automate_tasks table)\n";
-echo "Filter: Only tasks for {$filterEmail}\n";
+echo "Filter: ALL automated tasks (no email filter)\n";
 if ($forceTrigger) {
     echo "⚠ FORCE MODE: Will re-trigger even if already created today\n";
     echo "  (Will delete existing automated task and create a new one)\n";
@@ -43,17 +41,11 @@ echo "Current Time: " . $now->toDateTimeString() . "\n";
 echo "Date Start: " . $todayStart->toDateTimeString() . "\n";
 echo "========================================\n\n";
 
-// Get all active automate tasks filtered by email
+// Get all active automate tasks (no email filter)
 // NOTE: This ONLY processes tasks from the automate_tasks table, NOT regular manual tasks
-// Check if email is in assign_to (comma-separated) or assignor matches
-$allTasks = AutomateTask::where('is_pause', 0)
-    ->where(function($query) use ($filterEmail) {
-        $query->whereRaw("FIND_IN_SET(?, assign_to)", [$filterEmail])
-              ->orWhere('assignor', $filterEmail);
-    })
-    ->get();
+$allTasks = AutomateTask::where('is_pause', 0)->get();
 
-echo "Total Active Tasks (filtered for {$filterEmail}): " . $allTasks->count() . "\n\n";
+echo "Total Active Tasks: " . $allTasks->count() . "\n\n";
 
 $triggeredCount = 0;
 $skippedCount = 0;
@@ -123,8 +115,9 @@ foreach ($allTasks as $autoTask) {
             
             // Check task board visibility
             echo "\n  Checking Task Board Visibility:\n";
-            $userEmail = $filterEmail;
-            $userBoardQuery = Task::select('tasks.*')
+            // Note: User visibility check skipped when processing all tasks
+            // Check base query (user-specific filter skipped when processing all tasks)
+            $baseQuery = Task::select('tasks.*')
                 ->join('stages', 'stages.name', '=', 'tasks.status')
                 ->where('tasks.workspace', $existingTaskToday->workspace)
                 ->whereNull('tasks.deleted_at')
@@ -132,38 +125,14 @@ foreach ($allTasks as $autoTask) {
                     $query->where('is_missed', 0)
                           ->orWhere('is_automate_task', 0);
                 })
-                ->where(function ($query) use ($userEmail) {
-                    $query->whereRaw("FIND_IN_SET(?, assign_to)", [$userEmail])
-                          ->orWhere('assignor', $userEmail);
-                })
                 ->where('tasks.id', $existingTaskToday->id)
                 ->first();
             
-            if ($userBoardQuery) {
-                echo "    ✓ Task SHOULD be visible on task board for {$userEmail}\n";
+            if ($baseQuery) {
+                echo "    ✓ Task SHOULD be visible on task board (base query passed)\n";
             } else {
-                echo "    ✗ Task NOT visible on task board for {$userEmail}\n";
-                echo "      Checking why...\n";
-                
-                // Check base query without user filter
-                $baseQuery = Task::select('tasks.*')
-                    ->join('stages', 'stages.name', '=', 'tasks.status')
-                    ->where('tasks.workspace', $existingTaskToday->workspace)
-                    ->whereNull('tasks.deleted_at')
-                    ->where(function($query) {
-                        $query->where('is_missed', 0)
-                              ->orWhere('is_automate_task', 0);
-                    })
-                    ->where('tasks.id', $existingTaskToday->id)
-                    ->first();
-                
-                if (!$baseQuery) {
-                    echo "      - Base query failed (Stage join or other filter issue)\n";
-                } else {
-                    echo "      - Base query passed, but user filter failed\n";
-                    echo "        Task assign_to: " . ($existingTaskToday->assign_to ?? 'NULL') . "\n";
-                    echo "        Task assignor: " . ($existingTaskToday->assignor ?? 'NULL') . "\n";
-                }
+                echo "    ✗ Task NOT visible on task board\n";
+                echo "      - Base query failed (Stage join or other filter issue)\n";
             }
             
             $skippedCount++;
@@ -330,16 +299,12 @@ if ($brokenTasks->count() > 0) {
 }
 
 // Additional diagnostic query
-echo "\nDIAGNOSTIC: Checking all tasks created today for {$filterEmail}...\n";
+echo "\nDIAGNOSTIC: Checking all automated tasks created today...\n";
 $todayTasks = Task::where('created_at', '>=', $todayStart)
     ->whereNotNull('automate_task_id')
-    ->where(function($query) use ($filterEmail) {
-        $query->whereRaw("FIND_IN_SET(?, assign_to)", [$filterEmail])
-              ->orWhere('assignor', $filterEmail);
-    })
     ->get();
     
-echo "Total automated tasks created today for {$filterEmail}: " . $todayTasks->count() . "\n";
+echo "Total automated tasks created today: " . $todayTasks->count() . "\n";
 foreach ($todayTasks as $task) {
     echo "\n" . str_repeat("-", 60) . "\n";
     echo "TASK ID: {$task->id}\n";
@@ -387,30 +352,8 @@ foreach ($todayTasks as $task) {
     if ($taskBoardQuery) {
         echo "    ✓ Task found in base task board query (with Stage join)\n";
         
-        // Check user-specific filter (for software2@5core.com)
-        $userEmail = $filterEmail;
-        $userBoardQuery = Task::select('tasks.*')
-            ->join('stages', 'stages.name', '=', 'tasks.status')
-            ->where('tasks.workspace', $task->workspace)
-            ->whereNull('tasks.deleted_at')
-            ->where(function($query) {
-                $query->where('is_missed', 0)
-                      ->orWhere('is_automate_task', 0);
-            })
-            ->where(function ($query) use ($userEmail) {
-                $query->whereRaw("FIND_IN_SET(?, assign_to)", [$userEmail])
-                      ->orWhere('assignor', $userEmail);
-            })
-            ->where('tasks.id', $task->id)
-            ->first();
-        
-        if ($userBoardQuery) {
-            echo "    ✓ Task visible to user {$userEmail} (assign_to/assignor match)\n";
-        } else {
-            echo "    ✗ Task NOT visible to user {$userEmail} (assign_to/assignor mismatch)\n";
-            echo "      Task assign_to: " . ($task->assign_to ?? 'NULL') . "\n";
-            echo "      Task assignor: " . ($task->assignor ?? 'NULL') . "\n";
-        }
+        // User-specific filter skipped when processing all tasks
+        echo "    ✓ Task found in base task board query (user filter not applied)\n";
     } else {
         echo "    ✗ Task NOT found in base task board query!\n";
         echo "      Possible reasons:\n";
