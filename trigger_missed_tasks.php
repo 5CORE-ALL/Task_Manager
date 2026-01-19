@@ -80,10 +80,18 @@ foreach ($allTasks as $autoTask) {
             continue;
         }
         
-        // Check if a task was already created today for this automate task
+        // Check if a task was already created today for this automate task (including deleted ones)
         $existingTaskToday = Task::where('automate_task_id', $autoTask->id)
             ->where('created_at', '>=', $todayStart)
             ->where('workspace', $autoTaskWorkspace)
+            ->whereNull('deleted_at') // Only non-deleted tasks
+            ->first();
+        
+        // Check for deleted task that should be restored
+        $deletedTaskToday = Task::where('automate_task_id', $autoTask->id)
+            ->where('created_at', '>=', $todayStart)
+            ->where('workspace', $autoTaskWorkspace)
+            ->whereNotNull('deleted_at') // Only deleted tasks
             ->first();
         
         if ($existingTaskToday && !$forceTrigger) {
@@ -160,6 +168,27 @@ foreach ($allTasks as $autoTask) {
             
             $skippedCount++;
             continue;
+        } elseif ($deletedTaskToday) {
+            // Restore deleted task instead of creating new one
+            echo "⚠ Found deleted task, restoring it...\n";
+            echo "  Deleted Task ID: {$deletedTaskToday->id}\n";
+            echo "  Deleted At: {$deletedTaskToday->deleted_at}\n";
+            echo "  Restoring task (setting deleted_at to NULL)...\n";
+            
+            $deletedTaskToday->deleted_at = null; // Restore by clearing deleted_at
+            $deletedTaskToday->is_missed = 0; // Ensure it's not marked as missed
+            $deletedTaskToday->save();
+            
+            echo "  ✓ Task restored successfully\n";
+            echo "  Task ID: {$deletedTaskToday->id}\n";
+            echo "  Status: {$deletedTaskToday->status}\n";
+            echo "  Assign To: " . ($deletedTaskToday->assign_to ?? 'NULL') . "\n";
+            echo "  Assignor: " . ($deletedTaskToday->assignor ?? 'NULL') . "\n";
+            echo "  Is Missed: {$deletedTaskToday->is_missed}\n";
+            
+            $createdCount++;
+            $triggeredCount++;
+            continue; // Skip to next task since we restored this one
         } elseif ($existingTaskToday && $forceTrigger) {
             echo "⚠ FORCE MODE: Task already exists today, deleting it to re-trigger\n";
             echo "  Existing Task ID: {$existingTaskToday->id}\n";
