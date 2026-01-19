@@ -49,12 +49,16 @@ class RemoveAutomateTaskScheduler extends Command
     public function handle()
 {
     $now = now(); // uses app timezone
+    // Exclude tasks created in the last 5 minutes to prevent race condition
+    // where newly created tasks get marked as missed immediately
+    $recentThreshold = Carbon::now()->subMinutes(5);
 
     $updated = Task::where('is_automate_task', 1)
         ->where('is_missed', 0)
         ->where('due_date', '<', $now)
         ->where('status', 'Todo')  
         ->whereNull('deleted_at')
+        ->where('created_at', '<', $recentThreshold) // Exclude recently created tasks
         ->update([
             'is_missed' => 1,
             'is_missed_track' => 1,

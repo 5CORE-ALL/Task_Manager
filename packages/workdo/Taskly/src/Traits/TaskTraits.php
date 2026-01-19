@@ -51,8 +51,27 @@ trait TaskTraits
             $autoMatetaskArr['automate_task_id'] = $autoMatetask->id;
             $autoMatetaskArr['is_automate_task'] =1;
             $autoMatetaskArr['is_missed'] = 0; // Set to 0 so task appears on task board (tasks with is_automate_task=1 AND is_missed=1 are excluded)
-             $autoMatetaskArr['start_date'] =$todayTime;
+            $autoMatetaskArr['start_date'] = $todayTime;
             $autoMatetaskArr['workspace'] = $currentWorkspace; // Ensure workspace is set
+            
+            // Set a fresh due_date to prevent cron from marking as missed immediately
+            // Use the automate task's due_date if it's in the future, otherwise set to tomorrow
+            if (!empty($autoMatetask->due_date)) {
+                $automateDueDate = Carbon::parse($autoMatetask->due_date);
+                // If automate task due_date is in the future, use it; otherwise set to tomorrow
+                if ($automateDueDate->isFuture()) {
+                    $autoMatetaskArr['due_date'] = $automateDueDate->toDateTimeString();
+                } else {
+                    $autoMatetaskArr['due_date'] = $todayDueTime; // Tomorrow by default
+                }
+            } else {
+                $autoMatetaskArr['due_date'] = $todayDueTime; // Tomorrow by default
+            }
+            
+            // For weekly tasks, set due_date to next week
+            if (strtolower($autoMatetask->schedule_type ?? '') === 'weekly') {
+                $autoMatetaskArr['due_date'] = $weekdayTime; // 7 days from now
+            }
           
             // Get the first stage dynamically to ensure proper status matching
             $firstStage = Stage::where('workspace_id', '=', $currentWorkspace)->orderBy('order')->first();
