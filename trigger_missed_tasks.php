@@ -26,16 +26,25 @@ $trigger = new TempTaskTrigger();
 $now = Carbon::now();
 $todayStart = $now->copy()->startOfDay();
 
+$filterEmail = 'software2@5core.com';
+
 echo "========================================\n";
 echo "One-Time Task Trigger (DEBUG MODE)\n";
+echo "Filter: Only tasks for {$filterEmail}\n";
 echo "Current Time: " . $now->toDateTimeString() . "\n";
 echo "Date Start: " . $todayStart->toDateTimeString() . "\n";
 echo "========================================\n\n";
 
-// Get all active automate tasks
-$allTasks = AutomateTask::where('is_pause', 0)->get();
+// Get all active automate tasks filtered by email
+// Check if email is in assign_to (comma-separated) or assignor matches
+$allTasks = AutomateTask::where('is_pause', 0)
+    ->where(function($query) use ($filterEmail) {
+        $query->whereRaw("FIND_IN_SET(?, assign_to)", [$filterEmail])
+              ->orWhere('assignor', $filterEmail);
+    })
+    ->get();
 
-echo "Total Active Tasks: " . $allTasks->count() . "\n\n";
+echo "Total Active Tasks (filtered for {$filterEmail}): " . $allTasks->count() . "\n\n";
 
 $triggeredCount = 0;
 $skippedCount = 0;
@@ -48,6 +57,8 @@ foreach ($allTasks as $autoTask) {
         echo "\n" . str_repeat("-", 60) . "\n";
         echo "Processing AutomateTask ID: {$autoTask->id}\n";
         echo "Title: " . substr($autoTask->title, 0, 60) . "\n";
+        echo "Assign To: " . ($autoTask->assign_to ?? 'NULL') . "\n";
+        echo "Assignor: " . ($autoTask->assignor ?? 'NULL') . "\n";
         
         // DEBUG: Check workspace
         $autoTaskWorkspace = $autoTask->workspace;
@@ -187,12 +198,16 @@ echo "  Errors/Exceptions: {$errorCount}\n";
 echo str_repeat("=", 60) . "\n";
 
 // Additional diagnostic query
-echo "\nDIAGNOSTIC: Checking all tasks created today...\n";
+echo "\nDIAGNOSTIC: Checking all tasks created today for {$filterEmail}...\n";
 $todayTasks = Task::where('created_at', '>=', $todayStart)
     ->whereNotNull('automate_task_id')
+    ->where(function($query) use ($filterEmail) {
+        $query->whereRaw("FIND_IN_SET(?, assign_to)", [$filterEmail])
+              ->orWhere('assignor', $filterEmail);
+    })
     ->get();
     
-echo "Total automated tasks created today: " . $todayTasks->count() . "\n";
+echo "Total automated tasks created today for {$filterEmail}: " . $todayTasks->count() . "\n";
 foreach ($todayTasks as $task) {
-    echo "  Task ID: {$task->id}, AutomateTask ID: {$task->automate_task_id}, Workspace: {$task->workspace}, Status: {$task->status}\n";
+    echo "  Task ID: {$task->id}, AutomateTask ID: {$task->automate_task_id}, Workspace: {$task->workspace}, Status: {$task->status}, Assign To: " . ($task->assign_to ?? 'NULL') . "\n";
 }
