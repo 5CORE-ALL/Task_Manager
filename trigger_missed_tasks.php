@@ -82,6 +82,73 @@ foreach ($allTasks as $autoTask) {
             echo "  Existing Task ID: {$existingTaskToday->id}\n";
             echo "  Created At: {$existingTaskToday->created_at}\n";
             echo "  Workspace: {$existingTaskToday->workspace}\n";
+            echo "  Status: '{$existingTaskToday->status}'\n";
+            echo "  Assign To: " . ($existingTaskToday->assign_to ?? 'NULL') . "\n";
+            echo "  Assignor: " . ($existingTaskToday->assignor ?? 'NULL') . "\n";
+            echo "  Deleted At: " . ($existingTaskToday->deleted_at ?? 'NULL') . "\n";
+            
+            // Check if status matches a Stage
+            $matchingStage = Stage::where('name', $existingTaskToday->status)
+                ->where('workspace_id', $existingTaskToday->workspace)
+                ->first();
+            
+            if ($matchingStage) {
+                echo "  ✓ Status '{$existingTaskToday->status}' matches Stage ID: {$matchingStage->id}\n";
+            } else {
+                echo "  ✗ WARNING: Status '{$existingTaskToday->status}' does NOT match any Stage!\n";
+                echo "    This will prevent the task from appearing on the task board.\n";
+                $allStages = Stage::where('workspace_id', $existingTaskToday->workspace)->orderBy('order')->get();
+                echo "    Available stages in workspace {$existingTaskToday->workspace}:\n";
+                foreach ($allStages as $stage) {
+                    echo "      - ID: {$stage->id}, Name: '{$stage->name}'\n";
+                }
+            }
+            
+            // Check task board visibility
+            echo "\n  Checking Task Board Visibility:\n";
+            $userEmail = $filterEmail;
+            $userBoardQuery = Task::select('tasks.*')
+                ->join('stages', 'stages.name', '=', 'tasks.status')
+                ->where('tasks.workspace', $existingTaskToday->workspace)
+                ->whereNull('tasks.deleted_at')
+                ->where(function($query) {
+                    $query->where('is_missed', 0)
+                          ->orWhere('is_automate_task', 0);
+                })
+                ->where(function ($query) use ($userEmail) {
+                    $query->whereRaw("FIND_IN_SET(?, assign_to)", [$userEmail])
+                          ->orWhere('assignor', $userEmail);
+                })
+                ->where('tasks.id', $existingTaskToday->id)
+                ->first();
+            
+            if ($userBoardQuery) {
+                echo "    ✓ Task SHOULD be visible on task board for {$userEmail}\n";
+            } else {
+                echo "    ✗ Task NOT visible on task board for {$userEmail}\n";
+                echo "      Checking why...\n";
+                
+                // Check base query without user filter
+                $baseQuery = Task::select('tasks.*')
+                    ->join('stages', 'stages.name', '=', 'tasks.status')
+                    ->where('tasks.workspace', $existingTaskToday->workspace)
+                    ->whereNull('tasks.deleted_at')
+                    ->where(function($query) {
+                        $query->where('is_missed', 0)
+                              ->orWhere('is_automate_task', 0);
+                    })
+                    ->where('tasks.id', $existingTaskToday->id)
+                    ->first();
+                
+                if (!$baseQuery) {
+                    echo "      - Base query failed (Stage join or other filter issue)\n";
+                } else {
+                    echo "      - Base query passed, but user filter failed\n";
+                    echo "        Task assign_to: " . ($existingTaskToday->assign_to ?? 'NULL') . "\n";
+                    echo "        Task assignor: " . ($existingTaskToday->assignor ?? 'NULL') . "\n";
+                }
+            }
+            
             $skippedCount++;
             continue;
         }
@@ -209,5 +276,98 @@ $todayTasks = Task::where('created_at', '>=', $todayStart)
     
 echo "Total automated tasks created today for {$filterEmail}: " . $todayTasks->count() . "\n";
 foreach ($todayTasks as $task) {
-    echo "  Task ID: {$task->id}, AutomateTask ID: {$task->automate_task_id}, Workspace: {$task->workspace}, Status: {$task->status}, Assign To: " . ($task->assign_to ?? 'NULL') . "\n";
+    echo "\n" . str_repeat("-", 60) . "\n";
+    echo "TASK ID: {$task->id}\n";
+    echo "  AutomateTask ID: {$task->automate_task_id}\n";
+    echo "  Workspace: {$task->workspace}\n";
+    echo "  Status: '{$task->status}'\n";
+    echo "  Assign To: " . ($task->assign_to ?? 'NULL') . "\n";
+    echo "  Assignor: " . ($task->assignor ?? 'NULL') . "\n";
+    echo "  Deleted At: " . ($task->deleted_at ?? 'NULL') . "\n";
+    echo "  Is Automate Task: " . ($task->is_automate_task ?? 'NULL') . "\n";
+    echo "  Is Missed: " . ($task->is_missed ?? 'NULL') . "\n";
+    
+    // Check if status matches a Stage
+    $matchingStage = Stage::where('name', $task->status)
+        ->where('workspace_id', $task->workspace)
+        ->first();
+    
+    if ($matchingStage) {
+        echo "  ✓ Status '{$task->status}' matches Stage ID: {$matchingStage->id}\n";
+    } else {
+        echo "  ✗ WARNING: Status '{$task->status}' does NOT match any Stage in workspace {$task->workspace}!\n";
+        echo "    This will prevent the task from appearing on the task board.\n";
+        echo "    Available stages in workspace {$task->workspace}:\n";
+        $allStages = Stage::where('workspace_id', $task->workspace)->orderBy('order')->get();
+        foreach ($allStages as $stage) {
+            echo "      - ID: {$stage->id}, Name: '{$stage->name}'\n";
+        }
+    }
+    
+    // Check task board query (matching the actual task board logic)
+    echo "\n  Checking Task Board Visibility:\n";
+    
+    // Base query matching task board
+    $taskBoardQuery = Task::select('tasks.*')
+        ->join('stages', 'stages.name', '=', 'tasks.status')
+        ->where('tasks.workspace', $task->workspace)
+        ->whereNull('tasks.deleted_at')
+        ->where(function($query) {
+            $query->where('is_missed', 0)
+                  ->orWhere('is_automate_task', 0);
+        })
+        ->where('tasks.id', $task->id)
+        ->first();
+    
+    if ($taskBoardQuery) {
+        echo "    ✓ Task found in base task board query (with Stage join)\n";
+        
+        // Check user-specific filter (for software2@5core.com)
+        $userEmail = $filterEmail;
+        $userBoardQuery = Task::select('tasks.*')
+            ->join('stages', 'stages.name', '=', 'tasks.status')
+            ->where('tasks.workspace', $task->workspace)
+            ->whereNull('tasks.deleted_at')
+            ->where(function($query) {
+                $query->where('is_missed', 0)
+                      ->orWhere('is_automate_task', 0);
+            })
+            ->where(function ($query) use ($userEmail) {
+                $query->whereRaw("FIND_IN_SET(?, assign_to)", [$userEmail])
+                      ->orWhere('assignor', $userEmail);
+            })
+            ->where('tasks.id', $task->id)
+            ->first();
+        
+        if ($userBoardQuery) {
+            echo "    ✓ Task visible to user {$userEmail} (assign_to/assignor match)\n";
+        } else {
+            echo "    ✗ Task NOT visible to user {$userEmail} (assign_to/assignor mismatch)\n";
+            echo "      Task assign_to: " . ($task->assign_to ?? 'NULL') . "\n";
+            echo "      Task assignor: " . ($task->assignor ?? 'NULL') . "\n";
+        }
+    } else {
+        echo "    ✗ Task NOT found in base task board query!\n";
+        echo "      Possible reasons:\n";
+        
+        // Check deleted
+        if ($task->deleted_at) {
+            echo "        - Task is soft-deleted (deleted_at: {$task->deleted_at})\n";
+        }
+        
+        // Check workspace
+        if ($task->workspace != $task->workspace) {
+            echo "        - Workspace mismatch\n";
+        }
+        
+        // Check is_missed filter
+        if ($task->is_automate_task == 1 && $task->is_missed == 1) {
+            echo "        - Task is automate missed (is_automate_task=1 AND is_missed=1) - excluded from board\n";
+        }
+        
+        // Check stage join
+        if (!$matchingStage) {
+            echo "        - Status '{$task->status}' doesn't match any Stage name (Stage join fails)\n";
+        }
+    }
 }
