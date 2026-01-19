@@ -845,7 +845,7 @@
                     
                     <!-- Attendance % Card -->
                     <div class="col-auto">
-                        <div class="stats-card stats-card-info">
+                        <div class="stats-card stats-card-info" id="attendance-card">
                             <div class="stats-icon">
                                 <i class="ti ti-percentage"></i>
                             </div>
@@ -2443,19 +2443,41 @@
                                 $('#teamlogger-hours').text(displayValue);
                                 console.log('Updated teamlogger L30 active hours to:', displayValue);
                                 
-                                // Calculate and update attendance percentage
-                                const attendancePercentage = ((displayValue / 200) * 100).toFixed(1);
+                                // Calculate and update attendance percentage (integer, no decimals)
+                                const attendancePercentage = Math.floor((displayValue / 200) * 100);
                                 $('#attendance-percentage').text(attendancePercentage + '%');
+                                
+                                // Update card color based on attendance percentage (ignoring decimals)
+                                const $attendanceCard = $('#attendance-card');
+                                $attendanceCard.removeClass('stats-card-danger stats-card-warning stats-card-success stats-card-info');
+                                if (attendancePercentage < 80) {
+                                    $attendanceCard.addClass('stats-card-danger');
+                                } else if (attendancePercentage >= 81 && attendancePercentage <= 90) {
+                                    $attendanceCard.addClass('stats-card-warning');
+                                } else if (attendancePercentage > 90) {
+                                    $attendanceCard.addClass('stats-card-success');
+                                } else {
+                                    // Exactly 80% - treat as red
+                                    $attendanceCard.addClass('stats-card-danger');
+                                }
                             } else {
                                 console.error('Backend error:', response.message);
                                 $('#teamlogger-hours').text('0');
                                 $('#attendance-percentage').text('0%');
+                                // Reset card color to default
+                                const $attendanceCard = $('#attendance-card');
+                                $attendanceCard.removeClass('stats-card-danger stats-card-warning stats-card-success stats-card-info');
+                                $attendanceCard.addClass('stats-card-info');
                             }
                         },
                         error: function(xhr, status, error) {
                             console.error('Error fetching Teamlogger L30 data:', error);
                             $('#teamlogger-hours').text('0');
                             $('#attendance-percentage').text('0%');
+                            // Reset card color to default
+                            const $attendanceCard = $('#attendance-card');
+                            $attendanceCard.removeClass('stats-card-danger stats-card-warning stats-card-success stats-card-info');
+                            $attendanceCard.addClass('stats-card-info');
                         }
                     });
                     
@@ -2463,6 +2485,10 @@
                     console.error('Error in loadTeamloggerData:', error);
                     $('#teamlogger-hours').text('0');
                     $('#attendance-percentage').text('0%');
+                    // Reset card color to default
+                    const $attendanceCard = $('#attendance-card');
+                    $attendanceCard.removeClass('stats-card-danger stats-card-warning stats-card-success stats-card-info');
+                    $attendanceCard.addClass('stats-card-info');
                 }
             }
 
