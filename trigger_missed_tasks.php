@@ -25,22 +25,79 @@ $trigger = new TempTaskTrigger();
 
 $now = Carbon::now();
 $todayStart = $now->copy()->startOfDay();
+$weekStart = $now->copy()->startOfWeek();
+$monthStart = $now->copy()->startOfMonth();
 
 $filterEmail = 'software2@5core.com';
 
 // Force trigger option: set to true to re-trigger even if task was already created today
 $forceTrigger = isset($argv[1]) && ($argv[1] === '--force' || $argv[1] === '-f');
 
+/**
+ * Check if an automate task is missed (should have been created but wasn't)
+ * Returns true if task is missed, false if it was already created
+ */
+function isTaskMissed($autoTask, $now, $todayStart, $weekStart, $monthStart) {
+    $scheduleType = strtolower($autoTask->schedule_type ?? '');
+    $workspace = $autoTask->workspace;
+    
+    // Check if task was already created
+    $existingTask = null;
+    
+    switch ($scheduleType) {
+        case 'daily':
+            // For daily: check if created today
+            $existingTask = Task::where('automate_task_id', $autoTask->id)
+                ->where('created_at', '>=', $todayStart)
+                ->where('workspace', $workspace)
+                ->first();
+            break;
+            
+        case 'weekly':
+            // For weekly: check if created this week
+            $existingTask = Task::where('automate_task_id', $autoTask->id)
+                ->where('created_at', '>=', $weekStart)
+                ->where('workspace', $workspace)
+                ->first();
+            break;
+            
+        case 'monthly':
+            // For monthly: check if created this month
+            $existingTask = Task::where('automate_task_id', $autoTask->id)
+                ->where('created_at', '>=', $monthStart)
+                ->where('workspace', $workspace)
+                ->first();
+            break;
+            
+        default:
+            // Unknown schedule type - assume daily
+            $existingTask = Task::where('automate_task_id', $autoTask->id)
+                ->where('created_at', '>=', $todayStart)
+                ->where('workspace', $workspace)
+                ->first();
+            break;
+    }
+    
+    // Task is missed if no existing task found
+    return $existingTask === null;
+}
+
 echo "========================================\n";
-echo "Automated Tasks Trigger (DEBUG MODE)\n";
+echo "Automated Tasks Trigger (MISSED TASKS ONLY)\n";
 echo "⚠ This script ONLY processes AUTOMATED TASKS (from automate_tasks table)\n";
+echo "⚠ Only triggers MISSED tasks based on schedule type:\n";
+echo "   - Daily: if not created today\n";
+echo "   - Weekly: if not created this week\n";
+echo "   - Monthly: if not created this month\n";
 echo "Filter: Only tasks for {$filterEmail}\n";
 if ($forceTrigger) {
-    echo "⚠ FORCE MODE: Will re-trigger even if already created today\n";
+    echo "⚠ FORCE MODE: Will re-trigger even if already created\n";
     echo "  (Will delete existing automated task and create a new one)\n";
 }
 echo "Current Time: " . $now->toDateTimeString() . "\n";
-echo "Date Start: " . $todayStart->toDateTimeString() . "\n";
+echo "Today Start: " . $todayStart->toDateTimeString() . "\n";
+echo "Week Start: " . $weekStart->toDateTimeString() . "\n";
+echo "Month Start: " . $monthStart->toDateTimeString() . "\n";
 echo "========================================\n\n";
 
 // Get all active automate tasks filtered by email
@@ -60,6 +117,8 @@ $skippedCount = 0;
 $errorCount = 0;
 $createdCount = 0;
 $failedCount = 0;
+$missedCount = 0;
+$notMissedCount = 0;
 
 foreach ($allTasks as $autoTask) {
     try {
@@ -80,14 +139,51 @@ foreach ($allTasks as $autoTask) {
             continue;
         }
         
-        // Check if a task was already created today for this automate task
-        $existingTaskToday = Task::where('automate_task_id', $autoTask->id)
-            ->where('created_at', '>=', $todayStart)
-            ->where('workspace', $autoTaskWorkspace)
-            ->first();
+        // Check if task is missed based on schedule type
+        $scheduleType = strtolower($autoTask->schedule_type ?? 'unknown');
+        echo "Schedule Type: {$scheduleType}\n";
         
-        if ($existingTaskToday && !$forceTrigger) {
-            echo sprintf("SKIP: Already triggered today\n");
+        $isMissed = isTaskMissed($autoTask, $now, $todayStart, $weekStart, $monthStart);
+        
+        // Get existing task for display
+        $existingTaskToday = null;
+        switch ($scheduleType) {
+            case 'daily':
+                $existingTaskToday = Task::where('automate_task_id', $autoTask->id)
+                    ->where('created_at', '>=', $todayStart)
+                    ->where('workspace', $autoTaskWorkspace)
+                    ->first();
+                break;
+            case 'weekly':
+                $existingTaskToday = Task::where('automate_task_id', $autoTask->id)
+                    ->where('created_at', '>=', $weekStart)
+                    ->where('workspace', $autoTaskWorkspace)
+                    ->first();
+                break;
+            case 'monthly':
+                $existingTaskToday = Task::where('automate_task_id', $autoTask->id)
+                    ->where('created_at', '>=', $monthStart)
+                    ->where('workspace', $autoTaskWorkspace)
+                    ->first();
+                break;
+            default:
+                $existingTaskToday = Task::where('automate_task_id', $autoTask->id)
+                    ->where('created_at', '>=', $todayStart)
+                    ->where('workspace', $autoTaskWorkspace)
+                    ->first();
+                break;
+        }
+        
+        // Skip if not missed (unless force mode)
+        if (!$isMissed && !$forceTrigger) {
+            $period = '';
+            switch ($scheduleType) {
+                case 'daily': $period = 'today'; break;
+                case 'weekly': $period = 'this week'; break;
+                case 'monthly': $period = 'this month'; break;
+                default: $period = 'recently'; break;
+            }
+            echo sprintf("SKIP: Already triggered ({$period})\n");
             echo "  Existing Task ID: {$existingTaskToday->id}\n";
             echo "  Created At: {$existingTaskToday->created_at}\n";
             echo "  Workspace: {$existingTaskToday->workspace}\n";
@@ -158,14 +254,67 @@ foreach ($allTasks as $autoTask) {
                 }
             }
             
+            $notMissedCount++;
             $skippedCount++;
             continue;
         } elseif ($existingTaskToday && $forceTrigger) {
-            echo "⚠ FORCE MODE: Task already exists today, deleting it to re-trigger\n";
+            $period = '';
+            switch ($scheduleType) {
+                case 'daily': $period = 'today'; break;
+                case 'weekly': $period = 'this week'; break;
+                case 'monthly': $period = 'this month'; break;
+                default: $period = 'recently'; break;
+            }
+            echo "⚠ FORCE MODE: Task already exists ({$period}), deleting it to re-trigger\n";
             echo "  Existing Task ID: {$existingTaskToday->id}\n";
             echo "  Deleting existing task...\n";
             $existingTaskToday->delete();
             echo "  ✓ Existing task deleted\n";
+        } elseif ($isMissed) {
+            echo "✓ TASK IS MISSED - Will trigger fresh now\n";
+            $missedCount++;
+            
+            // Delete any existing tasks from the current period to ensure fresh trigger
+            $periodStart = null;
+            $periodName = '';
+            switch ($scheduleType) {
+                case 'daily':
+                    $periodStart = $todayStart;
+                    $periodName = 'today';
+                    break;
+                case 'weekly':
+                    $periodStart = $weekStart;
+                    $periodName = 'this week';
+                    break;
+                case 'monthly':
+                    $periodStart = $monthStart;
+                    $periodName = 'this month';
+                    break;
+                default:
+                    $periodStart = $todayStart;
+                    $periodName = 'today';
+                    break;
+            }
+            
+            // Find and delete all tasks from this period
+            $tasksToDelete = Task::where('automate_task_id', $autoTask->id)
+                ->where('workspace', $autoTaskWorkspace)
+                ->where('created_at', '>=', $periodStart)
+                ->whereNull('deleted_at')
+                ->get();
+            
+            if ($tasksToDelete->count() > 0) {
+                echo "  Deleting {$tasksToDelete->count()} existing task(s) from {$periodName} for fresh trigger...\n";
+                foreach ($tasksToDelete as $taskToDelete) {
+                    echo "    Deleting Task ID: {$taskToDelete->id} (created: {$taskToDelete->created_at})\n";
+                    $taskToDelete->delete();
+                }
+                echo "  ✓ All existing tasks from {$periodName} deleted\n";
+            } else {
+                echo "  No existing tasks found for {$periodName} - will create fresh\n";
+            }
+        } else {
+            $notMissedCount++;
         }
         
         // DEBUG: Check Stage availability
@@ -272,10 +421,12 @@ foreach ($allTasks as $autoTask) {
 echo "\n" . str_repeat("=", 60) . "\n";
 echo "SUMMARY:\n";
 echo "  Total Processed: " . $allTasks->count() . "\n";
+echo "  Missed Tasks: {$missedCount}\n";
+echo "  Not Missed (already created): {$notMissedCount}\n";
 echo "  Successfully Created: {$createdCount}\n";
 echo "  Triggered (reported): {$triggeredCount}\n";
 echo "  Failed to Create: {$failedCount}\n";
-echo "  Skipped (already triggered today): {$skippedCount}\n";
+echo "  Skipped: {$skippedCount}\n";
 echo "  Errors/Exceptions: {$errorCount}\n";
 echo str_repeat("=", 60) . "\n";
 
