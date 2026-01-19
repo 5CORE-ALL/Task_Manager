@@ -1500,6 +1500,46 @@ if ($toggleFilter === 'overdue') {
                 }
             }'
         ],
+        [
+            'text' => '<i class="fas fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Bulk Update Group"></i>',
+            'className' => 'btn btn-light-info bulk-group-update-btn',
+            'attr' => ['id' => 'bulk-group-update-btn', 'disabled' => 'disabled'],
+            'action' => 'function(e, dt, node, config) {
+                if (!$(node).attr("disabled")) {
+                    let selectedIds = $(".task-checkbox:checked").map(function() { 
+                        return this.value; 
+                    }).get();
+                    console.log("Bulk Group Update Button clicked - Selected IDs:", selectedIds);
+                    if (selectedIds.length > 0) {
+                        $("#selected-task-ids-group").val(selectedIds.join(","));
+                        console.log("Setting group hidden field value:", selectedIds.join(","));
+                        $("#change-group-modal").modal("show");
+                    } else {
+                        toastr.warning("Please select at least one task to update group.");
+                    }
+                }
+            }'
+        ],
+        [
+            'text' => '<i class="fas fa-tasks" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Bulk Update Task"></i>',
+            'className' => 'btn btn-light-primary bulk-task-update-btn',
+            'attr' => ['id' => 'bulk-task-update-btn', 'disabled' => 'disabled'],
+            'action' => 'function(e, dt, node, config) {
+                if (!$(node).attr("disabled")) {
+                    let selectedIds = $(".task-checkbox:checked").map(function() { 
+                        return this.value; 
+                    }).get();
+                    console.log("Bulk Task Update Button clicked - Selected IDs:", selectedIds);
+                    if (selectedIds.length > 0) {
+                        $("#selected-task-ids-task").val(selectedIds.join(","));
+                        console.log("Setting task hidden field value:", selectedIds.join(","));
+                        $("#change-task-modal").modal("show");
+                    } else {
+                        toastr.warning("Please select at least one task to update task.");
+                    }
+                }
+            }'
+        ],
 
             // [
 

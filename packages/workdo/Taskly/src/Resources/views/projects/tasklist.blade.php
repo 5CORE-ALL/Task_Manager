@@ -1962,6 +1962,76 @@
   </div>
 </div>
 
+{{-- <!-- Change Group Modal --> --}}
+<div class="modal fade" id="change-group-modal" tabindex="-1" aria-labelledby="changeGroupModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);">
+      <div class="modal-header" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; border-bottom: none; border-radius: 15px 15px 0 0;">
+        <h5 class="modal-title" id="changeGroupModalLabel">
+          <i class="fas fa-layer-group me-2"></i>
+          Update Group for Selected Tasks
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding: 2rem;">
+        <form id="change-group-form">
+          @csrf
+          <input type="hidden" id="selected-task-ids-group" name="task_ids">
+          <div class="mb-3">
+            <label for="group-input" class="form-label">Enter New Group Name</label>
+            <input type="text" class="form-control" id="group-input" name="group" placeholder="Enter group name (leave empty to clear)">
+          </div>
+          <div class="alert alert-info">
+            <small><i class="fas fa-info-circle me-1"></i> This will update the group for all selected tasks. Leave empty to clear the group.</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1rem 2rem;">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-info" id="update-group-btn">
+          <i class="fas fa-save me-1"></i>
+          Update Group
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- <!-- Change Task Modal --> --}}
+<div class="modal fade" id="change-task-modal" tabindex="-1" aria-labelledby="changeTaskModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);">
+      <div class="modal-header" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; border-bottom: none; border-radius: 15px 15px 0 0;">
+        <h5 class="modal-title" id="changeTaskModalLabel">
+          <i class="fas fa-tasks me-2"></i>
+          Update Task for Selected Tasks
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding: 2rem;">
+        <form id="change-task-form">
+          @csrf
+          <input type="hidden" id="selected-task-ids-task" name="task_ids">
+          <div class="mb-3">
+            <label for="task-input" class="form-label">Enter New Task Title</label>
+            <input type="text" class="form-control" id="task-input" name="title" placeholder="Enter task title" required>
+          </div>
+          <div class="alert alert-info">
+            <small><i class="fas fa-info-circle me-1"></i> This will update the task title for all selected tasks.</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1rem 2rem;">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="update-task-btn">
+          <i class="fas fa-save me-1"></i>
+          Update Task
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 @push('scripts')
     @include('layouts.includes.datatable-js')
     {{ $dataTable->scripts() }}
@@ -4646,7 +4716,7 @@ $(document).ready(function() {
                     $('#selected-task-ids-assignee').val('');
                     $('.task-checkbox').prop('checked', false);
                     $('#select-all').prop('checked', false);
-                    $('#delete-btn, #duplicate-btn, #change-assignor-btn, #change-assignee-btn').prop('disabled', true);
+                    $('#delete-btn, #duplicate-btn, #change-assignor-btn, #change-assignee-btn, #bulk-group-update-btn, #bulk-task-update-btn').prop('disabled', true);
                     
                     // Re-enable button
                     $button.prop('disabled', false).html(originalHtml);
@@ -5152,7 +5222,7 @@ $('#update-priority-btn').on('click', function() {
                 $('#selected-task-ids-priority').val('');
                 $('.task-checkbox').prop('checked', false);
                 $('#select-all').prop('checked', false);
-                $('#delete-btn, #duplicate-btn, #change-assignor-btn, #change-assignee-btn, #change-etc-btn, #change-date-btn, #change-priority-btn').prop('disabled', true);
+                    $('#delete-btn, #duplicate-btn, #change-assignor-btn, #change-assignee-btn, #change-etc-btn, #change-date-btn, #change-priority-btn, #bulk-group-update-btn, #bulk-task-update-btn').prop('disabled', true);
             } else {
                 if (typeof show_toastr === 'function') {
                     show_toastr('Error', response.message, 'error');
@@ -5796,6 +5866,187 @@ $(document).on('click', '#update-priority-btn', function(e) {
         complete: function() {
             // Re-enable button
             $('#update-priority-btn').prop('disabled', false).html('<i class="fas fa-save me-1"></i> Update Priority');
+        }
+    });
+});
+
+// Bulk Group Update functionality
+$(document).on('click', '#update-group-btn', function(e) {
+    e.preventDefault();
+    
+    var groupValue = $('#group-input').val();
+    var taskIds = $('#selected-task-ids-group').val();
+    
+    if (!taskIds) {
+        toastr.error('No tasks selected.');
+        return;
+    }
+    
+    // Disable button to prevent double submission
+    $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Updating...');
+    
+    // Submit the form via AJAX
+    $.ajax({
+        url: '{{ route("projecttask.bulkUpdateGroup") }}',
+        type: 'POST',
+        data: {
+            task_ids: JSON.stringify(taskIds.split(',').map(id => parseInt(id.trim())).filter(id => id > 0)),
+            group: groupValue || null,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if (response.is_success) {
+                // Show success message using consistent pattern
+                if (typeof toastrs === 'function') {
+                    toastrs('Success', response.message, 'success');
+                } else if (typeof show_toastr === 'function') {
+                    show_toastr('Success', response.message, 'success');
+                } else {
+                    toastr.success(response.message);
+                }
+                
+                $('#change-group-modal').modal('hide');
+                
+                // Reset form
+                $('#change-group-form')[0].reset();
+                
+                // Reload the DataTable
+                if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                    $('#projects-task-table').DataTable().ajax.reload();
+                }
+                
+                // Clear selections
+                $('.task-checkbox').prop('checked', false);
+                $('.select-all-tasks').prop('checked', false);
+                
+                // Update task counts
+                if (typeof getTaskCount === 'function') {
+                    getTaskCount();
+                }
+            } else {
+                // Show error message using consistent pattern
+                if (typeof toastrs === 'function') {
+                    toastrs('Error', response.message, 'error');
+                } else if (typeof show_toastr === 'function') {
+                    show_toastr('Error', response.message, 'error');
+                } else {
+                    toastr.error(response.message);
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error updating group:', error);
+            let errorMessage = 'An error occurred while updating group.';
+            
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            }
+            
+            // Show error message using consistent pattern
+            if (typeof toastrs === 'function') {
+                toastrs('Error', errorMessage, 'error');
+            } else if (typeof show_toastr === 'function') {
+                show_toastr('Error', errorMessage, 'error');
+            } else {
+                toastr.error(errorMessage);
+            }
+        },
+        complete: function() {
+            // Re-enable button
+            $('#update-group-btn').prop('disabled', false).html('<i class="fas fa-save me-1"></i> Update Group');
+        }
+    });
+});
+
+// Bulk Task Update functionality
+$(document).on('click', '#update-task-btn', function(e) {
+    e.preventDefault();
+    
+    var taskTitle = $('#task-input').val();
+    var taskIds = $('#selected-task-ids-task').val();
+    
+    if (!taskTitle || taskTitle.trim() === '') {
+        toastr.error('Please enter a task title.');
+        return;
+    }
+    
+    if (!taskIds) {
+        toastr.error('No tasks selected.');
+        return;
+    }
+    
+    // Disable button to prevent double submission
+    $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Updating...');
+    
+    // Submit the form via AJAX
+    $.ajax({
+        url: '{{ route("projecttask.bulkUpdateTask") }}',
+        type: 'POST',
+        data: {
+            task_ids: JSON.stringify(taskIds.split(',').map(id => parseInt(id.trim())).filter(id => id > 0)),
+            title: taskTitle.trim(),
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if (response.is_success) {
+                // Show success message using consistent pattern
+                if (typeof toastrs === 'function') {
+                    toastrs('Success', response.message, 'success');
+                } else if (typeof show_toastr === 'function') {
+                    show_toastr('Success', response.message, 'success');
+                } else {
+                    toastr.success(response.message);
+                }
+                
+                $('#change-task-modal').modal('hide');
+                
+                // Reset form
+                $('#change-task-form')[0].reset();
+                
+                // Reload the DataTable
+                if ($.fn.DataTable.isDataTable('#projects-task-table')) {
+                    $('#projects-task-table').DataTable().ajax.reload();
+                }
+                
+                // Clear selections
+                $('.task-checkbox').prop('checked', false);
+                $('.select-all-tasks').prop('checked', false);
+                
+                // Update task counts
+                if (typeof getTaskCount === 'function') {
+                    getTaskCount();
+                }
+            } else {
+                // Show error message using consistent pattern
+                if (typeof toastrs === 'function') {
+                    toastrs('Error', response.message, 'error');
+                } else if (typeof show_toastr === 'function') {
+                    show_toastr('Error', response.message, 'error');
+                } else {
+                    toastr.error(response.message);
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error updating task:', error);
+            let errorMessage = 'An error occurred while updating task.';
+            
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            }
+            
+            // Show error message using consistent pattern
+            if (typeof toastrs === 'function') {
+                toastrs('Error', errorMessage, 'error');
+            } else if (typeof show_toastr === 'function') {
+                show_toastr('Error', errorMessage, 'error');
+            } else {
+                toastr.error(errorMessage);
+            }
+        },
+        complete: function() {
+            // Re-enable button
+            $('#update-task-btn').prop('disabled', false).html('<i class="fas fa-save me-1"></i> Update Task');
         }
     });
 });

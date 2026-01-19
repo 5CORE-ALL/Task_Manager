@@ -2545,6 +2545,134 @@ public function bulkUpdateStatus(Request $request)
     }
 }
 
+public function bulkUpdateGroup(Request $request)
+{
+    try {
+        $taskIds = $request->input('task_ids');
+        $group = $request->input('group');
+
+        if (empty($taskIds)) {
+            return response()->json([
+                'is_success' => false,
+                'message' => 'No tasks selected'
+            ], 400);
+        }
+
+        // Parse task IDs if they come as JSON string
+        if (is_string($taskIds)) {
+            $taskIds = json_decode($taskIds, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json([
+                    'is_success' => false,
+                    'message' => 'Invalid task IDs format'
+                ], 400);
+            }
+        }
+
+        // Ensure taskIds is an array and filter out empty/invalid values
+        if (!is_array($taskIds)) {
+            $taskIds = [];
+        }
+        $taskIds = array_filter($taskIds, function($id) {
+            return is_numeric($id) && $id > 0;
+        });
+        $taskIds = array_map('intval', $taskIds);
+
+        if (empty($taskIds)) {
+            return response()->json([
+                'is_success' => false,
+                'message' => 'No valid task IDs provided'
+            ], 400);
+        }
+
+        // Prepare update data - allow empty string to clear group
+        $updateData = ['group' => $group ?? null];
+
+        // Update group for all selected tasks
+        $updatedCount = Task::whereIn('id', $taskIds)
+            ->where('workspace', getActiveWorkSpace())
+            ->update($updateData);
+
+        return response()->json([
+            'is_success' => true,
+            'message' => "Group updated successfully for {$updatedCount} task(s)",
+            'updated_count' => $updatedCount
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'is_success' => false,
+            'message' => 'An error occurred: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+public function bulkUpdateTask(Request $request)
+{
+    try {
+        $taskIds = $request->input('task_ids');
+        $title = $request->input('title');
+
+        if (empty($taskIds)) {
+            return response()->json([
+                'is_success' => false,
+                'message' => 'No tasks selected'
+            ], 400);
+        }
+
+        if (empty($title) || trim($title) === '') {
+            return response()->json([
+                'is_success' => false,
+                'message' => 'Task title is required'
+            ], 400);
+        }
+
+        // Parse task IDs if they come as JSON string
+        if (is_string($taskIds)) {
+            $taskIds = json_decode($taskIds, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json([
+                    'is_success' => false,
+                    'message' => 'Invalid task IDs format'
+                ], 400);
+            }
+        }
+
+        // Ensure taskIds is an array and filter out empty/invalid values
+        if (!is_array($taskIds)) {
+            $taskIds = [];
+        }
+        $taskIds = array_filter($taskIds, function($id) {
+            return is_numeric($id) && $id > 0;
+        });
+        $taskIds = array_map('intval', $taskIds);
+
+        if (empty($taskIds)) {
+            return response()->json([
+                'is_success' => false,
+                'message' => 'No valid task IDs provided'
+            ], 400);
+        }
+
+        // Update title for all selected tasks
+        $updatedCount = Task::whereIn('id', $taskIds)
+            ->where('workspace', getActiveWorkSpace())
+            ->update(['title' => trim($title)]);
+
+        return response()->json([
+            'is_success' => true,
+            'message' => "Task title updated successfully for {$updatedCount} task(s)",
+            'updated_count' => $updatedCount
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'is_success' => false,
+            'message' => 'An error occurred: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
     public function inlineUpdate(Request $request)
     {
         $taskId = $request->task_id;

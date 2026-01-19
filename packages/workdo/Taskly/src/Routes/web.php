@@ -87,6 +87,8 @@ Route::middleware(['web','auth','verified','PlanModuleCheck:Taskly'])->group(fun
     Route::match(['get', 'post'], 'project/task-list/bulk-update-date', [ProjectController::class, 'bulkUpdateDate'])->name('projecttask.bulkUpdateDate');
     Route::match(['get', 'post'], 'project/task-list/bulk-update-priority', [ProjectController::class, 'bulkUpdatePriority'])->name('projecttask.bulkUpdatePriority');
     Route::match(['get', 'post'], 'project/task-list/bulk-update-status', [ProjectController::class, 'bulkUpdateStatus'])->name('projecttask.bulkUpdateStatus');
+    Route::match(['get', 'post'], 'project/task-list/bulk-update-group', [ProjectController::class, 'bulkUpdateGroup'])->name('projecttask.bulkUpdateGroup');
+    Route::match(['get', 'post'], 'project/task-list/bulk-update-task', [ProjectController::class, 'bulkUpdateTask'])->name('projecttask.bulkUpdateTask');
     Route::get('project/task-list/inline-edit', [ProjectController::class,'inlineUpdate'])->name('projecttask.inlineEdit');
     Route::post('projects/task-member/{cid?}', [ProjectController::class,'TaskMember'])->name('tasks.members');
     Route::get('project/task-count', [ProjectController::class,'taskCountData'])->name('projecttask.count');
