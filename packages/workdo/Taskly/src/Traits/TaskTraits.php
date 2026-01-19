@@ -50,6 +50,7 @@ trait TaskTraits
             $autoMatetaskArr['task_type'] ="automate_task";
             $autoMatetaskArr['automate_task_id'] = $autoMatetask->id;
             $autoMatetaskArr['is_automate_task'] =1;
+            $autoMatetaskArr['is_missed'] = 0; // Set to 0 so task appears on task board (tasks with is_automate_task=1 AND is_missed=1 are excluded)
              $autoMatetaskArr['start_date'] =$todayTime;
             $autoMatetaskArr['workspace'] = $currentWorkspace; // Ensure workspace is set
           

@@ -28,14 +28,23 @@ $todayStart = $now->copy()->startOfDay();
 
 $filterEmail = 'software2@5core.com';
 
+// Force trigger option: set to true to re-trigger even if task was already created today
+$forceTrigger = isset($argv[1]) && ($argv[1] === '--force' || $argv[1] === '-f');
+
 echo "========================================\n";
-echo "One-Time Task Trigger (DEBUG MODE)\n";
+echo "Automated Tasks Trigger (DEBUG MODE)\n";
+echo "⚠ This script ONLY processes AUTOMATED TASKS (from automate_tasks table)\n";
 echo "Filter: Only tasks for {$filterEmail}\n";
+if ($forceTrigger) {
+    echo "⚠ FORCE MODE: Will re-trigger even if already created today\n";
+    echo "  (Will delete existing automated task and create a new one)\n";
+}
 echo "Current Time: " . $now->toDateTimeString() . "\n";
 echo "Date Start: " . $todayStart->toDateTimeString() . "\n";
 echo "========================================\n\n";
 
 // Get all active automate tasks filtered by email
+// NOTE: This ONLY processes tasks from the automate_tasks table, NOT regular manual tasks
 // Check if email is in assign_to (comma-separated) or assignor matches
 $allTasks = AutomateTask::where('is_pause', 0)
     ->where(function($query) use ($filterEmail) {
@@ -77,7 +86,7 @@ foreach ($allTasks as $autoTask) {
             ->where('workspace', $autoTaskWorkspace)
             ->first();
         
-        if ($existingTaskToday) {
+        if ($existingTaskToday && !$forceTrigger) {
             echo sprintf("SKIP: Already triggered today\n");
             echo "  Existing Task ID: {$existingTaskToday->id}\n";
             echo "  Created At: {$existingTaskToday->created_at}\n";
@@ -151,6 +160,12 @@ foreach ($allTasks as $autoTask) {
             
             $skippedCount++;
             continue;
+        } elseif ($existingTaskToday && $forceTrigger) {
+            echo "⚠ FORCE MODE: Task already exists today, deleting it to re-trigger\n";
+            echo "  Existing Task ID: {$existingTaskToday->id}\n";
+            echo "  Deleting existing task...\n";
+            $existingTaskToday->delete();
+            echo "  ✓ Existing task deleted\n";
         }
         
         // DEBUG: Check Stage availability
@@ -263,6 +278,27 @@ echo "  Failed to Create: {$failedCount}\n";
 echo "  Skipped (already triggered today): {$skippedCount}\n";
 echo "  Errors/Exceptions: {$errorCount}\n";
 echo str_repeat("=", 60) . "\n";
+
+// Fix existing tasks that have is_missed=1 (they won't appear on task board)
+echo "\nFIXING EXISTING TASKS: Updating tasks with is_automate_task=1 AND is_missed=1...\n";
+$brokenTasks = Task::where('is_automate_task', 1)
+    ->where('is_missed', 1)
+    ->whereNull('deleted_at')
+    ->get();
+
+if ($brokenTasks->count() > 0) {
+    echo "Found {$brokenTasks->count()} task(s) that need fixing:\n";
+    $fixedCount = 0;
+    foreach ($brokenTasks as $brokenTask) {
+        echo "  Fixing Task ID: {$brokenTask->id} (AutomateTask ID: {$brokenTask->automate_task_id})\n";
+        $brokenTask->is_missed = 0;
+        $brokenTask->save();
+        $fixedCount++;
+    }
+    echo "✓ Fixed {$fixedCount} task(s). They should now appear on the task board.\n";
+} else {
+    echo "No tasks need fixing.\n";
+}
 
 // Additional diagnostic query
 echo "\nDIAGNOSTIC: Checking all tasks created today for {$filterEmail}...\n";
