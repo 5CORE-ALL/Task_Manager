@@ -2158,11 +2158,68 @@ public function bulkAction(Request $request)
 
     // Server-side permission check for delete action
     if ($actionType == 'delete') {
+        $currentWorkspace = getActiveWorkSpace();
         $allowedEmails = ['president@5core.com', 'tech-support@5core.com', 'mgr-advertisement@5core.com', 'mgr-content@5core.com','sjoy7486@gmail.com','sr.manager@5core.com','ritu.kaur013@gmail.com','support@5core.com','mgr-operations@5core.com','inventory@5core.com'];
+        
+        // Get all tasks to be deleted
+        $tasks = Task::whereIn('id', $selectedIds)->get();
+        
+        // Separate "Done" tasks from other tasks
+        $doneTasks = $tasks->filter(function($task) {
+            return strtolower(trim($task->status)) === 'done';
+        });
+        
+        $otherTasks = $tasks->filter(function($task) {
+            return strtolower(trim($task->status)) !== 'done';
+        });
+        
+        // Change "Done" tasks to "Archived" before deleting
+        if ($doneTasks->count() > 0) {
+            // Find or create "Archived" stage
+            $archivedStage = Stage::where('workspace_id', '=', $currentWorkspace)
+                ->whereRaw('LOWER(TRIM(name)) = ?', ['archived'])
+                ->first();
+            
+            if (!$archivedStage) {
+                // Create "Archived" stage if it doesn't exist
+                $maxOrder = Stage::where('workspace_id', '=', $currentWorkspace)->max('order') ?? 0;
+                $archivedStage = Stage::create([
+                    'name' => 'Archived',
+                    'color' => '#808080', // Gray color for archived
+                    'workspace_id' => $currentWorkspace,
+                    'complete' => true,
+                    'order' => $maxOrder + 1,
+                    'created_by' => Auth::id(),
+                ]);
+            }
+            
+            // Update "Done" tasks to "Archived" status before deletion
+            foreach ($doneTasks as $task) {
+                $oldStatus = $task->status;
+                $task->status = $archivedStage->name;
+                $task->save();
+                
+                // Log activity
+                ActivityLog::create([
+                    'user_id' => Auth::id(),
+                    'user_type' => get_class(Auth::user()),
+                    'project_id' => $task->project_id,
+                    'log_type' => 'Move',
+                    'remark' => json_encode([
+                        'title' => $task->title,
+                        'old_status' => $oldStatus,
+                        'new_status' => $archivedStage->name,
+                    ]),
+                ]);
+            }
+        }
+        
+        // Get all task IDs (including Done tasks that are now Archived)
+        $allTaskIds = $tasks->pluck('id')->toArray();
         
         // Check if user is in allowed emails list (can delete all tasks)
         if (in_array(Auth::user()->email, $allowedEmails)) {
-            Task::whereIn('id', $selectedIds)->update([
+            Task::whereIn('id', $allTaskIds)->update([
                 'deleted_at' => date('Y-m-d H:i:s'),
                 'delete_rating' => $deleteRating,
                 'delete_feedback' => $deleteFeedback
@@ -2172,12 +2229,12 @@ public function bulkAction(Request $request)
             $userEmail = Auth::user()->email;
             
             // Get tasks where user is assignor
-            $userAssignorTasks = Task::whereIn('id', $selectedIds)
+            $userAssignorTasks = Task::whereIn('id', $allTaskIds)
                 ->whereRaw("FIND_IN_SET(?, assignor)", [$userEmail])
                 ->get();
             
 
-            if ($userAssignorTasks->count() != count($selectedIds)) {
+            if ($userAssignorTasks->count() != count($allTaskIds)) {
                 return response()->json([
                     'is_success' => false,
                     'message' => __('Permission denied - You can only delete tasks where you are the assignor'),
@@ -2185,7 +2242,7 @@ public function bulkAction(Request $request)
             }
             
             // Delete only the tasks where user is assignor
-            Task::whereIn('id', $selectedIds)
+            Task::whereIn('id', $allTaskIds)
                 ->whereRaw("FIND_IN_SET(?, assignor)", [$userEmail])
                 ->update([
                     'deleted_at' => date('Y-m-d H:i:s'),
@@ -3045,8 +3102,22 @@ public function bulkUpdateStatus(Request $request)
     $task = Task::find($taskID);
     $taskTitle = $task ? $task->title : 'Unknown Task';
     
-    // Check authorization for "Done" tasks created under flag raise management
-    if ($task && strtolower($task->status) === 'done') {
+    if (!$task) {
+        return response()->json([
+            'status' => false,
+            'response_code' => 404,
+            'message' => __('Task not found.'),
+        ], 404);
+    }
+    
+    $currentWorkspace = $task->workspace ?? getActiveWorkSpace();
+    $taskStatus = strtolower(trim($task->status));
+    
+    // If task status is "Done", change it to "Archived" before deleting
+    if ($taskStatus === 'done') {
+        \Log::info('Task status is "Done", changing to "Archived" before deletion. Task ID: ' . $taskID);
+        
+        // Check authorization for "Done" tasks created under flag raise management
         if ($this->isTaskFromFlagRaise($task)) {
             $user = Auth::user();
             // Only users with full access to flag raise management can delete
@@ -3058,6 +3129,47 @@ public function bulkUpdateStatus(Request $request)
                 ], 403);
             }
         }
+        
+        // Find or create "Archived" stage
+        $archivedStage = Stage::where('workspace_id', '=', $currentWorkspace)
+            ->whereRaw('LOWER(TRIM(name)) = ?', ['archived'])
+            ->first();
+        
+        if (!$archivedStage) {
+            // Create "Archived" stage if it doesn't exist
+            $maxOrder = Stage::where('workspace_id', '=', $currentWorkspace)->max('order') ?? 0;
+            $archivedStage = Stage::create([
+                'name' => 'Archived',
+                'color' => '#808080', // Gray color for archived
+                'workspace_id' => $currentWorkspace,
+                'complete' => true,
+                'order' => $maxOrder + 1,
+                'created_by' => Auth::id(),
+            ]);
+            \Log::info('Created "Archived" stage for workspace: ' . $currentWorkspace);
+        }
+        
+        // Update task status to "Archived" before deletion
+        $oldStatus = $task->status;
+        $task->status = $archivedStage->name;
+        $task->save();
+        
+        // Log activity
+        $user = Auth::user();
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'user_type' => get_class($user),
+            'project_id' => $task->project_id,
+            'log_type' => 'Move',
+            'remark' => json_encode([
+                'title' => $task->title,
+                'old_status' => $oldStatus,
+                'new_status' => $archivedStage->name,
+            ]),
+        ]);
+        
+        // Fire update event
+        event(new UpdateTaskStage($request, $task));
     }
     
     // Check if this is a staging task and assign the next one

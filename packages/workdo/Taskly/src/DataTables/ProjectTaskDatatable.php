@@ -1140,9 +1140,16 @@ if ($toggleFilter === 'overdue') {
             });
     });
 } elseif ($toggleFilter === 'archived') {
-    // Show tasks that are DONE AND DELETED
-    $task->where('tasks.status', 'Done')
-         ->whereNotNull('tasks.deleted_at');
+    // Show tasks that are ARCHIVED (including deleted ones)
+    // This includes tasks that were "Done" and then changed to "Archived" before deletion
+    $task->where(function($query) {
+        $query->where('tasks.status', 'Archived')
+              ->orWhere(function($q) {
+                  // Also include old "Done" tasks that were deleted (for backward compatibility)
+                  $q->where('tasks.status', 'Done')
+                    ->whereNotNull('tasks.deleted_at');
+              });
+    });
 } elseif ($toggleFilter === 'missing') {
     // Show tasks that are missed (same logic as task-missed-list page)
     // Tasks where is_missed = 1 OR (due_date < now AND status != 'Done')
